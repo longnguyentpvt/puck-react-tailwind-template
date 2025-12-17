@@ -1,5 +1,6 @@
 import { Button } from "./blocks/Button";
 import { Card } from "./blocks/Card";
+import { Carousel } from "./blocks/Carousel";
 import { Grid } from "./blocks/Grid";
 import { Heading } from "./blocks/Heading";
 import { Flex } from "./blocks/Flex";
@@ -26,7 +27,7 @@ export const conf: UserConfig = {
     },
     interactive: {
       title: "Actions",
-      components: ["Button"],
+      components: ["Button", "Carousel"],
     },
     other: {
       title: "Other",
@@ -36,6 +37,7 @@ export const conf: UserConfig = {
   components: {
     Button,
     Card,
+    Carousel,
     Grid,
     Heading,
     Flex,

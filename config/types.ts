@@ -1,6 +1,7 @@
 import { Config, Data } from "@measured/puck";
 import { ButtonProps } from "./blocks/Button";
 import { CardProps } from "./blocks/Card";
+import { CarouselProps } from "./blocks/Carousel";
 import { GridProps } from "./blocks/Grid";
 import { HeadingProps } from "./blocks/Heading";
 import { FlexProps } from "./blocks/Flex";
@@ -18,6 +19,7 @@ export type { RootProps } from "./root";
 export type Components = {
   Button: ButtonProps;
   Card: CardProps;
+  Carousel: CarouselProps;
   Grid: GridProps;
   Heading: HeadingProps;
   Flex: FlexProps;

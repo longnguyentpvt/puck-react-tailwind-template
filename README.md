@@ -1,3 +1,11 @@
+# Scope
+This repository is to building a template for UI builder by drag and drop and simple traditional CMS. Techniques applied:
+- Puck
+- NextJS
+- Tailwind
+- Shadcn UI components
+
+
 # `next` recipe
 
 The `next` recipe showcases one of the most powerful ways to implement Puck using to provide an authoring tool for any route in your Next app.

@@ -1,16 +1,13 @@
 import React from "react";
-import { ComponentConfig, Slot } from "@/core/types";
-import { Section } from "../../components/Section";
-import { withLayout } from "../../components/Layout";
+import { ComponentConfig } from "@measured/puck";
+import type { Slot } from "@measured/puck";
+import { Section } from "@/config/components/Section";
+import { withLayout } from "@/config/components/Layout";
 
 export type GridProps = {
   numColumns: number;
   gap: number;
   items: Slot;
-};
-
-const CustomSlot = (props: any) => {
-  return <span {...props} />;
 };
 
 export const GridInternal: ComponentConfig<GridProps> = {
@@ -38,15 +35,15 @@ export const GridInternal: ComponentConfig<GridProps> = {
   render: ({ gap, numColumns, items: Items }) => {
     return (
       <Section>
-        <Items
-          as={CustomSlot}
-          disallow={["Hero", "Stats"]}
+        <div
           className="flex flex-col w-auto md:grid"
           style={{
             gap,
             gridTemplateColumns: `repeat(${numColumns}, 1fr)`,
           }}
-        />
+        >
+          <Items />
+        </div>
       </Section>
     );
   },

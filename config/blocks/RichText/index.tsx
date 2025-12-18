@@ -1,7 +1,7 @@
 import React from "react";
-import { ComponentConfig } from "@/core/types";
-import { WithLayout, withLayout } from "../../components/Layout";
-import { Section } from "../../components/Section";
+import { ComponentConfig } from "@measured/puck";
+import { WithLayout, withLayout } from "@/config/components/Layout";
+import { Section } from "@/config/components/Section";
 
 export type RichTextProps = WithLayout<{
   richtext?: string;

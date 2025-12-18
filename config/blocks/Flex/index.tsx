@@ -1,7 +1,8 @@
 import React from "react";
-import { ComponentConfig, Slot } from "@/core/types";
-import { Section } from "../../components/Section";
-import { WithLayout, withLayout } from "../../components/Layout";
+import { ComponentConfig } from "@measured/puck";
+import type { Slot } from "@measured/puck";
+import { Section } from "@/config/components/Section";
+import { WithLayout, withLayout } from "@/config/components/Layout";
 
 export type FlexProps = WithLayout<{
   justifyContent: "start" | "center" | "end";
@@ -60,7 +61,7 @@ const FlexInternal: ComponentConfig<FlexProps> = {
   render: ({ justifyContent, direction, gap, wrap, items: Items }) => {
     return (
       <Section style={{ height: "100%" }}>
-        <Items
+        <div
           className="flex flex-wrap h-full"
           style={{
             justifyContent,
@@ -68,8 +69,9 @@ const FlexInternal: ComponentConfig<FlexProps> = {
             gap,
             flexWrap: wrap,
           }}
-          disallow={["Hero", "Stats"]}
-        />
+        >
+          <Items />
+        </div>
       </Section>
     );
   },

@@ -1,4 +1,5 @@
 import { Config, Data } from "@measured/puck";
+import { BannerProps } from "./blocks/Banner";
 import { ButtonProps } from "./blocks/Button";
 import { CardProps } from "./blocks/Card";
 import { CarouselProps } from "./blocks/Carousel";
@@ -17,6 +18,7 @@ import { RichTextProps } from "./blocks/RichText";
 export type { RootProps } from "./root";
 
 export type Components = {
+  Banner: BannerProps;
   Button: ButtonProps;
   Card: CardProps;
   Carousel: CarouselProps;

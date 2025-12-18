@@ -1,7 +1,6 @@
 import React from "react";
-import { Slot } from "@/core/types";
-import { Section } from "../../components/Section";
-import { PuckComponent } from "@/core/types";
+import type { Slot, PuckComponent } from "@measured/puck";
+import { Section } from "@/config/components/Section";
 
 export type TemplateProps = {
   template: string;

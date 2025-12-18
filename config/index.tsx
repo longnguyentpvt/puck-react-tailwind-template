@@ -1,3 +1,4 @@
+import { Banner } from "./blocks/Banner";
 import { Button } from "./blocks/Button";
 import { Card } from "./blocks/Card";
 import { Carousel } from "./blocks/Carousel";
@@ -27,7 +28,7 @@ export const conf: UserConfig = {
     },
     interactive: {
       title: "Actions",
-      components: ["Button", "Carousel"],
+      components: ["Banner", "Button", "Carousel"],
     },
     other: {
       title: "Other",
@@ -35,6 +36,7 @@ export const conf: UserConfig = {
     },
   },
   components: {
+    Banner,
     Button,
     Card,
     Carousel,

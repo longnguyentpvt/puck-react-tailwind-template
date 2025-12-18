@@ -2,6 +2,8 @@
 
 import React from "react";
 import { ComponentConfig } from "@measured/puck";
+import type { Slot } from "@measured/puck";
+import Autoplay from "embla-carousel-autoplay";
 import {
   Carousel as ShadcnCarousel,
   CarouselContent,
@@ -9,67 +11,24 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { WithLayout, withLayout } from "../../components/Layout";
+import { WithLayout, withLayout } from "@/config/components/Layout";
 
 export type CarouselProps = WithLayout<{
-  items: {
-    imageUrl: string;
-    alt: string;
-    title?: string;
-    description?: string;
-  }[];
+  slides: Array<{
+    content: Slot;
+  }>;
   showControls: boolean;
+  navigationPosition: "overlay" | "outside";
   orientation: "horizontal" | "vertical";
   itemsPerSlide: 1 | 2 | 3 | 4;
+  fullWidth: boolean;
+  autoplay: boolean;
+  autoplayInterval: string;
 }>;
 
 const CarouselInner: ComponentConfig<CarouselProps> = {
   label: "Carousel",
   fields: {
-    items: {
-      type: "array",
-      getItemSummary: (item, i) => item.title || item.alt || `Slide #${i + 1}`,
-      defaultItemProps: {
-        imageUrl: "https://placehold.co/600x400",
-        alt: "Slide",
-        title: "",
-        description: "",
-      },
-      arrayFields: {
-        imageUrl: { 
-          type: "text",
-          label: "Image URL",
-        },
-        alt: { 
-          type: "text",
-          label: "Alt Text",
-        },
-        title: { 
-          type: "text",
-          label: "Title (optional)",
-        },
-        description: { 
-          type: "textarea",
-          label: "Description (optional)",
-        },
-      },
-    },
-    showControls: {
-      type: "radio",
-      label: "Show Navigation Controls",
-      options: [
-        { label: "Yes", value: true },
-        { label: "No", value: false },
-      ],
-    },
-    orientation: {
-      type: "radio",
-      label: "Orientation",
-      options: [
-        { label: "Horizontal", value: "horizontal" },
-        { label: "Vertical", value: "vertical" },
-      ],
-    },
     itemsPerSlide: {
       type: "select",
       label: "Items Per Slide",
@@ -80,78 +39,134 @@ const CarouselInner: ComponentConfig<CarouselProps> = {
         { label: "4", value: 4 },
       ],
     },
+    slides: {
+      type: "array",
+      label: "Slides",
+      arrayFields: {
+        content: {
+          type: "slot",
+          label: "Content",
+        },
+      },
+      getItemSummary: (item, index) => `Slide ${index + 1}`,
+    },
+    fullWidth: {
+      type: "radio",
+      label: "Width",
+      options: [
+        { label: "Full Width", value: true },
+        { label: "Contained", value: false },
+      ],
+    },
+    showControls: {
+      type: "radio",
+      label: "Show Navigation Controls",
+      options: [
+        { label: "Yes", value: true },
+        { label: "No", value: false },
+      ],
+    },
+    navigationPosition: {
+      type: "radio",
+      label: "Navigation Position",
+      options: [
+        { label: "Overlay", value: "overlay" },
+        { label: "Outside", value: "outside" },
+      ],
+    },
+    orientation: {
+      type: "radio",
+      label: "Orientation",
+      options: [
+        { label: "Horizontal", value: "horizontal" },
+        { label: "Vertical", value: "vertical" },
+      ],
+    },
+    autoplay: {
+      type: "radio",
+      label: "Autoplay",
+      options: [
+        { label: "Yes", value: true },
+        { label: "No", value: false },
+      ],
+    },
+    autoplayInterval: {
+      type: "text",
+      label: "Autoplay Interval (seconds)",
+    },
   },
   defaultProps: {
-    items: [
-      {
-        imageUrl: "https://placehold.co/800x400/3b82f6/white?text=Slide+1",
-        alt: "Slide 1",
-        title: "First Slide",
-        description: "This is the first slide",
-      },
-      {
-        imageUrl: "https://placehold.co/800x400/8b5cf6/white?text=Slide+2",
-        alt: "Slide 2",
-        title: "Second Slide",
-        description: "This is the second slide",
-      },
-      {
-        imageUrl: "https://placehold.co/800x400/ec4899/white?text=Slide+3",
-        alt: "Slide 3",
-        title: "Third Slide",
-        description: "This is the third slide",
-      },
-    ],
+    slides: [{ content: [] }],
     showControls: true,
+    navigationPosition: "overlay",
     orientation: "horizontal",
     itemsPerSlide: 1,
+    fullWidth: false,
+    autoplay: false,
+    autoplayInterval: "3",
   },
-  render: ({ items, showControls, orientation, itemsPerSlide }) => {
+  render: ({ slides, showControls, navigationPosition, orientation, itemsPerSlide, fullWidth, autoplay, autoplayInterval }) => {
     const basisClass = {
-      1: "md:basis-full",
-      2: "md:basis-1/2",
-      3: "md:basis-1/3",
-      4: "md:basis-1/4",
+      1: "basis-full",
+      2: "basis-1/2",
+      3: "basis-1/3",
+      4: "basis-1/4",
     }[itemsPerSlide];
 
+    // Group slides based on itemsPerSlide
+    const groupedSlides = [];
+    for (let i = 0; i < slides.length; i += itemsPerSlide) {
+      groupedSlides.push(slides.slice(i, i + itemsPerSlide));
+    }
+
+    const plugins = autoplay
+      ? [
+          Autoplay({
+            delay: (parseInt(autoplayInterval) || 3) * 1000,
+            stopOnInteraction: true,
+          }),
+        ]
+      : [];
+
+    const containerClass = fullWidth 
+      ? (navigationPosition === "outside" ? "px-12" : "")
+      : "max-w-5xl mx-auto px-4 md:px-12";
+
+    const navButtonClass = fullWidth && navigationPosition === "overlay" 
+      ? { prev: "left-4", next: "right-4" }
+      : { prev: "", next: "" };
+
     return (
-      <div className="w-full max-w-5xl mx-auto px-4 md:px-12">
+      <div className={`w-full ${containerClass}`}>
         <ShadcnCarousel
           opts={{
             align: "start",
             loop: true,
           }}
+          plugins={plugins}
           orientation={orientation}
           className="w-full"
         >
           <CarouselContent className="-ml-2 md:-ml-4">
-            {items.map((item, index) => (
-              <CarouselItem key={index} className={`pl-2 md:pl-4 ${basisClass}`}>
-                <div className="relative rounded-lg overflow-hidden bg-gray-100">
-                  <img
-                    src={item.imageUrl}
-                    alt={item.alt}
-                    className="w-full h-auto object-cover"
-                    loading="lazy"
-                  />
-                  {(item.title || item.description) && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/70 to-transparent p-4 md:p-6 text-white">
-                      {item.title && (
-                        <h3 className="text-xl md:text-2xl font-bold mb-1 md:mb-2">{item.title}</h3>
-                      )}
-                      {item.description && (
-                        <p className="text-xs md:text-sm opacity-90">{item.description}</p>
-                      )}
-                    </div>
-                  )}
+            {groupedSlides.map((group, groupIndex) => (
+              <CarouselItem key={groupIndex} className="pl-2 md:pl-4">
+                <div className={`flex ${orientation === "horizontal" ? "flex-row" : "flex-col"} gap-4 w-full`}>
+                  {group.map((slide, slideIndex) => {
+                    const Content = slide.content;
+                    return (
+                      <div key={slideIndex} className={`${basisClass} min-h-50`}>
+                        <Content />
+                      </div>
+                    );
+                  })}
                 </div>
               </CarouselItem>
             ))}
           </CarouselContent>
           {showControls && (
             <>
-              <CarouselPrevious />
-              <CarouselNext />
+              <CarouselPrevious className={navButtonClass.prev} />
+              <CarouselNext className={navButtonClass.next} />
             </>
           )}
         </ShadcnCarousel>

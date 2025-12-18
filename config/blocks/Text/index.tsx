@@ -1,10 +1,9 @@
 import React from "react";
 import { ALargeSmall, AlignLeft } from "lucide-react";
 import classNames from "classnames";
-
-import { ComponentConfig } from "@/core/types";
-import { Section } from "../../components/Section";
-import { WithLayout, withLayout } from "../../components/Layout";
+import { ComponentConfig } from "@measured/puck";
+import { Section } from "@/config/components/Section";
+import { WithLayout, withLayout } from "@/config/components/Layout";
 
 export type TextProps = WithLayout<{
   align: "left" | "center" | "right";

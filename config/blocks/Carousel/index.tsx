@@ -105,7 +105,9 @@ const CarouselInner: ComponentConfig<CarouselProps> = {
     autoplay: false,
     autoplayInterval: "3",
   },
-  render: ({ slides, showControls, navigationPosition, orientation, itemsPerSlide, fullWidth, autoplay, autoplayInterval }) => {
+  render: ({ slides, showControls, navigationPosition, orientation, itemsPerSlide, fullWidth, autoplay, autoplayInterval, puck }) => {
+    const isEditMode = puck.isEditing;
+    
     const basisClass = {
       1: "basis-full",
       2: "basis-1/2",
@@ -119,14 +121,16 @@ const CarouselInner: ComponentConfig<CarouselProps> = {
       groupedSlides.push(slides.slice(i, i + itemsPerSlide));
     }
 
-    const plugins = autoplay
-      ? [
-          Autoplay({
-            delay: (parseInt(autoplayInterval) || 3) * 1000,
-            stopOnInteraction: true,
-          }),
-        ]
-      : [];
+    // Use useRef to maintain plugin instance
+    const autoplayPlugin = React.useRef(
+      Autoplay({
+        delay: (parseInt(autoplayInterval) || 3) * 1000,
+        stopOnInteraction: true,
+      })
+    );
+
+    // Disable autoplay in edit mode
+    const plugins = autoplay && !isEditMode ? [autoplayPlugin.current] : [];
 
     const containerClass = fullWidth 
       ? (navigationPosition === "outside" ? "px-12" : "")
@@ -137,7 +141,12 @@ const CarouselInner: ComponentConfig<CarouselProps> = {
       : { prev: "", next: "" };
 
     return (
-      <div className={`w-full ${containerClass}`}>
+      <div className={`w-full ${containerClass} ${isEditMode ? "border-2 border-dashed border-blue-300 rounded-lg" : ""}`}>
+        {isEditMode && (
+          <div className="text-xs font-medium text-blue-600 p-2 bg-blue-50">
+            Carousel Editor - Use arrows to navigate between slides
+          </div>
+        )}
         <ShadcnCarousel
           opts={{
             align: "start",
@@ -168,6 +177,12 @@ const CarouselInner: ComponentConfig<CarouselProps> = {
               <CarouselPrevious className={navButtonClass.prev} />
               <CarouselNext className={navButtonClass.next} />
             </>
+          )}
+          {isEditMode && (
+            <div className="flex justify-center gap-2 mt-2">
+              <CarouselPrevious className="static translate-y-0" />
+              <CarouselNext className="static translate-y-0" />
+            </div>
           )}
         </ShadcnCarousel>
       </div>

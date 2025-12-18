@@ -26,9 +26,13 @@ export const conf: UserConfig = {
     typography: {
       components: ["Heading", "Text", "RichText"],
     },
+    content: {
+      title: "Content",
+      components: ["Banner", "Carousel"],
+    },
     interactive: {
       title: "Actions",
-      components: ["Banner", "Button", "Carousel"],
+      components: ["Button"],
     },
     other: {
       title: "Other",

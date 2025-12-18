@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { ComponentConfig } from "@measured/puck";
 import type { Slot } from "@measured/puck";
@@ -102,14 +100,32 @@ const BannerInner: ComponentConfig<BannerProps> = {
       label: "Content Max Width",
       options: [
         { label: "Full", value: "full" },
-        { label: "Large (1200px)", value: "large" },
-        { label: "Medium (800px)", value: "medium" },
-        { label: "Small (600px)", value: "small" },
+        { label: "7XL (1280px)", value: "7xl" },
+        { label: "6XL (1152px)", value: "6xl" },
+        { label: "5XL (1024px)", value: "5xl" },
+        { label: "4XL (896px)", value: "4xl" },
+        { label: "3XL (768px)", value: "3xl" },
+        { label: "2XL (672px)", value: "2xl" },
+        { label: "XL (576px)", value: "xl" },
+        { label: "LG (512px)", value: "lg" },
+        { label: "MD (448px)", value: "md" },
+        { label: "SM (384px)", value: "sm" },
       ],
     },
     contentPadding: {
-      type: "text",
+      type: "select",
       label: "Content Padding",
+      options: [
+        { label: "None", value: "0" },
+        { label: "XS (4px)", value: "1" },
+        { label: "SM (8px)", value: "2" },
+        { label: "MD (12px)", value: "3" },
+        { label: "LG (16px)", value: "4" },
+        { label: "XL (24px)", value: "6" },
+        { label: "2XL (32px)", value: "8" },
+        { label: "3XL (48px)", value: "12" },
+        { label: "4XL (64px)", value: "16" },
+      ],
     },
     content: {
       type: "slot",
@@ -126,8 +142,8 @@ const BannerInner: ComponentConfig<BannerProps> = {
     height: "medium",
     contentAlign: "center",
     contentVerticalAlign: "center",
-    contentMaxWidth: "large",
-    contentPadding: "24px",
+    contentMaxWidth: "5xl",
+    contentPadding: "6",
     content: [],
   },
   render: ({
@@ -163,12 +179,8 @@ const BannerInner: ComponentConfig<BannerProps> = {
       right: "justify-end",
     }[contentAlign];
 
-    const maxWidthClass = {
-      full: "max-w-full",
-      large: "max-w-300",
-      medium: "max-w-200",
-      small: "max-w-150",
-    }[contentMaxWidth];
+    const maxWidthClass = `max-w-${contentMaxWidth}`;
+    const paddingClass = `p-${contentPadding}`;
 
     const backgroundStyle =
       backgroundType === "image"
@@ -197,8 +209,7 @@ const BannerInner: ComponentConfig<BannerProps> = {
           />
         )}
         <div
-          className={`relative h-full flex ${alignItemsClass} ${justifyContentClass} px-4 md:px-8`}
-          style={{ padding: contentPadding }}
+          className={`relative h-full flex ${alignItemsClass} ${justifyContentClass} ${paddingClass}`}
         >
           <div className={`w-full ${maxWidthClass}`}>
             <Content />

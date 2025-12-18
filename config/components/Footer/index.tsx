@@ -46,16 +46,6 @@ const Footer = ({ children }: { children: ReactNode }) => {
           </div>
         </Section>
       </div>
-      <div className="p-16 text-center text-gray-700 bg-gray-100">
-        Made by{" "}
-        <a
-          href="https://github.com/chrisvxd"
-          target="_blank"
-          className="text-inherit no-underline font-semibold"
-        >
-          Chris Villa
-        </a>
-      </div>
     </footer>
   );
 };

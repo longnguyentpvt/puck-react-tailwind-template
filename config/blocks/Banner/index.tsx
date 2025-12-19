@@ -13,7 +13,7 @@ export type BannerProps = WithLayout<{
   height: "small" | "medium" | "large" | "full";
   contentAlign: "left" | "center" | "right";
   contentVerticalAlign: "top" | "center" | "bottom";
-  contentMaxWidth: "full" | "large" | "medium" | "small";
+  contentMaxWidth: "full" | "7xl" | "6xl" | "5xl" | "4xl" | "3xl" | "2xl" | "xl" | "lg" | "md" | "sm";
   contentPadding: string;
   content: Slot;
 }>;

@@ -1,5 +1,7 @@
+import { Banner } from "./blocks/Banner";
 import { Button } from "./blocks/Button";
 import { Card } from "./blocks/Card";
+import { Carousel } from "./blocks/Carousel";
 import { Grid } from "./blocks/Grid";
 import { Heading } from "./blocks/Heading";
 import { Flex } from "./blocks/Flex";
@@ -22,6 +24,10 @@ const conf: UserConfig = {
     typography: {
       components: ["Heading", "Text"],
     },
+    content: {
+      title: "Content",
+      components: ["Banner", "Carousel"],
+    },
     interactive: {
       title: "Actions",
       components: ["Button"],
@@ -32,8 +38,10 @@ const conf: UserConfig = {
     },
   },
   components: {
+    Banner,
     Button,
     Card,
+    Carousel,
     Grid,
     Heading,
     Flex,
@@ -43,6 +51,12 @@ const conf: UserConfig = {
     Text,
     Space,
     RichText,
+    HeadingBlock: {
+      label: "Heading",
+      fields: { title: { type: "text" } },
+      defaultProps: { title: "Heading" },
+      render: ({ title }) => <h2>{title}</h2>,
+    },
   },
 };
 

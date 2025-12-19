@@ -10,7 +10,7 @@ export type RichTextProps = WithLayout<{
 const RichTextInner: ComponentConfig<RichTextProps> = {
   fields: {
     richtext: {
-      type: "richtext",
+      type: "textarea",
     },
   },
   render: ({ richtext }) => {

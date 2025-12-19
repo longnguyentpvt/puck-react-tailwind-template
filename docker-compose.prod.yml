@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  app:
+    image: shineyup/react-template-builder:1.0.0-beta2
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URI=${DATABASE_URI}
+      - PAYLOAD_SECRET=${PAYLOAD_SECRET}
+    restart: unless-stopped

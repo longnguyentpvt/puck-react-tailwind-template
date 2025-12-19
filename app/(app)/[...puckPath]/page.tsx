@@ -13,7 +13,7 @@
 import { Client } from "./client";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { getPage } from "../../lib/get-page";
+import { getPage } from "@/lib/get-page";
 
 export async function generateMetadata({
   params,
@@ -22,9 +22,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { puckPath = [] } = await params;
   const path = `/${puckPath.join("/")}`;
+  const data = await getPage(path);
 
   return {
-    title: getPage(path)?.root.props?.title,
+    title: data?.root.props?.title || 'Page',
   };
 }
 
@@ -35,7 +36,7 @@ export default async function Page({
 }) {
   const { puckPath = [] } = await params;
   const path = `/${puckPath.join("/")}`;
-  const data = getPage(path);
+  const data = await getPage(path);
 
   if (!data) {
     return notFound();
@@ -44,6 +45,5 @@ export default async function Page({
   return <Client data={data} />;
 }
 
-// Force Next.js to produce static pages: https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config#dynamic
-// Delete this if you need dynamic rendering, such as access to headers or cookies
-export const dynamic = "force-static";
+// Changed to dynamic rendering since we're using Payload CMS
+export const dynamic = "force-dynamic";

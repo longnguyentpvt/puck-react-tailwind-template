@@ -6,6 +6,11 @@ export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
 
   if (req.method === "GET") {
+    // Rewrite "/" to serve "/main" content (URL stays as "/")
+    if (req.nextUrl.pathname === "/") {
+      return NextResponse.rewrite(new URL("/main", req.url));
+    }
+
     // Rewrite routes that match "/[...puckPath]/edit" to "/puck/[...puckPath]"
     if (req.nextUrl.pathname.endsWith("/edit")) {
       const pathWithoutEdit = req.nextUrl.pathname.slice(

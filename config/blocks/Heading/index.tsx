@@ -63,7 +63,8 @@ const HeadingInternal: ComponentConfig<HeadingProps> = {
     text: "Heading",
     size: "m",
     layout: {
-      padding: "8px",
+      paddingTop: "2",
+      paddingBottom: "2",
     },
   },
   render: ({ align, text, size, level, colorType, presetColor, customColor }) => {

@@ -3,10 +3,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-body {
-  margin: 0;
-}
-
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -123,5 +119,13 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@utility gutter-* {
+  margin: calc(var(--spacing) * --value(integer) * -1);
+
+  & > div {
+    padding: calc(var(--spacing) * --value(integer));
   }
 }

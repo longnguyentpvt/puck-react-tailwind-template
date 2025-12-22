@@ -100,7 +100,7 @@ const FlexInternal: ComponentConfig<FlexProps> = {
     gap: "6",
     wrap: "wrap",
     layout: {
-      grow: true,
+      flex: "1",
     },
     items: [],
   },
@@ -137,9 +137,22 @@ const FlexInternal: ComponentConfig<FlexProps> = {
       "wrap-reverse": "flex-wrap-reverse",
     }[wrap];
 
+    const gutterClass = {
+      "0": "gutter-0",
+      "1": "gutter-1",
+      "2": "gutter-2",
+      "3": "gutter-3",
+      "4": "gutter-4",
+      "5": "gutter-5",
+      "6": "gutter-6",
+      "8": "gutter-8",
+      "10": "gutter-10",
+      "12": "gutter-12",
+    }[gap];
+
     return (
       <Items
-        className={`${containerClass} flex h-full ${directionClass} ${justifyClass} ${alignClass} ${wrapClass} gap-${gap}`}
+        className={`${containerClass} flex h-full ${directionClass} ${justifyClass} ${alignClass} ${wrapClass} ${gutterClass}`}
       />
     );
   },

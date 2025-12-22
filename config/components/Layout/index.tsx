@@ -15,9 +15,7 @@ type LayoutFieldProps = {
   marginRight?: string;
   spanCol?: number;
   spanRow?: number;
-  grow?: boolean;
-  shrink?: boolean;
-  basis?: "auto" | "0" | "full" | "1/2" | "1/3" | "2/3" | "1/4" | "3/4";
+  flex?: "1" | "auto" | "initial" | "none" | "1/2" | "1/3" | "2/3" | "1/4" | "3/4" | "full";
   alignSelf?: "auto" | "start" | "center" | "end" | "stretch";
 };
 
@@ -46,34 +44,20 @@ export const layoutField: ObjectField<LayoutFieldProps> = {
       min: 1,
       max: 12,
     },
-    grow: {
-      label: "Flex Grow",
-      type: "radio",
-      options: [
-        { label: "true", value: true },
-        { label: "false", value: false },
-      ],
-    },
-    shrink: {
-      label: "Flex Shrink",
-      type: "radio",
-      options: [
-        { label: "true", value: true },
-        { label: "false", value: false },
-      ],
-    },
-    basis: {
-      label: "Flex Basis",
+    flex: {
+      label: "Flex",
       type: "select",
       options: [
-        { label: "Auto", value: "auto" },
-        { label: "0", value: "0" },
-        { label: "Full", value: "full" },
-        { label: "1/2", value: "1/2" },
-        { label: "1/3", value: "1/3" },
-        { label: "2/3", value: "2/3" },
-        { label: "1/4", value: "1/4" },
-        { label: "3/4", value: "3/4" },
+        { label: "flex-1 (grow/shrink equally)", value: "1" },
+        { label: "flex-auto (grow/shrink with basis auto)", value: "auto" },
+        { label: "flex-initial (no grow, can shrink)", value: "initial" },
+        { label: "flex-none (no grow/shrink)", value: "none" },
+        { label: "basis-full (100% width)", value: "full" },
+        { label: "basis-1/2 (50% width)", value: "1/2" },
+        { label: "basis-1/3 (33% width)", value: "1/3" },
+        { label: "basis-2/3 (66% width)", value: "2/3" },
+        { label: "basis-1/4 (25% width)", value: "1/4" },
+        { label: "basis-3/4 (75% width)", value: "3/4" },
       ],
     },
     alignSelf: {
@@ -200,17 +184,19 @@ export const layoutField: ObjectField<LayoutFieldProps> = {
 
 const Layout = forwardRef<HTMLDivElement, LayoutProps>(
   ({ children, className, layout, style }, ref) => {
-    const basisClass = layout?.basis
+    const flexClass = layout?.flex
       ? {
-          auto: "basis-auto",
-          "0": "basis-0",
+          "1": "flex-1",
+          auto: "flex-auto",
+          initial: "flex-initial",
+          none: "flex-none",
           full: "basis-full",
           "1/2": "basis-1/2",
           "1/3": "basis-1/3",
           "2/3": "basis-2/3",
           "1/4": "basis-1/4",
           "3/4": "basis-3/4",
-        }[layout.basis]
+        }[layout.flex]
       : undefined;
 
     const alignSelfClass = layout?.alignSelf
@@ -327,7 +313,7 @@ const Layout = forwardRef<HTMLDivElement, LayoutProps>(
 
     return (
       <div
-        className={`${className || ""} ${basisClass || ""} ${alignSelfClass || ""} ${paddingTopClass} ${paddingBottomClass} ${marginTopClass} ${marginBottomClass} ${marginLeftClass} ${marginRightClass}`.trim()}
+        className={`${className || ""} ${flexClass || ""} ${alignSelfClass || ""} ${paddingTopClass} ${paddingBottomClass} ${marginTopClass} ${marginBottomClass} ${marginLeftClass} ${marginRightClass}`.trim()}
         style={{
           gridColumn: layout?.spanCol
             ? `span ${Math.max(Math.min(layout.spanCol, 12), 1)}`
@@ -335,8 +321,6 @@ const Layout = forwardRef<HTMLDivElement, LayoutProps>(
           gridRow: layout?.spanRow
             ? `span ${Math.max(Math.min(layout.spanRow, 12), 1)}`
             : undefined,
-          flexGrow: layout?.grow ? 1 : undefined,
-          flexShrink: layout?.shrink ? 1 : layout?.shrink === false ? 0 : undefined,
           ...style,
         }}
         ref={ref}
@@ -371,9 +355,7 @@ export function withLayout<
         marginBottom: "0",
         marginLeft: "0",
         marginRight: "0",
-        grow: false,
-        shrink: true,
-        basis: "auto",
+        flex: "initial",
         alignSelf: "auto",
         ...componentConfig.defaultProps?.layout,
       },
@@ -403,9 +385,7 @@ export function withLayout<
           layout: {
             ...layoutField,
             objectFields: {
-              grow: layoutField.objectFields.grow,
-              shrink: layoutField.objectFields.shrink,
-              basis: layoutField.objectFields.basis,
+              flex: layoutField.objectFields.flex,
               alignSelf: layoutField.objectFields.alignSelf,
               paddingTop: layoutField.objectFields.paddingTop,
               paddingBottom: layoutField.objectFields.paddingBottom,

@@ -5,6 +5,7 @@ import { BannerProps } from "./blocks/Banner";
 import { ButtonProps } from "./blocks/Button";
 import { CardProps } from "./blocks/Card";
 import { CarouselProps } from "./blocks/Carousel";
+import { DialogProps } from "./blocks/Dialog";
 import { GridProps } from "./blocks/Grid";
 import { HeadingProps } from "./blocks/Heading";
 import { FlexProps } from "./blocks/Flex";
@@ -26,6 +27,7 @@ export type Components = {
   Button: ButtonProps;
   Card: CardProps;
   Carousel: CarouselProps;
+  Dialog: DialogProps;
   Grid: GridProps;
   Heading: HeadingProps;
   Flex: FlexProps;

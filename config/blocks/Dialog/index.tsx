@@ -121,24 +121,10 @@ const DialogInner: ComponentConfig<DialogProps> = {
       full: "max-w-full",
     };
 
-    // Convert slots to components
-    const TriggerComponent = trigger || (() => (
-      <div className="text-gray-400 text-sm">
-        Drop a component here (Button, Card, etc.)
-      </div>
-    ));
-    
-    const ContentComponent = content || (() => (
-      <div className="text-gray-400 text-sm">
-        Drop components here for dialog content
-      </div>
-    ));
-    
-    const FooterComponent = footer || (() => (
-      <div className="text-gray-400 text-sm">
-        Drop components here for footer (e.g., buttons)
-      </div>
-    ));
+    // Create fallback components for empty slots
+    const TriggerSlot = trigger || (() => <div className="text-gray-400 text-sm">Drop a component here (Button, Card, etc.)</div>);
+    const ContentSlot = content || (() => <div className="text-gray-400 text-sm">Drop components here for dialog content</div>);
+    const FooterSlot = footer || (() => <div className="text-gray-400 text-sm">Drop components here for footer (e.g., buttons)</div>);
 
     // In edit mode, show a visual representation without dialog functionality
     if (isEditMode) {
@@ -154,7 +140,7 @@ const DialogInner: ComponentConfig<DialogProps> = {
                 Trigger Area (any component):
               </div>
               <div className="min-h-[40px]">
-                <TriggerComponent />
+                <TriggerSlot />
               </div>
             </div>
 
@@ -181,7 +167,7 @@ const DialogInner: ComponentConfig<DialogProps> = {
               <div className="border-t pt-3 mt-3">
                 <div className="text-xs text-gray-500 mb-2">Content Area:</div>
                 <div className="min-h-[100px] bg-gray-50 rounded p-2">
-                  <ContentComponent />
+                  <ContentSlot />
                 </div>
               </div>
 
@@ -189,7 +175,7 @@ const DialogInner: ComponentConfig<DialogProps> = {
                 <div className="border-t pt-3 mt-3">
                   <div className="text-xs text-gray-500 mb-2">Footer Area:</div>
                   <div className="min-h-[50px] bg-gray-50 rounded p-2">
-                    <FooterComponent />
+                    <FooterSlot />
                   </div>
                 </div>
               )}
@@ -204,7 +190,7 @@ const DialogInner: ComponentConfig<DialogProps> = {
       <ShadcnDialog>
         <DialogTrigger asChild>
           <div className="cursor-pointer">
-            <TriggerComponent />
+            <TriggerSlot />
           </div>
         </DialogTrigger>
         <DialogContent className={maxWidthClasses[maxWidth]}>
@@ -218,12 +204,12 @@ const DialogInner: ComponentConfig<DialogProps> = {
           )}
           
           <div className="py-4">
-            <ContentComponent />
+            <ContentSlot />
           </div>
 
           {showFooter && (
             <DialogFooter>
-              <FooterComponent />
+              <FooterSlot />
             </DialogFooter>
           )}
         </DialogContent>

@@ -2,82 +2,7 @@ import React from "react";
 import { ComponentConfig } from "@measured/puck";
 import type { Slot } from "@measured/puck";
 import { WithLayout, withLayout } from "@/config/components/Layout";
-
-// Gradient color options using Tailwind colors
-const gradientColorOptions = [
-  // Transparent options
-  { label: "Transparent", value: "transparent" },
-  
-  // Black/White with opacity
-  { label: "Black", value: "rgb(0 0 0)" },
-  { label: "Black 90%", value: "rgb(0 0 0 / 0.9)" },
-  { label: "Black 80%", value: "rgb(0 0 0 / 0.8)" },
-  { label: "Black 70%", value: "rgb(0 0 0 / 0.7)" },
-  { label: "Black 60%", value: "rgb(0 0 0 / 0.6)" },
-  { label: "Black 50%", value: "rgb(0 0 0 / 0.5)" },
-  { label: "Black 40%", value: "rgb(0 0 0 / 0.4)" },
-  { label: "Black 30%", value: "rgb(0 0 0 / 0.3)" },
-  { label: "Black 20%", value: "rgb(0 0 0 / 0.2)" },
-  { label: "Black 10%", value: "rgb(0 0 0 / 0.1)" },
-  
-  { label: "White", value: "rgb(255 255 255)" },
-  { label: "White 90%", value: "rgb(255 255 255 / 0.9)" },
-  { label: "White 80%", value: "rgb(255 255 255 / 0.8)" },
-  { label: "White 70%", value: "rgb(255 255 255 / 0.7)" },
-  { label: "White 60%", value: "rgb(255 255 255 / 0.6)" },
-  { label: "White 50%", value: "rgb(255 255 255 / 0.5)" },
-  { label: "White 40%", value: "rgb(255 255 255 / 0.4)" },
-  { label: "White 30%", value: "rgb(255 255 255 / 0.3)" },
-  { label: "White 20%", value: "rgb(255 255 255 / 0.2)" },
-  { label: "White 10%", value: "rgb(255 255 255 / 0.1)" },
-  
-  // Tailwind Gray scale
-  { label: "Gray 900", value: "rgb(17 24 39)" },
-  { label: "Gray 800", value: "rgb(31 41 55)" },
-  { label: "Gray 700", value: "rgb(55 65 81)" },
-  { label: "Gray 600", value: "rgb(75 85 99)" },
-  { label: "Gray 500", value: "rgb(107 114 128)" },
-  { label: "Gray 400", value: "rgb(156 163 175)" },
-  { label: "Gray 300", value: "rgb(209 213 219)" },
-  { label: "Gray 200", value: "rgb(229 231 235)" },
-  { label: "Gray 100", value: "rgb(243 244 246)" },
-  
-  // Tailwind Blue
-  { label: "Blue 900", value: "rgb(30 58 138)" },
-  { label: "Blue 800", value: "rgb(30 64 175)" },
-  { label: "Blue 700", value: "rgb(29 78 216)" },
-  { label: "Blue 600", value: "rgb(37 99 235)" },
-  { label: "Blue 500", value: "rgb(59 130 246)" },
-  { label: "Blue 400", value: "rgb(96 165 250)" },
-  
-  // Tailwind Red
-  { label: "Red 900", value: "rgb(127 29 29)" },
-  { label: "Red 800", value: "rgb(153 27 27)" },
-  { label: "Red 700", value: "rgb(185 28 28)" },
-  { label: "Red 600", value: "rgb(220 38 38)" },
-  { label: "Red 500", value: "rgb(239 68 68)" },
-  
-  // Tailwind Green
-  { label: "Green 900", value: "rgb(20 83 45)" },
-  { label: "Green 800", value: "rgb(22 101 52)" },
-  { label: "Green 700", value: "rgb(21 128 61)" },
-  { label: "Green 600", value: "rgb(22 163 74)" },
-  { label: "Green 500", value: "rgb(34 197 94)" },
-  
-  // Tailwind Purple
-  { label: "Purple 900", value: "rgb(88 28 135)" },
-  { label: "Purple 800", value: "rgb(107 33 168)" },
-  { label: "Purple 700", value: "rgb(126 34 206)" },
-  { label: "Purple 600", value: "rgb(147 51 234)" },
-  { label: "Purple 500", value: "rgb(168 85 247)" },
-  
-  // Tailwind Orange
-  { label: "Orange 900", value: "rgb(124 45 18)" },
-  { label: "Orange 800", value: "rgb(154 52 18)" },
-  { label: "Orange 700", value: "rgb(194 65 12)" },
-  { label: "Orange 600", value: "rgb(234 88 12)" },
-  { label: "Orange 500", value: "rgb(249 115 22)" },
-];
+import { presetColorOptions, getColorStyle } from "@/config/components/Color";
 
 export type BannerProps = WithLayout<{
   backgroundType: "image" | "color";
@@ -90,8 +15,14 @@ export type BannerProps = WithLayout<{
   overlayColor: "dark" | "light";
   overlayOpacity: number;
   overlayGradientDirection?: "to-top" | "to-bottom" | "to-left" | "to-right" | "to-top-right" | "to-bottom-right" | "to-top-left" | "to-bottom-left";
-  overlayGradientFrom?: string;
-  overlayGradientTo?: string;
+  // Gradient From color (using WithColor pattern)
+  gradientFromColorType?: "preset" | "custom";
+  gradientFromPresetColor?: string;
+  gradientFromCustomColor?: string;
+  // Gradient To color (using WithColor pattern)
+  gradientToColorType?: "preset" | "custom";
+  gradientToPresetColor?: string;
+  gradientToCustomColor?: string;
   height: "small" | "medium" | "large" | "full";
   contentAlign: "left" | "center" | "right";
   contentVerticalAlign: "top" | "center" | "bottom";
@@ -195,15 +126,41 @@ const BannerInner: ComponentConfig<BannerProps> = {
         { label: "To Bottom Left", value: "to-bottom-left" },
       ],
     },
-    overlayGradientFrom: {
+    // Gradient From Color (using WithColor pattern)
+    gradientFromColorType: {
+      type: "radio",
+      label: "Gradient Start Color Type",
+      options: [
+        { label: "Preset", value: "preset" },
+        { label: "Custom", value: "custom" },
+      ],
+    },
+    gradientFromPresetColor: {
       type: "select",
       label: "Gradient Start Color",
-      options: gradientColorOptions,
+      options: presetColorOptions,
     },
-    overlayGradientTo: {
+    gradientFromCustomColor: {
+      type: "text",
+      label: "Gradient Start Custom Color (hex)",
+    },
+    // Gradient To Color (using WithColor pattern)
+    gradientToColorType: {
+      type: "radio",
+      label: "Gradient End Color Type",
+      options: [
+        { label: "Preset", value: "preset" },
+        { label: "Custom", value: "custom" },
+      ],
+    },
+    gradientToPresetColor: {
       type: "select",
       label: "Gradient End Color",
-      options: gradientColorOptions,
+      options: presetColorOptions,
+    },
+    gradientToCustomColor: {
+      type: "text",
+      label: "Gradient End Custom Color (hex)",
     },
     height: {
       type: "select",
@@ -281,8 +238,14 @@ const BannerInner: ComponentConfig<BannerProps> = {
     overlayColor: "dark",
     overlayOpacity: 0.4,
     overlayGradientDirection: "to-bottom",
-    overlayGradientFrom: "rgb(0 0 0 / 0.8)",
-    overlayGradientTo: "rgb(0 0 0 / 0.2)",
+    // Gradient From color defaults (using WithColor pattern)
+    gradientFromColorType: "custom",
+    gradientFromPresetColor: "text-black",
+    gradientFromCustomColor: "rgba(0, 0, 0, 0.8)",
+    // Gradient To color defaults (using WithColor pattern)
+    gradientToColorType: "custom",
+    gradientToPresetColor: "text-black",
+    gradientToCustomColor: "rgba(0, 0, 0, 0.2)",
     height: "medium",
     contentAlign: "center",
     contentVerticalAlign: "center",
@@ -301,8 +264,14 @@ const BannerInner: ComponentConfig<BannerProps> = {
     overlayColor,
     overlayOpacity,
     overlayGradientDirection,
-    overlayGradientFrom,
-    overlayGradientTo,
+    // Gradient From color props (using WithColor pattern)
+    gradientFromColorType,
+    gradientFromPresetColor,
+    gradientFromCustomColor,
+    // Gradient To color props (using WithColor pattern)
+    gradientToColorType,
+    gradientToPresetColor,
+    gradientToCustomColor,
     height,
     contentAlign,
     contentVerticalAlign,
@@ -375,8 +344,13 @@ const BannerInner: ComponentConfig<BannerProps> = {
       
       if (overlayType === "gradient") {
         const direction = gradientDirectionMap[overlayGradientDirection || "to-bottom"] || "to bottom";
-        const fromColor = overlayGradientFrom || "rgb(0 0 0 / 0.8)";
-        const toColor = overlayGradientTo || "rgb(0 0 0 / 0.2)";
+        
+        // Use getColorStyle helper to get colors (same pattern as Heading component)
+        const fromColorStyle = getColorStyle(gradientFromColorType, gradientFromCustomColor, gradientFromPresetColor);
+        const toColorStyle = getColorStyle(gradientToColorType, gradientToCustomColor, gradientToPresetColor);
+        
+        const fromColor = fromColorStyle.color || "rgba(0, 0, 0, 0.8)";
+        const toColor = toColorStyle.color || "rgba(0, 0, 0, 0.2)";
         
         return {
           backgroundImage: `linear-gradient(${direction}, ${fromColor}, ${toColor})`,

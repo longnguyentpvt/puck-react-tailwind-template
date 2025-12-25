@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { ComponentConfig } from "@measured/puck";
+import React, { useEffect, useRef, useState } from "react";
+import { ComponentConfig, registerOverlayPortal } from "@measured/puck";
 import type { Slot } from "@measured/puck";
 import { withLayout, WithLayout } from "../../components/Layout";
 import {
@@ -111,6 +111,8 @@ const DialogInner: ComponentConfig<DialogProps> = {
     puck,
   }) => {
     const isEditMode = puck.isEditing;
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const dialogContentRef = useRef<HTMLDivElement>(null);
 
     const maxWidthClasses = {
       sm: "max-w-sm",
@@ -126,12 +128,29 @@ const DialogInner: ComponentConfig<DialogProps> = {
     const ContentSlot = content || (() => <div className="text-gray-400 text-sm">Drop components here for dialog content</div>);
     const FooterSlot = footer || (() => <div className="text-gray-400 text-sm">Drop components here for footer (e.g., buttons)</div>);
 
-    // In edit mode, show a visual representation without dialog functionality
+    // Register the dialog content as an overlay portal in edit mode
+    useEffect(() => {
+      if (isEditMode && isDialogOpen && dialogContentRef.current) {
+        // Register overlay portal to allow editing dialog content in Puck
+        const cleanup = registerOverlayPortal(dialogContentRef.current, {
+          disableDrag: false, // Allow dragging components in the dialog
+        });
+        return cleanup;
+      }
+    }, [isEditMode, isDialogOpen]);
+
+    // In edit mode, allow opening the dialog for editing
     if (isEditMode) {
       return (
         <div className="border-2 border-dashed border-purple-300 rounded-lg">
-          <div className="text-xs font-medium text-purple-600 p-2 bg-purple-50">
-            Dialog Editor - Preview mode (click won't work in editor)
+          <div className="text-xs font-medium text-purple-600 p-2 bg-purple-50 flex items-center justify-between">
+            <span>Dialog Editor</span>
+            <button
+              onClick={() => setIsDialogOpen(true)}
+              className="px-3 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 transition-colors"
+            >
+              Open Dialog to Edit
+            </button>
           </div>
           <div className="p-4 space-y-4">
             {/* Trigger Area */}
@@ -144,43 +163,48 @@ const DialogInner: ComponentConfig<DialogProps> = {
               </div>
             </div>
 
-            {/* Dialog Content Preview */}
-            <div className="border border-purple-200 rounded p-4 bg-white">
-              <div className="text-xs text-purple-600 font-medium mb-3">
-                Dialog Content Preview:
-              </div>
-              
-              {showTitle && (
-                <div className="mb-3">
-                  <div className="text-xs text-gray-500 mb-1">Title:</div>
-                  <h3 className="text-lg font-semibold">{title}</h3>
-                </div>
+            {/* Info about opening dialog */}
+            <div className="text-xs text-gray-600 bg-blue-50 border border-blue-200 rounded p-2">
+              💡 Click "Open Dialog to Edit" above to customize the dialog content in the actual dialog view.
+            </div>
+          </div>
+
+          {/* Actual Dialog for editing */}
+          <ShadcnDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogContent 
+              ref={dialogContentRef}
+              className={maxWidthClasses[maxWidth]}
+              onPointerDownOutside={(e) => {
+                // Prevent closing when clicking Puck UI elements
+                if ((e.target as HTMLElement).closest('[data-puck-portal]')) {
+                  e.preventDefault();
+                }
+              }}
+            >
+              {(showTitle || showDescription) && (
+                <DialogHeader>
+                  {showTitle && <DialogTitle>{title}</DialogTitle>}
+                  {showDescription && description && (
+                    <DialogDescription>{description}</DialogDescription>
+                  )}
+                </DialogHeader>
               )}
               
-              {showDescription && description && (
-                <div className="mb-3">
-                  <div className="text-xs text-gray-500 mb-1">Description:</div>
-                  <p className="text-sm text-muted-foreground">{description}</p>
-                </div>
-              )}
-              
-              <div className="border-t pt-3 mt-3">
-                <div className="text-xs text-gray-500 mb-2">Content Area:</div>
-                <div className="min-h-[100px] bg-gray-50 rounded p-2">
-                  <ContentSlot />
-                </div>
+              <div className="py-4">
+                <ContentSlot />
               </div>
 
               {showFooter && (
-                <div className="border-t pt-3 mt-3">
-                  <div className="text-xs text-gray-500 mb-2">Footer Area:</div>
-                  <div className="min-h-[50px] bg-gray-50 rounded p-2">
-                    <FooterSlot />
-                  </div>
-                </div>
+                <DialogFooter>
+                  <FooterSlot />
+                </DialogFooter>
               )}
-            </div>
-          </div>
+
+              <div className="text-xs text-gray-500 mt-4 pt-4 border-t">
+                💡 Drag components here to build your dialog. Close to return to the main editor.
+              </div>
+            </DialogContent>
+          </ShadcnDialog>
         </div>
       );
     }

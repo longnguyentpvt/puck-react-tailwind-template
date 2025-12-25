@@ -1,4 +1,5 @@
 import { Config, Data } from "@measured/puck";
+import { AccordionProps } from "./blocks/Accordion";
 import { BannerProps } from "./blocks/Banner";
 import { ButtonProps } from "./blocks/Button";
 import { CardProps } from "./blocks/Card";
@@ -18,6 +19,7 @@ import { RichTextProps } from "./blocks/RichText";
 export type { RootProps } from "./root";
 
 export type Components = {
+  Accordion: AccordionProps;
   Banner: BannerProps;
   Button: ButtonProps;
   Card: CardProps;

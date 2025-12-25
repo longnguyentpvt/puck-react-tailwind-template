@@ -1,3 +1,4 @@
+import { Accordion } from "./blocks/Accordion";
 import { Banner } from "./blocks/Banner";
 import { Button } from "./blocks/Button";
 import { Card } from "./blocks/Card";
@@ -28,7 +29,7 @@ export const conf: UserConfig = {
     },
     content: {
       title: "Content",
-      components: ["Banner", "Carousel"],
+      components: ["Banner", "Carousel", "Accordion"],
     },
     interactive: {
       title: "Actions",
@@ -40,6 +41,7 @@ export const conf: UserConfig = {
     },
   },
   components: {
+    Accordion,
     Banner,
     Button,
     Card,

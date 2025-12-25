@@ -3,6 +3,7 @@ import { Banner } from "./blocks/Banner";
 import { Button } from "./blocks/Button";
 import { Card } from "./blocks/Card";
 import { Carousel } from "./blocks/Carousel";
+import { Dialog } from "./blocks/Dialog";
 import { Grid } from "./blocks/Grid";
 import { Heading } from "./blocks/Heading";
 import { Flex } from "./blocks/Flex";
@@ -27,7 +28,7 @@ const conf: UserConfig = {
     },
     content: {
       title: "Content",
-      components: ["Banner", "Carousel", "Accordion"],
+      components: ["Banner", "Carousel", "Accordion", "Dialog"],
     },
     interactive: {
       title: "Actions",
@@ -44,6 +45,7 @@ const conf: UserConfig = {
     Button,
     Card,
     Carousel,
+    Dialog,
     Grid,
     Heading,
     Flex,

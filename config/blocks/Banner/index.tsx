@@ -215,16 +215,16 @@ const BannerInner: ComponentConfig<BannerProps> = {
   render: ({
     backgroundType,
     backgroundImage,
-    backgroundSize = "cover",
-    backgroundPosition = "center",
+    backgroundSize,
+    backgroundPosition,
     backgroundColor,
     overlayEnabled,
-    overlayType = "solid",
+    overlayType,
     overlayColor,
     overlayOpacity,
-    overlayGradientDirection = "to-bottom",
-    overlayGradientFrom = "rgba(0, 0, 0, 0.8)",
-    overlayGradientTo = "rgba(0, 0, 0, 0.2)",
+    overlayGradientDirection,
+    overlayGradientFrom,
+    overlayGradientTo,
     height,
     contentAlign,
     contentVerticalAlign,
@@ -271,8 +271,8 @@ const BannerInner: ComponentConfig<BannerProps> = {
       backgroundType === "image"
         ? {
             backgroundImage: `url(${backgroundImage})`,
-            backgroundSize: backgroundSize,
-            backgroundPosition: backgroundPositionMap[backgroundPosition] || "center",
+            backgroundSize: backgroundSize || "cover",
+            backgroundPosition: backgroundPositionMap[backgroundPosition || "center"] || "center",
             backgroundRepeat: "no-repeat",
           }
         : {
@@ -291,14 +291,34 @@ const BannerInner: ComponentConfig<BannerProps> = {
       "to-bottom-left": "to bottom left",
     };
 
+    // Validate color string to prevent CSS injection
+    const isValidColor = (color: string | undefined): boolean => {
+      if (!color) return false;
+      // Allow hex colors (#xxx or #xxxxxx), rgb/rgba values, and named colors
+      const colorPattern = /^(#[0-9A-Fa-f]{3,6}|rgba?\([^)]+\)|[a-z]+)$/;
+      return colorPattern.test(color.trim());
+    };
+
     // Calculate overlay style based on type
     const getOverlayStyle = () => {
       if (!overlayEnabled) return {};
       
       if (overlayType === "gradient") {
-        const direction = gradientDirectionMap[overlayGradientDirection] || "to bottom";
+        const direction = gradientDirectionMap[overlayGradientDirection || "to-bottom"] || "to bottom";
+        const fromColor = overlayGradientFrom || "rgba(0, 0, 0, 0.8)";
+        const toColor = overlayGradientTo || "rgba(0, 0, 0, 0.2)";
+        
+        // Validate colors to prevent CSS injection
+        if (!isValidColor(fromColor) || !isValidColor(toColor)) {
+          // Fallback to safe defaults if invalid colors provided
+          return {
+            backgroundColor: overlayColor === "dark" ? "#000000" : "#ffffff",
+            opacity: overlayOpacity,
+          };
+        }
+        
         return {
-          backgroundImage: `linear-gradient(${direction}, ${overlayGradientFrom}, ${overlayGradientTo})`,
+          backgroundImage: `linear-gradient(${direction}, ${fromColor}, ${toColor})`,
           opacity: overlayOpacity,
         };
       } else {

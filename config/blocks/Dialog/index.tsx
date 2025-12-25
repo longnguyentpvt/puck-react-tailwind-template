@@ -212,8 +212,8 @@ const DialogInner: ComponentConfig<DialogProps> = {
     // Normal render mode with full dialog functionality
     return (
       <ShadcnDialog>
-        <DialogTrigger asChild>
-          <div className="cursor-pointer">
+        <DialogTrigger asChild={false}>
+          <div className="inline-block cursor-pointer">
             <TriggerSlot />
           </div>
         </DialogTrigger>

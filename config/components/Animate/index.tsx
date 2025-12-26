@@ -20,6 +20,8 @@ export function getAnimateClassName(animate?: string): string {
 }
 
 // Safelist: Declare all animation classes so Tailwind compiles them
+// This ensures the animation classes are included in the final CSS bundle
+// even if they're dynamically generated. Keep this list in sync with animateOptions.
 // prettier-ignore
 const TAILWIND_ANIMATION_CLASSES = [
   'animate-spin',

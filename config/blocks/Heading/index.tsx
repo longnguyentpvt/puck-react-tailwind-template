@@ -1,5 +1,6 @@
 import React from "react";
 import { ComponentConfig } from "@measured/puck";
+import classNames from "classnames";
 
 import type { HeadingProps as _HeadingProps } from "@/components/Heading";
 import { Heading as _Heading } from "@/components/Heading";
@@ -73,7 +74,10 @@ const HeadingInternal: ComponentConfig<HeadingProps> = {
       <Section>
         <_Heading size={size} rank={level as any}>
           <span 
-            className={`${getColorClassName(colorType, presetColor)} ${getAnimateClassName(animate)}`.trim()}
+            className={classNames(
+              getColorClassName(colorType, presetColor),
+              getAnimateClassName(animate)
+            )}
             style={{ display: "block", textAlign: align, width: "100%", ...getColorStyle(colorType, customColor, presetColor) }}
           >
             {text}

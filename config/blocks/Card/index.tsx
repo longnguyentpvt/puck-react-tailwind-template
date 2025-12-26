@@ -3,6 +3,7 @@ import React, { ReactElement } from "react";
 import { ComponentConfig } from "@measured/puck";
 import dynamic from "next/dynamic";
 import dynamicIconImports from "lucide-react/dynamicIconImports";
+import classNames from "classnames";
 import { withLayout, WithLayout } from "../../components/Layout";
 import { WithAnimate, withAnimate, getAnimateClassName } from "../../components/Animate";
 import {
@@ -187,8 +188,6 @@ const CardInner: ComponentConfig<CardProps> = {
       elevated: "shadow-lg",
     };
 
-    const animateClass = getAnimateClassName(animate);
-
     const iconElement = showIcon && icon && (
       <div className="rounded-full bg-blue-100 text-blue-600 flex justify-center items-center w-12 h-12 shrink-0">
         {icons[icon]}
@@ -209,7 +208,10 @@ const CardInner: ComponentConfig<CardProps> = {
     if (mode === "flat") {
       return (
         <CardWrapper>
-          <div className={`h-full flex flex-col items-center gap-4 text-center ${animateClass}`.trim()}>
+          <div className={classNames(
+            "h-full flex flex-col items-center gap-4 text-center",
+            getAnimateClassName(animate)
+          )}>
             {iconElement}
             <div className="text-[22px]">{title}</div>
             <div className="text-base leading-normal text-gray-600 font-light">
@@ -228,7 +230,11 @@ const CardInner: ComponentConfig<CardProps> = {
 
     return (
       <CardWrapper>
-        <ShadcnCard className={`h-full ${variantClasses[variant]} ${animateClass}`.trim()}>
+        <ShadcnCard className={classNames(
+          "h-full",
+          variantClasses[variant],
+          getAnimateClassName(animate)
+        )}>
           <CardHeader>
             {showAction && actionText && (
               <CardAction>

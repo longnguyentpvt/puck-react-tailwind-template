@@ -1,6 +1,7 @@
 import React from "react";
 import { ComponentConfig } from "@measured/puck";
 import type { Slot } from "@measured/puck";
+import classNames from "classnames";
 import { WithLayout, withLayout } from "@/config/components/Layout";
 import { WithAnimate, withAnimate, getAnimateClassName } from "@/config/components/Animate";
 
@@ -183,7 +184,6 @@ const BannerInner: ComponentConfig<BannerProps> = {
 
     const maxWidthClass = `max-w-${contentMaxWidth}`;
     const paddingClass = `p-${contentPadding}`;
-    const animateClass = getAnimateClassName(animate);
 
     const backgroundStyle =
       backgroundType === "image"
@@ -199,7 +199,11 @@ const BannerInner: ComponentConfig<BannerProps> = {
 
     return (
       <div
-        className={`relative w-full ${heightClass} overflow-hidden ${animateClass}`.trim()}
+        className={classNames(
+          "relative w-full overflow-hidden",
+          heightClass,
+          getAnimateClassName(animate)
+        )}
         style={backgroundStyle}
       >
         {overlayEnabled && (

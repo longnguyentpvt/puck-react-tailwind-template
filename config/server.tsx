@@ -10,6 +10,8 @@ import { Heading } from "./blocks/Heading";
 import { Flex } from "./blocks/Flex";
 import { Logos } from "./blocks/Logos";
 import { PetList } from "./blocks/PetList";
+import { DataRepeater } from "./blocks/DataRepeater";
+import { DataField } from "./blocks/DataField";
 import { Stats } from "./blocks/Stats";
 import { Template } from "./blocks/Template/server";
 import { Text } from "./blocks/Text";
@@ -31,6 +33,10 @@ const conf: UserConfig = {
     content: {
       title: "Content",
       components: ["Banner", "Carousel", "Accordion", "Dialog", "PetList"],
+    },
+    data: {
+      title: "Data",
+      components: ["DataRepeater", "DataField"],
     },
     interactive: {
       title: "Actions",

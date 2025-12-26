@@ -15,6 +15,8 @@ import { Text } from "./blocks/Text";
 import { Space } from "./blocks/Space";
 import { RichText } from "./blocks/RichText";
 import { PetList } from "./blocks/PetList";
+import { DataRepeater } from "./blocks/DataRepeater";
+import { DataField } from "./blocks/DataField";
 
 import Root from "./root";
 import { UserConfig } from "./types";
@@ -34,6 +36,10 @@ export const conf: UserConfig = {
       title: "Content",
       components: ["Banner", "Carousel", "Accordion", "Dialog", "PetList"],
     },
+    data: {
+      title: "Data",
+      components: ["DataRepeater", "DataField"],
+    },
     interactive: {
       title: "Actions",
       components: ["Button", "Animate"],
@@ -51,6 +57,8 @@ export const conf: UserConfig = {
     Card,
     Carousel,
     Dialog,
+    DataField,
+    DataRepeater,
     Grid,
     Heading,
     Flex,

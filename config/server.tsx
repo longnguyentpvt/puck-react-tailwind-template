@@ -9,6 +9,7 @@ import { Grid } from "./blocks/Grid";
 import { Heading } from "./blocks/Heading";
 import { Flex } from "./blocks/Flex";
 import { Logos } from "./blocks/Logos";
+import { PetList } from "./blocks/PetList";
 import { Stats } from "./blocks/Stats";
 import { Template } from "./blocks/Template/server";
 import { Text } from "./blocks/Text";
@@ -29,7 +30,7 @@ const conf: UserConfig = {
     },
     content: {
       title: "Content",
-      components: ["Banner", "Carousel", "Accordion", "Dialog"],
+      components: ["Banner", "Carousel", "Accordion", "Dialog", "PetList"],
     },
     interactive: {
       title: "Actions",
@@ -52,6 +53,7 @@ const conf: UserConfig = {
     Heading,
     Flex,
     Logos,
+    PetList,
     Stats,
     Template,
     Text,

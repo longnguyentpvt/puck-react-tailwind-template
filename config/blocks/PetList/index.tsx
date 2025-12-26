@@ -3,7 +3,6 @@ import { ComponentConfig } from "@measured/puck";
 import { Section } from "@/config/components/Section";
 import { Heading as _Heading } from "@/components/Heading";
 import { withLayout, WithLayout } from "@/config/components/Layout";
-import classNames from "classnames";
 import { Pet } from "@/lib/external-data";
 
 export type PetListProps = WithLayout<{
@@ -82,9 +81,11 @@ const PetListInternal: ComponentConfig<PetListProps> = {
       <Section>
         <div className="w-full">
           {title && (
-            <_Heading size="xxl" rank="2" className="mb-8 text-center">
-              {title}
-            </_Heading>
+            <div className="mb-8 text-center">
+              <_Heading size="xxl" rank="2">
+                {title}
+              </_Heading>
+            </div>
           )}
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -94,9 +95,11 @@ const PetListInternal: ComponentConfig<PetListProps> = {
                   key={pet.id}
                   className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
                 >
-                  <_Heading size="l" rank="3" className="mb-2">
-                    {pet.name}
-                  </_Heading>
+                  <div className="mb-2">
+                    <_Heading size="l" rank="3">
+                      {pet.name}
+                    </_Heading>
+                  </div>
                   
                   {showSpecies && (
                     <span className="inline-block bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full mb-3">
@@ -104,10 +107,7 @@ const PetListInternal: ComponentConfig<PetListProps> = {
                     </span>
                   )}
                   
-                  <p className={classNames(
-                    "text-gray-600 leading-relaxed",
-                    showSpecies ? "mt-2" : ""
-                  )}>
+                  <p className="text-gray-600 leading-relaxed">
                     {pet.description}
                   </p>
                 </div>

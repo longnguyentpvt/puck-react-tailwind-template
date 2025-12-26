@@ -34,4 +34,4 @@ yarn-error.log*
 # vercel
 .vercel
 
-docker-compose.yml
+docker-compose.ymlpackage-lock.json

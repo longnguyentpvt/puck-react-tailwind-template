@@ -1,7 +1,6 @@
 import React from "react";
 import { ComponentConfig } from "@measured/puck";
 import type { Slot } from "@measured/puck";
-import classNames from "classnames";
 import { Section } from "@/config/components/Section";
 
 export type AnimateProps = {
@@ -48,9 +47,7 @@ export const Animate: ComponentConfig<AnimateProps> = {
 
     return (
       <Section>
-        <Children
-          className={classNames(animateClass)}
-        />
+        <Children className={animateClass} />
       </Section>
     );
   },

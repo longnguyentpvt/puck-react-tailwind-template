@@ -9,6 +9,7 @@ export const initialData: Record<string, UserData> = {
           backgroundType: "image",
           backgroundImage: "https://images.unsplash.com/photo-1687204209659-3bded6aecd79?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2670&q=80",
           overlayEnabled: true,
+          overlayType: "solid",
           overlayColor: "dark",
           overlayOpacity: 0.4,
           height: "large",

@@ -2,14 +2,27 @@ import React from "react";
 import { ComponentConfig } from "@measured/puck";
 import type { Slot } from "@measured/puck";
 import { WithLayout, withLayout } from "@/config/components/Layout";
+import { presetColorOptions, getColorStyle } from "@/config/components/Color";
 
 export type BannerProps = WithLayout<{
   backgroundType: "image" | "color";
   backgroundImage?: string;
+  backgroundSize?: "cover" | "contain" | "auto";
+  backgroundPosition?: "center" | "top" | "bottom" | "left" | "right" | "top-left" | "top-right" | "bottom-left" | "bottom-right";
   backgroundColor?: string;
   overlayEnabled: boolean;
+  overlayType: "solid" | "gradient";
   overlayColor: "dark" | "light";
   overlayOpacity: number;
+  overlayGradientDirection?: "to-top" | "to-bottom" | "to-left" | "to-right" | "to-top-right" | "to-bottom-right" | "to-top-left" | "to-bottom-left";
+  // Gradient From color (using WithColor pattern)
+  gradientFromColorType?: "preset" | "custom";
+  gradientFromPresetColor?: string;
+  gradientFromCustomColor?: string;
+  // Gradient To color (using WithColor pattern)
+  gradientToColorType?: "preset" | "custom";
+  gradientToPresetColor?: string;
+  gradientToCustomColor?: string;
   height: "small" | "medium" | "large" | "full";
   contentAlign: "left" | "center" | "right";
   contentVerticalAlign: "top" | "center" | "bottom";
@@ -33,6 +46,30 @@ const BannerInner: ComponentConfig<BannerProps> = {
       type: "text",
       label: "Background Image URL",
     },
+    backgroundSize: {
+      type: "select",
+      label: "Background Size",
+      options: [
+        { label: "Cover", value: "cover" },
+        { label: "Contain", value: "contain" },
+        { label: "Auto", value: "auto" },
+      ],
+    },
+    backgroundPosition: {
+      type: "select",
+      label: "Background Position",
+      options: [
+        { label: "Center", value: "center" },
+        { label: "Top", value: "top" },
+        { label: "Bottom", value: "bottom" },
+        { label: "Left", value: "left" },
+        { label: "Right", value: "right" },
+        { label: "Top Left", value: "top-left" },
+        { label: "Top Right", value: "top-right" },
+        { label: "Bottom Left", value: "bottom-left" },
+        { label: "Bottom Right", value: "bottom-right" },
+      ],
+    },
     backgroundColor: {
       type: "text",
       label: "Background Color",
@@ -43,6 +80,14 @@ const BannerInner: ComponentConfig<BannerProps> = {
       options: [
         { label: "Yes", value: true },
         { label: "No", value: false },
+      ],
+    },
+    overlayType: {
+      type: "radio",
+      label: "Overlay Type",
+      options: [
+        { label: "Solid", value: "solid" },
+        { label: "Gradient", value: "gradient" },
       ],
     },
     overlayColor: {
@@ -66,6 +111,56 @@ const BannerInner: ComponentConfig<BannerProps> = {
         { label: "70%", value: 0.7 },
         { label: "80%", value: 0.8 },
       ],
+    },
+    overlayGradientDirection: {
+      type: "select",
+      label: "Gradient Direction",
+      options: [
+        { label: "To Top", value: "to-top" },
+        { label: "To Bottom", value: "to-bottom" },
+        { label: "To Left", value: "to-left" },
+        { label: "To Right", value: "to-right" },
+        { label: "To Top Right", value: "to-top-right" },
+        { label: "To Bottom Right", value: "to-bottom-right" },
+        { label: "To Top Left", value: "to-top-left" },
+        { label: "To Bottom Left", value: "to-bottom-left" },
+      ],
+    },
+    // Gradient From Color (using WithColor pattern)
+    gradientFromColorType: {
+      type: "radio",
+      label: "Gradient Start Color Type",
+      options: [
+        { label: "Preset", value: "preset" },
+        { label: "Custom", value: "custom" },
+      ],
+    },
+    gradientFromPresetColor: {
+      type: "select",
+      label: "Gradient Start Color",
+      options: presetColorOptions,
+    },
+    gradientFromCustomColor: {
+      type: "text",
+      label: "Gradient Start Custom Color (hex)",
+    },
+    // Gradient To Color (using WithColor pattern)
+    gradientToColorType: {
+      type: "radio",
+      label: "Gradient End Color Type",
+      options: [
+        { label: "Preset", value: "preset" },
+        { label: "Custom", value: "custom" },
+      ],
+    },
+    gradientToPresetColor: {
+      type: "select",
+      label: "Gradient End Color",
+      options: presetColorOptions,
+    },
+    gradientToCustomColor: {
+      type: "text",
+      label: "Gradient End Custom Color (hex)",
     },
     height: {
       type: "select",
@@ -135,10 +230,22 @@ const BannerInner: ComponentConfig<BannerProps> = {
   defaultProps: {
     backgroundType: "image",
     backgroundImage: "https://images.unsplash.com/photo-1557683316-973673baf926",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
     backgroundColor: "#3b82f6",
     overlayEnabled: true,
+    overlayType: "solid",
     overlayColor: "dark",
     overlayOpacity: 0.4,
+    overlayGradientDirection: "to-bottom",
+    // Gradient From color defaults (using WithColor pattern)
+    gradientFromColorType: "custom",
+    gradientFromPresetColor: "text-black",
+    gradientFromCustomColor: "rgba(0, 0, 0, 0.8)",
+    // Gradient To color defaults (using WithColor pattern)
+    gradientToColorType: "custom",
+    gradientToPresetColor: "text-black",
+    gradientToCustomColor: "rgba(0, 0, 0, 0.2)",
     height: "medium",
     contentAlign: "center",
     contentVerticalAlign: "center",
@@ -149,10 +256,22 @@ const BannerInner: ComponentConfig<BannerProps> = {
   render: ({
     backgroundType,
     backgroundImage,
+    backgroundSize,
+    backgroundPosition,
     backgroundColor,
     overlayEnabled,
+    overlayType,
     overlayColor,
     overlayOpacity,
+    overlayGradientDirection,
+    // Gradient From color props (using WithColor pattern)
+    gradientFromColorType,
+    gradientFromPresetColor,
+    gradientFromCustomColor,
+    // Gradient To color props (using WithColor pattern)
+    gradientToColorType,
+    gradientToPresetColor,
+    gradientToCustomColor,
     height,
     contentAlign,
     contentVerticalAlign,
@@ -182,17 +301,69 @@ const BannerInner: ComponentConfig<BannerProps> = {
     const maxWidthClass = `max-w-${contentMaxWidth}`;
     const paddingClass = `p-${contentPadding}`;
 
+    // Convert background position value to CSS format
+    const backgroundPositionMap: { [key: string]: string } = {
+      "center": "center",
+      "top": "top",
+      "bottom": "bottom",
+      "left": "left",
+      "right": "right",
+      "top-left": "top left",
+      "top-right": "top right",
+      "bottom-left": "bottom left",
+      "bottom-right": "bottom right",
+    };
+
     const backgroundStyle =
       backgroundType === "image"
         ? {
             backgroundImage: `url(${backgroundImage})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
+            backgroundSize: backgroundSize || "cover",
+            backgroundPosition: backgroundPositionMap[backgroundPosition || "center"] || "center",
             backgroundRepeat: "no-repeat",
           }
         : {
             backgroundColor: backgroundColor,
           };
+
+    // Convert gradient direction to CSS linear-gradient direction
+    const gradientDirectionMap: { [key: string]: string } = {
+      "to-top": "to top",
+      "to-bottom": "to bottom",
+      "to-left": "to left",
+      "to-right": "to right",
+      "to-top-right": "to top right",
+      "to-bottom-right": "to bottom right",
+      "to-top-left": "to top left",
+      "to-bottom-left": "to bottom left",
+    };
+
+    // Calculate overlay style based on type
+    const getOverlayStyle = () => {
+      if (!overlayEnabled) return {};
+      
+      if (overlayType === "gradient") {
+        const direction = gradientDirectionMap[overlayGradientDirection || "to-bottom"] || "to bottom";
+        
+        // Use getColorStyle helper to get colors (same pattern as Heading component)
+        const fromColorStyle = getColorStyle(gradientFromColorType, gradientFromCustomColor, gradientFromPresetColor);
+        const toColorStyle = getColorStyle(gradientToColorType, gradientToCustomColor, gradientToPresetColor);
+        
+        const fromColor = fromColorStyle.color || "rgba(0, 0, 0, 0.8)";
+        const toColor = toColorStyle.color || "rgba(0, 0, 0, 0.2)";
+        
+        return {
+          backgroundImage: `linear-gradient(${direction}, ${fromColor}, ${toColor})`,
+          opacity: overlayOpacity,
+        };
+      } else {
+        // Solid overlay
+        return {
+          backgroundColor: overlayColor === "dark" ? "#000000" : "#ffffff",
+          opacity: overlayOpacity,
+        };
+      }
+    };
 
     return (
       <div
@@ -202,10 +373,7 @@ const BannerInner: ComponentConfig<BannerProps> = {
         {overlayEnabled && (
           <div
             className="absolute inset-0"
-            style={{
-              backgroundColor: overlayColor === "dark" ? "#000000" : "#ffffff",
-              opacity: overlayOpacity,
-            }}
+            style={getOverlayStyle()}
           />
         )}
         <div

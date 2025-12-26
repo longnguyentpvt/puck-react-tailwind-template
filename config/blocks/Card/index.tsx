@@ -4,6 +4,7 @@ import { ComponentConfig } from "@measured/puck";
 import dynamic from "next/dynamic";
 import dynamicIconImports from "lucide-react/dynamicIconImports";
 import { withLayout, WithLayout } from "../../components/Layout";
+import { WithAnimate, withAnimate, getAnimateClassName } from "../../components/Animate";
 import {
   Card as ShadcnCard,
   CardHeader,
@@ -30,7 +31,7 @@ const iconOptions = Object.keys(dynamicIconImports).map((iconName) => ({
   value: iconName,
 }));
 
-export type CardProps = WithLayout<{
+export type CardProps = WithLayout<WithAnimate<{
   title: string;
   description: string;
   icon?: string;
@@ -46,7 +47,7 @@ export type CardProps = WithLayout<{
   showAction?: boolean;
   href?: string;
   variant?: "default" | "bordered" | "elevated";
-}>;
+}>>;
 
 const CardInner: ComponentConfig<CardProps> = {
   fields: {
@@ -178,12 +179,15 @@ const CardInner: ComponentConfig<CardProps> = {
     showAction = false,
     href,
     variant = "default",
+    animate,
   }) => {
     const variantClasses = {
       default: "",
       bordered: "border-2",
       elevated: "shadow-lg",
     };
+
+    const animateClass = getAnimateClassName(animate);
 
     const iconElement = showIcon && icon && (
       <div className="rounded-full bg-blue-100 text-blue-600 flex justify-center items-center w-12 h-12 shrink-0">
@@ -205,7 +209,7 @@ const CardInner: ComponentConfig<CardProps> = {
     if (mode === "flat") {
       return (
         <CardWrapper>
-          <div className="h-full flex flex-col items-center gap-4 text-center">
+          <div className={`h-full flex flex-col items-center gap-4 text-center ${animateClass}`.trim()}>
             {iconElement}
             <div className="text-[22px]">{title}</div>
             <div className="text-base leading-normal text-gray-600 font-light">
@@ -224,7 +228,7 @@ const CardInner: ComponentConfig<CardProps> = {
 
     return (
       <CardWrapper>
-        <ShadcnCard className={`h-full ${variantClasses[variant]}`}>
+        <ShadcnCard className={`h-full ${variantClasses[variant]} ${animateClass}`.trim()}>
           <CardHeader>
             {showAction && actionText && (
               <CardAction>
@@ -271,4 +275,4 @@ const CardInner: ComponentConfig<CardProps> = {
   },
 };
 
-export const Card = withLayout(CardInner);
+export const Card = withLayout(withAnimate(CardInner));

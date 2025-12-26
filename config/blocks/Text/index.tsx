@@ -5,14 +5,15 @@ import { ComponentConfig } from "@measured/puck";
 import { Section } from "@/config/components/Section";
 import { WithLayout, withLayout } from "@/config/components/Layout";
 import { WithColor, withColor, getColorClassName, getColorStyle } from "@/config/components/Color";
+import { WithAnimate, withAnimate, getAnimateClassName } from "@/config/components/Animate";
 
-export type TextProps = WithLayout<WithColor<{
+export type TextProps = WithLayout<WithColor<WithAnimate<{
   align: "left" | "center" | "right";
   text?: string;
   padding?: string;
   size?: "s" | "m";
   maxWidth?: string;
-}>>;
+}>>>;
 
 const TextInner: ComponentConfig<TextProps> = {
   fields: {
@@ -44,7 +45,7 @@ const TextInner: ComponentConfig<TextProps> = {
     text: "Text",
     size: "m",
   },
-  render: ({ align, colorType, presetColor, customColor, text, size, maxWidth }) => {
+  render: ({ align, colorType, presetColor, customColor, text, size, maxWidth, animate }) => {
     return (
       <Section maxWidth={maxWidth}>
         <span
@@ -52,6 +53,7 @@ const TextInner: ComponentConfig<TextProps> = {
             "flex w-full leading-normal p-0 font-light",
             size === "m" ? "text-xl" : "text-base",
             getColorClassName(colorType, presetColor),
+            getAnimateClassName(animate),
             align === "center" && "text-center justify-center",
             align === "right" && "text-right justify-end",
             align === "left" && "text-left justify-start"
@@ -65,4 +67,4 @@ const TextInner: ComponentConfig<TextProps> = {
   },
 };
 
-export const Text = withLayout(withColor(TextInner));
+export const Text = withLayout(withColor(withAnimate(TextInner)));

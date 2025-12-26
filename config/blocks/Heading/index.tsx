@@ -6,14 +6,15 @@ import { Heading as _Heading } from "@/components/Heading";
 import { Section } from "../../components/Section";
 import { WithLayout, withLayout } from "../../components/Layout";
 import { WithColor, withColor, getColorClassName, getColorStyle } from "../../components/Color";
+import { WithAnimate, withAnimate, getAnimateClassName } from "../../components/Animate";
 
 
-export type HeadingProps = WithLayout<WithColor<{
+export type HeadingProps = WithLayout<WithColor<WithAnimate<{
   align: "left" | "center" | "right";
   text?: string;
   level?: _HeadingProps["rank"];
   size: _HeadingProps["size"];
-}>>;
+}>>>;
 
 const sizeOptions = [
   { value: "xxxl", label: "XXXL" },
@@ -67,12 +68,12 @@ const HeadingInternal: ComponentConfig<HeadingProps> = {
       paddingBottom: "2",
     },
   },
-  render: ({ align, text, size, level, colorType, presetColor, customColor }) => {
+  render: ({ align, text, size, level, colorType, presetColor, customColor, animate }) => {
     return (
       <Section>
         <_Heading size={size} rank={level as any}>
           <span 
-            className={getColorClassName(colorType, presetColor)}
+            className={`${getColorClassName(colorType, presetColor)} ${getAnimateClassName(animate)}`.trim()}
             style={{ display: "block", textAlign: align, width: "100%", ...getColorStyle(colorType, customColor, presetColor) }}
           >
             {text}
@@ -83,4 +84,4 @@ const HeadingInternal: ComponentConfig<HeadingProps> = {
   },
 };
 
-export const Heading = withLayout(withColor(HeadingInternal));
+export const Heading = withLayout(withColor(withAnimate(HeadingInternal)));

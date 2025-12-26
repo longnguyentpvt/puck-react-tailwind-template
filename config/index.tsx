@@ -14,6 +14,7 @@ import { Template } from "./blocks/Template";
 import { Text } from "./blocks/Text";
 import { Space } from "./blocks/Space";
 import { RichText } from "./blocks/RichText";
+import { PetList } from "./blocks/PetList";
 
 import Root from "./root";
 import { UserConfig } from "./types";
@@ -31,7 +32,7 @@ export const conf: UserConfig = {
     },
     content: {
       title: "Content",
-      components: ["Banner", "Carousel", "Accordion", "Dialog"],
+      components: ["Banner", "Carousel", "Accordion", "Dialog", "PetList"],
     },
     interactive: {
       title: "Actions",
@@ -54,6 +55,7 @@ export const conf: UserConfig = {
     Heading,
     Flex,
     Logos,
+    PetList,
     Stats,
     Template,
     Text,

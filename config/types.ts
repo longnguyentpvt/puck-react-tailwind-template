@@ -14,6 +14,7 @@ import { StatsProps } from "./blocks/Stats";
 import { TemplateProps } from "./blocks/Template";
 import { TextProps } from "./blocks/Text";
 import { SpaceProps } from "./blocks/Space";
+import { PetListProps } from "./blocks/PetList";
 
 import { RootProps } from "./root";
 import { RichTextProps } from "./blocks/RichText";
@@ -32,6 +33,7 @@ export type Components = {
   Heading: HeadingProps;
   Flex: FlexProps;
   Logos: LogosProps;
+  PetList: PetListProps;
   Stats: StatsProps;
   Template: TemplateProps;
   Text: TextProps;

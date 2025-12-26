@@ -113,6 +113,7 @@ const DialogInner: ComponentConfig<DialogProps> = {
     const isEditMode = puck.isEditing;
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const dialogContentRef = useRef<HTMLDivElement>(null);
+    const triggerRef = useRef<HTMLDivElement>(null);
 
     const maxWidthClasses = {
       sm: "max-w-sm",
@@ -128,48 +129,55 @@ const DialogInner: ComponentConfig<DialogProps> = {
     const ContentSlot = content || (() => <div className="text-gray-400 text-sm">Drop components here for dialog content</div>);
     const FooterSlot = footer || (() => <div className="text-gray-400 text-sm">Drop components here for footer (e.g., buttons)</div>);
 
-    // Register the dialog content as an overlay portal in edit mode
+    // Register trigger as overlay portal in edit mode so it remains clickable
+    useEffect(() => {
+      if (isEditMode && triggerRef.current) {
+        const cleanup = registerOverlayPortal(triggerRef.current, {
+          disableDrag: false,
+        });
+        return cleanup;
+      }
+    }, [isEditMode]);
+
+    // Register dialog content as overlay portal when dialog is open in edit mode
     useEffect(() => {
       if (isEditMode && isDialogOpen && dialogContentRef.current) {
-        // Register overlay portal to allow editing dialog content in Puck
         const cleanup = registerOverlayPortal(dialogContentRef.current, {
-          disableDrag: false, // Allow dragging components in the dialog
+          disableDrag: false,
         });
         return cleanup;
       }
     }, [isEditMode, isDialogOpen]);
 
-    // In edit mode, allow opening the dialog for editing
+    // In edit mode, show trigger with click handler to open dialog
     if (isEditMode) {
       return (
         <div className="border-2 border-dashed border-purple-300 rounded-lg">
-          <div className="text-xs font-medium text-purple-600 p-2 bg-purple-50 flex items-center justify-between">
-            <span>Dialog Editor</span>
-            <button
-              onClick={() => setIsDialogOpen(true)}
-              className="px-3 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 transition-colors"
-            >
-              Open Dialog to Edit
-            </button>
+          <div className="text-xs font-medium text-purple-600 p-2 bg-purple-50">
+            Dialog Component
           </div>
           <div className="p-4 space-y-4">
-            {/* Trigger Area */}
+            {/* Trigger Area - clickable in edit mode */}
             <div className="border border-purple-200 rounded p-3 bg-purple-50/50">
               <div className="text-xs text-purple-600 font-medium mb-2">
-                Trigger Area (any component):
+                Trigger (click to open dialog):
               </div>
-              <div className="min-h-[40px]">
+              <div 
+                ref={triggerRef}
+                className="min-h-[40px] cursor-pointer"
+                onClick={() => setIsDialogOpen(true)}
+              >
                 <TriggerSlot />
               </div>
             </div>
 
-            {/* Info about opening dialog */}
+            {/* Info about clicking trigger */}
             <div className="text-xs text-gray-600 bg-blue-50 border border-blue-200 rounded p-2">
-              💡 Click "Open Dialog to Edit" above to customize the dialog content in the actual dialog view.
+              💡 Click the trigger above to open and edit the dialog content.
             </div>
           </div>
 
-          {/* Actual Dialog for editing */}
+          {/* Dialog for editing - opens when trigger is clicked */}
           <ShadcnDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogContent 
               ref={dialogContentRef}

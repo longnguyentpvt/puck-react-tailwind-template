@@ -1,4 +1,5 @@
 import { Accordion } from "./blocks/Accordion";
+import { Badge } from "./blocks/Badge";
 import { Banner } from "./blocks/Banner";
 import { Button } from "./blocks/Button";
 import { Card } from "./blocks/Card";
@@ -10,6 +11,8 @@ import { Logos } from "./blocks/Logos";
 import { Stats } from "./blocks/Stats";
 import { Template } from "./blocks/Template/server";
 import { Text } from "./blocks/Text";
+import { Toggle } from "./blocks/Toggle";
+import { ToggleGroup } from "./blocks/ToggleGroup";
 import { Space } from "./blocks/Space";
 import { RichText } from "./blocks/RichText";
 import Root from "./root";
@@ -31,15 +34,16 @@ const conf: UserConfig = {
     },
     interactive: {
       title: "Actions",
-      components: ["Button"],
+      components: ["Button", "Toggle", "ToggleGroup"],
     },
     other: {
       title: "Other",
-      components: ["Card", "Logos", "Stats", "Template"],
+      components: ["Badge", "Card", "Logos", "Stats", "Template"],
     },
   },
   components: {
     Accordion,
+    Badge,
     Banner,
     Button,
     Card,
@@ -51,6 +55,8 @@ const conf: UserConfig = {
     Stats,
     Template,
     Text,
+    Toggle,
+    ToggleGroup,
     Space,
     RichText,
     HeadingBlock: {

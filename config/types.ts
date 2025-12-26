@@ -1,5 +1,6 @@
 import { Config, Data } from "@measured/puck";
 import { AccordionProps } from "./blocks/Accordion";
+import { BadgeProps } from "./blocks/Badge";
 import { BannerProps } from "./blocks/Banner";
 import { ButtonProps } from "./blocks/Button";
 import { CardProps } from "./blocks/Card";
@@ -11,6 +12,8 @@ import { LogosProps } from "./blocks/Logos";
 import { StatsProps } from "./blocks/Stats";
 import { TemplateProps } from "./blocks/Template";
 import { TextProps } from "./blocks/Text";
+import { ToggleProps } from "./blocks/Toggle";
+import { ToggleGroupProps } from "./blocks/ToggleGroup";
 import { SpaceProps } from "./blocks/Space";
 
 import { RootProps } from "./root";
@@ -20,6 +23,7 @@ export type { RootProps } from "./root";
 
 export type Components = {
   Accordion: AccordionProps;
+  Badge: BadgeProps;
   Banner: BannerProps;
   Button: ButtonProps;
   Card: CardProps;
@@ -31,6 +35,8 @@ export type Components = {
   Stats: StatsProps;
   Template: TemplateProps;
   Text: TextProps;
+  Toggle: ToggleProps;
+  ToggleGroup: ToggleGroupProps;
   Space: SpaceProps;
   RichText: RichTextProps;
   HeadingBlock: { title: string };

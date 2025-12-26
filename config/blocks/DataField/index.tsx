@@ -4,6 +4,22 @@ import { Section } from "@/config/components/Section";
 import { Heading as _Heading } from "@/components/Heading";
 import { withLayout, WithLayout } from "@/config/components/Layout";
 
+// Constants moved outside render to avoid recreation
+const BADGE_COLORS = {
+  blue: "bg-blue-100 text-blue-800",
+  green: "bg-green-100 text-green-800",
+  red: "bg-red-100 text-red-800",
+  yellow: "bg-yellow-100 text-yellow-800",
+  gray: "bg-gray-100 text-gray-800",
+};
+
+const TEXT_SIZE_CLASSES = {
+  sm: "text-sm",
+  base: "text-base",
+  lg: "text-lg",
+  xl: "text-xl",
+};
+
 export type DataFieldProps = WithLayout<{
   fieldPath: string;
   displayAs: "heading" | "text" | "badge" | "image";
@@ -122,11 +138,6 @@ const DataFieldInternal: ComponentConfig<DataFieldProps> = {
     // In a real implementation, this would read from the zone's data context
     const placeholderValue = `{${fieldPath}}`;
     
-    // Helper function to get nested property value
-    const getNestedValue = (obj: any, path: string) => {
-      return path.split('.').reduce((current, prop) => current?.[prop], obj);
-    };
-
     // Try to access data from puck state if available
     if (puck) {
       // This is a simplified approach - in practice, you'd need to properly
@@ -148,15 +159,8 @@ const DataFieldInternal: ComponentConfig<DataFieldProps> = {
           );
           
         case "badge":
-          const badgeColors = {
-            blue: "bg-blue-100 text-blue-800",
-            green: "bg-green-100 text-green-800",
-            red: "bg-red-100 text-red-800",
-            yellow: "bg-yellow-100 text-yellow-800",
-            gray: "bg-gray-100 text-gray-800",
-          };
           return (
-            <span className={`inline-block ${badgeColors[badgeColor]} text-sm px-3 py-1 rounded-full`}>
+            <span className={`inline-block ${BADGE_COLORS[badgeColor] || BADGE_COLORS.gray} text-sm px-3 py-1 rounded-full`}>
               {value}
             </span>
           );
@@ -175,14 +179,8 @@ const DataFieldInternal: ComponentConfig<DataFieldProps> = {
           
         case "text":
         default:
-          const textSizeClass = {
-            sm: "text-sm",
-            base: "text-base",
-            lg: "text-lg",
-            xl: "text-xl",
-          }[textSize];
           return (
-            <p className={`${textSizeClass} text-gray-700 leading-relaxed`}>
+            <p className={`${TEXT_SIZE_CLASSES[textSize] || TEXT_SIZE_CLASSES.base} text-gray-700 leading-relaxed`}>
               {value}
             </p>
           );

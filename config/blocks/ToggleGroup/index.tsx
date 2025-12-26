@@ -114,7 +114,7 @@ export const ToggleGroup: ComponentConfig<ToggleGroupProps> = {
       type === "single"
         ? {
             type: "single" as const,
-            defaultValue: defaultValue || undefined,
+            defaultValue: defaultValue,
           }
         : {
             type: "multiple" as const,
@@ -129,15 +129,18 @@ export const ToggleGroup: ComponentConfig<ToggleGroupProps> = {
           spacing={spacing}
           disabled={puck.isEditing}
         >
-          {safeItems.map((item, index) => (
-            <ToggleGroupItem
-              key={item.value || `item-${index}`}
-              value={item.value || `item-${index}`}
-              aria-label={item.ariaLabel || item.text}
-            >
-              {item.text}
-            </ToggleGroupItem>
-          ))}
+          {safeItems.map((item, index) => {
+            const itemValue = item.value || `item-${index}`;
+            return (
+              <ToggleGroupItem
+                key={itemValue}
+                value={itemValue}
+                aria-label={item.ariaLabel || item.text}
+              >
+                {item.text}
+              </ToggleGroupItem>
+            );
+          })}
         </ShadcnToggleGroup>
       </div>
     );

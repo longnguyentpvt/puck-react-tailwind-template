@@ -5,7 +5,7 @@ import { Section } from "@/config/components/Section";
 import { withLayout, WithLayout } from "@/config/components/Layout";
 
 export type DataRepeaterProps = WithLayout<{
-  data: any[];
+  pets: any[];
   title?: string;
   layoutType?: "grid" | "flex" | "stack";
   columns?: number;
@@ -16,14 +16,15 @@ export type DataRepeaterProps = WithLayout<{
 /**
  * DataRepeater component - A flexible wrapper for rendering external data
  * 
- * This component creates a slot for each data item, allowing users to drag
- * any component into each slot. The data item is made available to child
- * components through the zone context.
+ * This component works with external data from the pets API,
+ * creating a slot for each data item. Users can drag any component into
+ * each slot to create custom layouts.
  * 
- * Use cases:
- * - Render a list of items with custom components for each property
- * - Create flexible data-driven layouts
- * - Dynamically compose UI from external data
+ * How to use:
+ * 1. Add DataRepeater component to your page
+ * 2. Click "External item" button in the "Select Pets" field
+ * 3. Select which pets to display
+ * 4. Drag components (Heading, Text, etc.) into each pet's slot
  */
 const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
   fields: {
@@ -31,36 +32,40 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
       type: "text",
       label: "Title (optional)",
     },
-    data: {
+    pets: {
       type: "external",
-      label: "Data Source",
-      // Fetch data from the API endpoint
-      // This example uses pets, but you can adapt it to any data source
+      label: "Select Pets",
+      placeholder: "Select pets to display",
       fetchList: async ({ query }) => {
         try {
+          // Use absolute URL for both client and server
           const baseUrl = typeof window !== 'undefined' 
             ? window.location.origin 
             : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
           
           const response = await fetch(`${baseUrl}/api/pets`);
           if (!response.ok) {
-            throw new Error("Failed to fetch data");
+            console.error(`Failed to fetch pets: ${response.status}`);
+            return [];
           }
-          const data = await response.json();
           
-          // Filter by query if provided
-          const filteredData = query
-            ? data.filter((item: any) => 
-                JSON.stringify(item).toLowerCase().includes(query.toLowerCase())
+          const pets = await response.json();
+          
+          // Filter by search query if provided
+          const filteredPets = query
+            ? pets.filter((pet: any) => 
+                pet.name?.toLowerCase().includes(query.toLowerCase()) ||
+                pet.species?.toLowerCase().includes(query.toLowerCase())
               )
-            : data;
+            : pets;
           
-          return filteredData.map((item: any) => ({
-            value: item,
-            label: item.name || item.title || item.id || 'Item',
+          // Return in format expected by Puck's external field
+          return filteredPets.map((pet: any) => ({
+            value: pet,
+            label: `${pet.name} (${pet.species})`,
           }));
         } catch (error) {
-          console.error("Error loading data:", error);
+          console.error("Error loading pets:", error);
           return [];
         }
       },
@@ -92,11 +97,11 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
     },
     items: {
       type: "slot",
-      label: "Item Template",
+      label: "Item Template (will be repeated for each pet)",
     },
   },
   defaultProps: {
-    data: [],
+    pets: [],
     title: "",
     layoutType: "grid",
     columns: 3,
@@ -107,7 +112,7 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
       paddingBottom: "8",
     },
   },
-  render: ({ title, data: externalData, layoutType, columns, gap, items: Items }) => {
+  render: ({ title, pets, layoutType, columns, gap, items: Items }) => {
     const gapClass = `gap-${gap}`;
     
     // Use predefined column classes to ensure Tailwind includes them
@@ -127,8 +132,8 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
         ? `flex flex-wrap ${gapClass}`
         : `flex flex-col ${gapClass}`;
 
-    // Cast to array type to avoid TypeScript confusion
-    const dataItems = (externalData as unknown as any[]) || [];
+    // Ensure pets is an array
+    const petList = Array.isArray(pets) ? pets : [];
 
     return (
       <Section>
@@ -139,40 +144,50 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
             </h2>
           )}
           
-          {dataItems && dataItems.length > 0 ? (
+          {petList && petList.length > 0 ? (
             <div className="space-y-6">
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-sm text-blue-800 font-medium mb-2">
-                  🎯 {dataItems.length} data item{dataItems.length !== 1 ? 's' : ''} loaded
+                  🎯 {petList.length} pet{petList.length !== 1 ? 's' : ''} selected
                 </p>
                 <p className="text-xs text-blue-600">
-                  Each item below shows its data. Drag components into the slot area to create your custom layout.
+                  Drag any Puck components (Heading, Text, etc.) into each pet's slot below to customize the display.
                 </p>
               </div>
               
               <div className={containerClass}>
-                {dataItems.map((item: any, index: number) => (
+                {petList.map((pet: any, index: number) => (
                   <div 
-                    key={item.id || index}
-                    className="border-2 border-dashed border-blue-200 rounded-lg p-4 bg-white"
+                    key={pet.id || index}
+                    className="border-2 border-dashed border-blue-200 rounded-lg p-4 bg-white hover:border-blue-400 transition-colors"
                   >
-                    {/* Render slot for this data item */}
-                    <div className="min-h-[100px] mb-3">
+                    {/* Render slot for this pet's custom layout */}
+                    <div className="min-h-[120px] mb-3">
                       <Items />
                     </div>
                     
-                    {/* Show data available for this item */}
-                    <div className="mt-2 pt-3 border-t border-gray-200">
+                    {/* Show pet data reference */}
+                    <div className="mt-3 pt-3 border-t border-gray-200">
                       <details className="text-xs">
-                        <summary className="cursor-pointer font-medium text-gray-600 hover:text-gray-900">
-                          📊 Item #{index + 1}: {item.name || item.title || 'Data'}
+                        <summary className="cursor-pointer font-medium text-gray-700 hover:text-gray-900 flex items-center gap-2">
+                          <span className="text-blue-600">📊</span>
+                          <span className="font-semibold">{pet.name || `Pet #${index + 1}`}</span>
+                          {pet.species && (
+                            <span className="text-gray-500">({pet.species})</span>
+                          )}
                         </summary>
-                        <pre className="mt-2 overflow-auto bg-gray-50 p-2 rounded text-xs">
-                          {JSON.stringify(item, null, 2)}
-                        </pre>
-                        <p className="mt-2 text-gray-500 italic">
-                          Note: To access this data in child components, you would need to implement context passing through Puck's zone system.
-                        </p>
+                        <div className="mt-2 bg-gray-50 p-3 rounded">
+                          <p className="font-medium text-gray-700 mb-1">Available data:</p>
+                          <pre className="overflow-auto text-xs text-gray-600">
+{JSON.stringify(pet, null, 2)}
+                          </pre>
+                          <p className="mt-2 text-gray-500 italic text-xs">
+                            💡 Tip: Use standard Puck components in the slot above. For example:
+                            • Heading component for pet name
+                            • Text component for description
+                            • Any other Puck components you need
+                          </p>
+                        </div>
                       </details>
                     </div>
                   </div>
@@ -180,9 +195,23 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
               </div>
             </div>
           ) : (
-            <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-              <p className="text-gray-500 mb-2">📦 No data selected</p>
-              <p className="text-sm text-gray-400">Click the "External item" button above to select data from your source</p>
+            <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border-2 border-dashed border-gray-300">
+              <div className="max-w-md mx-auto">
+                <p className="text-4xl mb-4">🐾</p>
+                <p className="text-lg font-medium text-gray-700 mb-2">No pets selected</p>
+                <p className="text-sm text-gray-500 mb-4">
+                  Click the "External item" button in the "Select Pets" field above to choose pets from the API
+                </p>
+                <div className="bg-white rounded-lg p-4 text-left text-xs text-gray-600 border border-gray-200">
+                  <p className="font-medium mb-2">How to use DataRepeater:</p>
+                  <ol className="list-decimal list-inside space-y-1">
+                    <li>Click "External item" button above</li>
+                    <li>Select one or more pets from the list</li>
+                    <li>Drag Puck components into each pet's slot</li>
+                    <li>Customize the layout for each pet individually</li>
+                  </ol>
+                </div>
+              </div>
             </div>
           )}
         </div>

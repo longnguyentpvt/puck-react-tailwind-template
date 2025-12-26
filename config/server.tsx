@@ -9,7 +9,6 @@ import { Flex } from "./blocks/Flex";
 import { Logos } from "./blocks/Logos";
 import { PetList } from "./blocks/PetList";
 import { DataRepeater } from "./blocks/DataRepeater";
-import { DataField } from "./blocks/DataField";
 import { Stats } from "./blocks/Stats";
 import { Template } from "./blocks/Template/server";
 import { Text } from "./blocks/Text";
@@ -34,7 +33,7 @@ const conf: UserConfig = {
     },
     data: {
       title: "Data",
-      components: ["DataRepeater", "DataField"],
+      components: ["DataRepeater"],
     },
     interactive: {
       title: "Actions",
@@ -51,7 +50,6 @@ const conf: UserConfig = {
     Button,
     Card,
     Carousel,
-    DataField,
     DataRepeater,
     Grid,
     Heading,

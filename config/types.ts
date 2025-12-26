@@ -12,6 +12,8 @@ import { StatsProps } from "./blocks/Stats";
 import { TemplateProps } from "./blocks/Template";
 import { TextProps } from "./blocks/Text";
 import { SpaceProps } from "./blocks/Space";
+import { PetListProps } from "./blocks/PetList";
+import { DataRepeaterProps } from "./blocks/DataRepeater";
 
 import { RootProps } from "./root";
 import { RichTextProps } from "./blocks/RichText";
@@ -24,10 +26,12 @@ export type Components = {
   Button: ButtonProps;
   Card: CardProps;
   Carousel: CarouselProps;
+  DataRepeater: DataRepeaterProps;
   Grid: GridProps;
   Heading: HeadingProps;
   Flex: FlexProps;
   Logos: LogosProps;
+  PetList: PetListProps;
   Stats: StatsProps;
   Template: TemplateProps;
   Text: TextProps;
@@ -39,7 +43,7 @@ export type Components = {
 export type UserConfig = Config<{
   components: Components;
   root: RootProps;
-  categories: ["layout", "typography", "content", "interactive"];
+  categories: ["layout", "typography", "content", "data", "interactive"];
   fields: {
     userField: {
       type: "userField";

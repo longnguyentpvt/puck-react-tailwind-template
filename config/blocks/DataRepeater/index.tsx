@@ -3,7 +3,6 @@ import { ComponentConfig } from "@measured/puck";
 import type { Slot } from "@measured/puck";
 import { Section } from "@/config/components/Section";
 import { withLayout, WithLayout } from "@/config/components/Layout";
-import { Pet } from "@/lib/external-data";
 
 export type DataRepeaterProps = WithLayout<{
   data: any[];
@@ -111,9 +110,19 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
   render: ({ title, data: externalData, layoutType, columns, gap, items: Items }) => {
     const gapClass = `gap-${gap}`;
     
+    // Use predefined column classes to ensure Tailwind includes them
+    const columnClasses: Record<number, string> = {
+      1: 'md:grid-cols-1',
+      2: 'md:grid-cols-2',
+      3: 'md:grid-cols-3',
+      4: 'md:grid-cols-4',
+      5: 'md:grid-cols-5',
+      6: 'md:grid-cols-6',
+    };
+    
     const containerClass = 
       layoutType === "grid" 
-        ? `grid grid-cols-1 md:grid-cols-${columns} ${gapClass}` 
+        ? `grid grid-cols-1 ${columnClasses[columns] || 'md:grid-cols-3'} ${gapClass}` 
         : layoutType === "flex"
         ? `flex flex-wrap ${gapClass}`
         : `flex flex-col ${gapClass}`;

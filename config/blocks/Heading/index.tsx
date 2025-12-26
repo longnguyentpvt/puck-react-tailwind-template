@@ -1,21 +1,19 @@
 import React from "react";
 import { ComponentConfig } from "@measured/puck";
-import classNames from "classnames";
 
 import type { HeadingProps as _HeadingProps } from "@/components/Heading";
 import { Heading as _Heading } from "@/components/Heading";
 import { Section } from "../../components/Section";
 import { WithLayout, withLayout } from "../../components/Layout";
 import { WithColor, withColor, getColorClassName, getColorStyle } from "../../components/Color";
-import { WithAnimate, withAnimate, getAnimateClassName } from "../../components/Animate";
 
 
-export type HeadingProps = WithLayout<WithColor<WithAnimate<{
+export type HeadingProps = WithLayout<WithColor<{
   align: "left" | "center" | "right";
   text?: string;
   level?: _HeadingProps["rank"];
   size: _HeadingProps["size"];
-}>>>;
+}>>;
 
 const sizeOptions = [
   { value: "xxxl", label: "XXXL" },
@@ -69,15 +67,12 @@ const HeadingInternal: ComponentConfig<HeadingProps> = {
       paddingBottom: "2",
     },
   },
-  render: ({ align, text, size, level, colorType, presetColor, customColor, animate }) => {
+  render: ({ align, text, size, level, colorType, presetColor, customColor }) => {
     return (
       <Section>
         <_Heading size={size} rank={level as any}>
           <span 
-            className={classNames(
-              getColorClassName(colorType, presetColor),
-              getAnimateClassName(animate)
-            )}
+            className={getColorClassName(colorType, presetColor)}
             style={{ display: "block", textAlign: align, width: "100%", ...getColorStyle(colorType, customColor, presetColor) }}
           >
             {text}
@@ -88,4 +83,4 @@ const HeadingInternal: ComponentConfig<HeadingProps> = {
   },
 };
 
-export const Heading = withLayout(withColor(withAnimate(HeadingInternal)));
+export const Heading = withLayout(withColor(HeadingInternal));

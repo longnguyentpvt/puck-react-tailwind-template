@@ -1,11 +1,9 @@
 import React from "react";
 import { ComponentConfig } from "@measured/puck";
 import type { Slot } from "@measured/puck";
-import classNames from "classnames";
 import { WithLayout, withLayout } from "@/config/components/Layout";
-import { WithAnimate, withAnimate, getAnimateClassName } from "@/config/components/Animate";
 
-export type BannerProps = WithLayout<WithAnimate<{
+export type BannerProps = WithLayout<{
   backgroundType: "image" | "color";
   backgroundImage?: string;
   backgroundColor?: string;
@@ -18,7 +16,7 @@ export type BannerProps = WithLayout<WithAnimate<{
   contentMaxWidth: "full" | "7xl" | "6xl" | "5xl" | "4xl" | "3xl" | "2xl" | "xl" | "lg" | "md" | "sm";
   contentPadding: string;
   content: Slot;
-}>>;
+}>;
 
 const BannerInner: ComponentConfig<BannerProps> = {
   label: "Banner",
@@ -161,7 +159,6 @@ const BannerInner: ComponentConfig<BannerProps> = {
     contentMaxWidth,
     contentPadding,
     content: Content,
-    animate,
   }) => {
     const heightClass = {
       small: "h-75",
@@ -199,11 +196,7 @@ const BannerInner: ComponentConfig<BannerProps> = {
 
     return (
       <div
-        className={classNames(
-          "relative w-full overflow-hidden",
-          heightClass,
-          getAnimateClassName(animate)
-        )}
+        className={`relative w-full ${heightClass} overflow-hidden`}
         style={backgroundStyle}
       >
         {overlayEnabled && (
@@ -227,4 +220,4 @@ const BannerInner: ComponentConfig<BannerProps> = {
   },
 };
 
-export const Banner = withLayout(withAnimate(BannerInner));
+export const Banner = withLayout(BannerInner);

@@ -16,7 +16,6 @@ import { TextProps } from "./blocks/Text";
 import { SpaceProps } from "./blocks/Space";
 import { PetListProps } from "./blocks/PetList";
 import { DataRepeaterProps } from "./blocks/DataRepeater";
-import { DataFieldProps } from "./blocks/DataField";
 
 import { RootProps } from "./root";
 import { RichTextProps } from "./blocks/RichText";
@@ -31,7 +30,6 @@ export type Components = {
   Card: CardProps;
   Carousel: CarouselProps;
   Dialog: DialogProps;
-  DataField: DataFieldProps;
   DataRepeater: DataRepeaterProps;
   Grid: GridProps;
   Heading: HeadingProps;

@@ -26,10 +26,13 @@ export const Space: ComponentConfig<SpaceProps> = {
   },
   defaultProps: {
     direction: "",
-    size: "24px",
+    size: "6",
   },
   inline: true,
   render: ({ direction, size, puck }) => {
+    // Convert Tailwind spacing scale to pixels (1 unit = 4px)
+    const sizeInPx = `${Number(size) * 4}px`;
+    
     return (
       <div
         ref={puck.dragRef}
@@ -39,8 +42,8 @@ export const Space: ComponentConfig<SpaceProps> = {
           direction === "horizontal" && "h-full"
         )}
         style={{
-          height: direction === "horizontal" ? "100%" : size,
-          width: direction === "vertical" ? "100%" : size,
+          height: direction === "horizontal" ? "100%" : sizeInPx,
+          width: direction === "vertical" ? "100%" : sizeInPx,
         }}
       />
     );

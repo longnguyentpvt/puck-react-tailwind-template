@@ -243,7 +243,7 @@ const CardInner: ComponentConfig<CardProps> = {
               )}
               {showFooter && (
                 <CardFooter>
-                  <div className="min-h-15 border border-dashed border-gray-300 rounded p-2 flex-1">
+                  <div className="min-h-[60px] border border-dashed border-gray-300 rounded p-2 flex-1">
                     <div className="text-xs text-gray-500 mb-2">Footer Area:</div>
                     <Footer />
                   </div>

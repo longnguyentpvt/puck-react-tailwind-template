@@ -1,7 +1,6 @@
 import React from "react";
 import { ComponentConfig } from "@measured/puck";
 import type { Slot } from "@measured/puck";
-import { Section } from "@/config/components/Section";
 
 export type AnimateProps = {
   animate: "none" | "spin" | "ping" | "pulse" | "bounce";
@@ -45,10 +44,6 @@ export const Animate: ComponentConfig<AnimateProps> = {
   render: ({ animate, children: Children }) => {
     const animateClass = animate !== "none" ? `animate-${animate}` : "";
 
-    return (
-      <Section>
-        <Children className={animateClass} />
-      </Section>
-    );
+    return <Children className={animateClass} />;
   },
 };

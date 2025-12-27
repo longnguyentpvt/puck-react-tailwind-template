@@ -1,4 +1,5 @@
 import { Accordion } from "./blocks/Accordion";
+import { Animate } from "./blocks/Animate";
 import { Banner } from "./blocks/Banner";
 import { Button } from "./blocks/Button";
 import { Card } from "./blocks/Card";
@@ -31,7 +32,7 @@ const conf: UserConfig = {
     },
     interactive: {
       title: "Actions",
-      components: ["Button"],
+      components: ["Button", "Animate"],
     },
     other: {
       title: "Other",
@@ -40,6 +41,7 @@ const conf: UserConfig = {
   },
   components: {
     Accordion,
+    Animate,
     Banner,
     Button,
     Card,

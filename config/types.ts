@@ -1,5 +1,6 @@
 import { Config, Data } from "@measured/puck";
 import { AccordionProps } from "./blocks/Accordion";
+import { AnimateProps } from "./blocks/Animate";
 import { BannerProps } from "./blocks/Banner";
 import { ButtonProps } from "./blocks/Button";
 import { CardProps } from "./blocks/Card";
@@ -20,6 +21,7 @@ export type { RootProps } from "./root";
 
 export type Components = {
   Accordion: AccordionProps;
+  Animate: AnimateProps;
   Banner: BannerProps;
   Button: ButtonProps;
   Card: CardProps;

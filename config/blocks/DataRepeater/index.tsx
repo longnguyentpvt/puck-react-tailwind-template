@@ -36,20 +36,42 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
       type: "external",
       label: "Select Pets",
       placeholder: "Select pets to display",
-      fetchList: async ({ query }) => {
+      fetchList: async ({ query, filters }) => {
         try {
-          // Use absolute URL for both client and server
-          const baseUrl = typeof window !== 'undefined' 
-            ? window.location.origin 
-            : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+          // Strategy 1: Try relative URL first (works in most cases)
+          let response;
+          let pets;
           
-          const response = await fetch(`${baseUrl}/api/pets`);
-          if (!response.ok) {
-            console.error(`Failed to fetch pets: ${response.status}`);
-            return [];
+          try {
+            console.log('[DataRepeater] Attempting relative URL fetch');
+            response = await fetch('/api/pets');
+            if (response.ok) {
+              pets = await response.json();
+              console.log('[DataRepeater] Successfully fetched via relative URL:', pets.length, 'pets');
+            }
+          } catch (relativeError) {
+            console.log('[DataRepeater] Relative URL failed, trying absolute URL');
+            
+            // Strategy 2: Fall back to absolute URL
+            const baseUrl = typeof window !== 'undefined' 
+              ? window.location.origin 
+              : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+            
+            console.log('[DataRepeater] Fetching from absolute URL:', `${baseUrl}/api/pets`);
+            response = await fetch(`${baseUrl}/api/pets`);
+            
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            pets = await response.json();
+            console.log('[DataRepeater] Successfully fetched via absolute URL:', pets.length, 'pets');
           }
           
-          const pets = await response.json();
+          if (!pets || !Array.isArray(pets)) {
+            console.error('[DataRepeater] Invalid response format');
+            return [];
+          }
           
           // Filter by search query if provided
           const filteredPets = query
@@ -60,12 +82,16 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
             : pets;
           
           // Return in format expected by Puck's external field
-          return filteredPets.map((pet: any) => ({
+          const result = filteredPets.map((pet: any) => ({
             value: pet,
             label: `${pet.name} (${pet.species})`,
           }));
+          
+          console.log('[DataRepeater] Returning', result.length, 'results');
+          return result;
         } catch (error) {
-          console.error("Error loading pets:", error);
+          console.error("[DataRepeater] Error loading pets:", error);
+          // Return empty array to prevent UI from breaking
           return [];
         }
       },

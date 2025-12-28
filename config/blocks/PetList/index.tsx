@@ -35,18 +35,42 @@ const PetListInternal: ComponentConfig<PetListProps> = {
       type: "external",
       label: "Pets",
       // Fetch pet data from the API endpoint
-      fetchList: async ({ query }) => {
+      fetchList: async ({ query, filters }) => {
         try {
-          // Use absolute URL for server-side rendering
-          const baseUrl = typeof window !== 'undefined' 
-            ? window.location.origin 
-            : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+          // Strategy 1: Try relative URL first (works in most cases)
+          let response;
+          let pets;
           
-          const response = await fetch(`${baseUrl}/api/pets`);
-          if (!response.ok) {
-            throw new Error("Failed to fetch pets");
+          try {
+            console.log('[PetList] Attempting relative URL fetch');
+            response = await fetch('/api/pets');
+            if (response.ok) {
+              pets = await response.json();
+              console.log('[PetList] Successfully fetched via relative URL:', pets.length, 'pets');
+            }
+          } catch (relativeError) {
+            console.log('[PetList] Relative URL failed, trying absolute URL');
+            
+            // Strategy 2: Fall back to absolute URL
+            const baseUrl = typeof window !== 'undefined' 
+              ? window.location.origin 
+              : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+            
+            console.log('[PetList] Fetching from absolute URL:', `${baseUrl}/api/pets`);
+            response = await fetch(`${baseUrl}/api/pets`);
+            
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            pets = await response.json();
+            console.log('[PetList] Successfully fetched via absolute URL:', pets.length, 'pets');
           }
-          const pets = await response.json();
+          
+          if (!pets || !Array.isArray(pets)) {
+            console.error('[PetList] Invalid response format');
+            return [];
+          }
           
           // Filter by query if provided
           const filteredPets = query
@@ -56,12 +80,16 @@ const PetListInternal: ComponentConfig<PetListProps> = {
               )
             : pets;
           
-          return filteredPets.map((pet: Pet) => ({
+          const result = filteredPets.map((pet: Pet) => ({
             value: pet,
             label: `${pet.name} (${pet.species})`,
           }));
+          
+          console.log('[PetList] Returning', result.length, 'results');
+          return result;
         } catch (error) {
-          console.error("Error loading pets:", error);
+          console.error("[PetList] Error loading pets:", error);
+          // Return empty array to prevent UI from breaking
           return [];
         }
       },

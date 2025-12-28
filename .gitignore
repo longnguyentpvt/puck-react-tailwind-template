@@ -8,6 +8,10 @@ package-lock.json
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
+/playwright/.cache/
+tests/screenshots/*.png
 
 # next.js
 /.next/

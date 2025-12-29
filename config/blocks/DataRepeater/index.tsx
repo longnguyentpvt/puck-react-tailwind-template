@@ -5,12 +5,11 @@ import { Section } from "@/config/components/Section";
 import { withLayout, WithLayout } from "@/config/components/Layout";
 
 export type DataRepeaterProps = WithLayout<{
-  pets: any[];
+  pets: Array<{ pet: any; content: Slot }>;
   title?: string;
   layoutType?: "grid" | "flex" | "stack";
   columns?: number;
   gap?: string;
-  items: Slot;
 }>;
 
 /**
@@ -33,67 +32,77 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
       label: "Title (optional)",
     },
     pets: {
-      type: "external",
-      label: "Select Pets",
-      placeholder: "Select pets to display",
-      fetchList: async ({ query, filters }) => {
-        try {
-          // Strategy 1: Try relative URL first (works in most cases)
-          let response;
-          let pets;
-          
-          try {
-            console.log('[DataRepeater] Attempting relative URL fetch');
-            response = await fetch('/api/pets');
-            if (response.ok) {
-              pets = await response.json();
-              console.log('[DataRepeater] Successfully fetched via relative URL:', pets.length, 'pets');
+      type: "array",
+      label: "Pets",
+      getItemSummary: (item: any) => item.pet?.name || "Pet",
+      arrayFields: {
+        pet: {
+          type: "external",
+          label: "Select Pet",
+          fetchList: async ({ query, filters }) => {
+            try {
+              // Strategy 1: Try relative URL first (works in most cases)
+              let response;
+              let pets;
+              
+              try {
+                console.log('[DataRepeater] Attempting relative URL fetch');
+                response = await fetch('/api/pets');
+                if (response.ok) {
+                  pets = await response.json();
+                  console.log('[DataRepeater] Successfully fetched via relative URL:', pets.length, 'pets');
+                }
+              } catch (relativeError) {
+                console.log('[DataRepeater] Relative URL failed, trying absolute URL');
+                
+                // Strategy 2: Fall back to absolute URL
+                const baseUrl = typeof window !== 'undefined' 
+                  ? window.location.origin 
+                  : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+                
+                console.log('[DataRepeater] Fetching from absolute URL:', `${baseUrl}/api/pets`);
+                response = await fetch(`${baseUrl}/api/pets`);
+                
+                if (!response.ok) {
+                  throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                pets = await response.json();
+                console.log('[DataRepeater] Successfully fetched via absolute URL:', pets.length, 'pets');
+              }
+              
+              if (!pets || !Array.isArray(pets)) {
+                console.error('[DataRepeater] Invalid response format');
+                return [];
+              }
+              
+              // Filter by search query if provided
+              const filteredPets = query
+                ? pets.filter((pet: any) => 
+                    pet.name?.toLowerCase().includes(query.toLowerCase()) ||
+                    pet.species?.toLowerCase().includes(query.toLowerCase())
+                  )
+                : pets;
+              
+              // Return in format expected by Puck's external field
+              const result = filteredPets.map((pet: any) => ({
+                value: pet,
+                label: `${pet.name} (${pet.species})`,
+              }));
+              
+              console.log('[DataRepeater] Returning', result.length, 'results');
+              return result;
+            } catch (error) {
+              console.error("[DataRepeater] Error loading pets:", error);
+              // Return empty array to prevent UI from breaking
+              return [];
             }
-          } catch (relativeError) {
-            console.log('[DataRepeater] Relative URL failed, trying absolute URL');
-            
-            // Strategy 2: Fall back to absolute URL
-            const baseUrl = typeof window !== 'undefined' 
-              ? window.location.origin 
-              : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-            
-            console.log('[DataRepeater] Fetching from absolute URL:', `${baseUrl}/api/pets`);
-            response = await fetch(`${baseUrl}/api/pets`);
-            
-            if (!response.ok) {
-              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            
-            pets = await response.json();
-            console.log('[DataRepeater] Successfully fetched via absolute URL:', pets.length, 'pets');
-          }
-          
-          if (!pets || !Array.isArray(pets)) {
-            console.error('[DataRepeater] Invalid response format');
-            return [];
-          }
-          
-          // Filter by search query if provided
-          const filteredPets = query
-            ? pets.filter((pet: any) => 
-                pet.name?.toLowerCase().includes(query.toLowerCase()) ||
-                pet.species?.toLowerCase().includes(query.toLowerCase())
-              )
-            : pets;
-          
-          // Return in format expected by Puck's external field
-          const result = filteredPets.map((pet: any) => ({
-            value: pet,
-            label: `${pet.name} (${pet.species})`,
-          }));
-          
-          console.log('[DataRepeater] Returning', result.length, 'results');
-          return result;
-        } catch (error) {
-          console.error("[DataRepeater] Error loading pets:", error);
-          // Return empty array to prevent UI from breaking
-          return [];
-        }
+          },
+        },
+        content: {
+          type: "slot",
+          label: "Content",
+        },
       },
     },
     layoutType: {
@@ -121,10 +130,6 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
         { label: "Large", value: "8" },
       ],
     },
-    items: {
-      type: "slot",
-      label: "Item Template (will be repeated for each pet)",
-    },
   },
   defaultProps: {
     pets: [],
@@ -132,13 +137,12 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
     layoutType: "grid",
     columns: 3,
     gap: "6",
-    items: [],
     layout: {
       paddingTop: "8",
       paddingBottom: "8",
     },
   },
-  render: ({ title, pets, layoutType, columns, gap, items: Items }) => {
+  render: ({ title, pets, layoutType, columns, gap }) => {
     const gapClass = `gap-${gap}`;
     
     // Use predefined column classes to ensure Tailwind includes them
@@ -182,42 +186,47 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
               </div>
               
               <div className={containerClass}>
-                {petList.map((pet: any, index: number) => (
-                  <div 
-                    key={pet.id || index}
-                    className="border-2 border-dashed border-blue-200 rounded-lg p-4 bg-white hover:border-blue-400 transition-colors"
-                  >
-                    {/* Render slot for this pet's custom layout */}
-                    <div className="min-h-[120px] mb-3">
-                      <Items />
-                    </div>
-                    
-                    {/* Show pet data reference */}
-                    <div className="mt-3 pt-3 border-t border-gray-200">
-                      <details className="text-xs">
-                        <summary className="cursor-pointer font-medium text-gray-700 hover:text-gray-900 flex items-center gap-2">
-                          <span className="text-blue-600">📊</span>
-                          <span className="font-semibold">{pet.name || `Pet #${index + 1}`}</span>
-                          {pet.species && (
-                            <span className="text-gray-500">({pet.species})</span>
-                          )}
-                        </summary>
-                        <div className="mt-2 bg-gray-50 p-3 rounded">
-                          <p className="font-medium text-gray-700 mb-1">Available data:</p>
-                          <pre className="overflow-auto text-xs text-gray-600">
+                {petList.map((item: any, index: number) => {
+                  const pet = item.pet;
+                  const Content = item.content;
+                  
+                  return (
+                    <div 
+                      key={pet?.id || index}
+                      className="border-2 border-dashed border-blue-200 rounded-lg p-4 bg-white hover:border-blue-400 transition-colors"
+                    >
+                      {/* Render slot for this pet's custom layout */}
+                      <div className="min-h-[120px] mb-3">
+                        <Content />
+                      </div>
+                      
+                      {/* Show pet data reference */}
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <details className="text-xs">
+                          <summary className="cursor-pointer font-medium text-gray-700 hover:text-gray-900 flex items-center gap-2">
+                            <span className="text-blue-600">📊</span>
+                            <span className="font-semibold">{pet?.name || `Pet #${index + 1}`}</span>
+                            {pet?.species && (
+                              <span className="text-gray-500">({pet.species})</span>
+                            )}
+                          </summary>
+                          <div className="mt-2 bg-gray-50 p-3 rounded">
+                            <p className="font-medium text-gray-700 mb-1">Available data:</p>
+                            <pre className="overflow-auto text-xs text-gray-600">
 {JSON.stringify(pet, null, 2)}
-                          </pre>
-                          <p className="mt-2 text-gray-500 italic text-xs">
-                            💡 Tip: Use standard Puck components in the slot above. For example:
-                            • Heading component for pet name
-                            • Text component for description
-                            • Any other Puck components you need
-                          </p>
-                        </div>
-                      </details>
+                            </pre>
+                            <p className="mt-2 text-gray-500 italic text-xs">
+                              💡 Tip: Use standard Puck components in the slot above. For example:
+                              • Heading component for pet name
+                              • Text component for description
+                              • Any other Puck components you need
+                            </p>
+                          </div>
+                        </details>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           ) : (

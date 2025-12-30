@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@measured/puck": "^0.20.2",
@@ -35,6 +36,7 @@
     "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
+    "@playwright/test": "^1.49.0",
     "@types/node": "^22",
     "@types/react": "^19.2.1",
     "@types/react-dom": "^19.2.1",

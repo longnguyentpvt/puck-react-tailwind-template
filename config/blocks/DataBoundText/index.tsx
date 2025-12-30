@@ -157,21 +157,35 @@ const DataBoundTextInternal: ComponentConfig<DataBoundTextProps> = {
     }
     
     // Show message if field not found
-    if (fieldValue === defaultValue && !dataContext.data?.[fieldPath]) {
-      return (
-        <Section>
-          <div className="border border-gray-300 bg-gray-50 rounded p-2">
-            <p className="text-xs text-gray-600">
-              Field "<code className="bg-gray-200 px-1 rounded">{fieldPath}</code>" not found
-            </p>
-            {defaultValue && (
-              <p className="text-xs text-gray-500 mt-1">
-                Using default: "{defaultValue}"
+    if (fieldValue === defaultValue) {
+      // Check if field exists using dot notation logic
+      const fields = fieldPath.split('.');
+      let exists = dataContext.data;
+      for (const field of fields) {
+        if (exists && typeof exists === 'object' && field in exists) {
+          exists = exists[field];
+        } else {
+          exists = undefined;
+          break;
+        }
+      }
+      
+      if (!exists && exists !== 0 && exists !== false) {
+        return (
+          <Section>
+            <div className="border border-gray-300 bg-gray-50 rounded p-2">
+              <p className="text-xs text-gray-600">
+                Field "<code className="bg-gray-200 px-1 rounded">{fieldPath}</code>" not found
               </p>
-            )}
-          </div>
-        </Section>
-      );
+              {defaultValue && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Using default: "{defaultValue}"
+                </p>
+              )}
+            </div>
+          </Section>
+        );
+      }
     }
     
     return (

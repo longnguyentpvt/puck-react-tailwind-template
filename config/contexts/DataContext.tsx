@@ -8,12 +8,12 @@ import React, { createContext, useContext } from 'react';
  * slot architecture.
  */
 
-export interface DataContextValue {
-  data: any;
+export interface DataContextValue<T = any> {
+  data: T;
   dataType?: string; // e.g., "pet", "product", "user"
 }
 
-const DataContext = createContext<DataContextValue | null>(null);
+const DataContext = createContext<DataContextValue<any> | null>(null);
 
 export interface DataProviderProps {
   children: React.ReactNode;
@@ -36,7 +36,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, data, data
  * Hook to access data from parent context
  * Returns null if no data context is available
  */
-export const useDataContext = (): DataContextValue | null => {
+export const useDataContext = <T = any>(): DataContextValue<T> | null => {
   return useContext(DataContext);
 };
 
@@ -45,7 +45,7 @@ export const useDataContext = (): DataContextValue | null => {
  * @param fieldPath - Dot notation path to field (e.g., "name", "address.city")
  * @param defaultValue - Value to return if field not found
  */
-export const useDataField = (fieldPath: string, defaultValue: any = ''): any => {
+export const useDataField = <T = any>(fieldPath: string, defaultValue: T): T | any => {
   const context = useDataContext();
   
   if (!context || !context.data) {

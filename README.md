@@ -6,6 +6,44 @@ This repository is to building a template for UI builder by drag and drop and si
 - Shadcn UI components
 
 
+# CI/CD
+
+This project includes automated CI checks for pull requests to the main branch:
+
+## PR Checks Workflow
+
+When you create a pull request to the `main` branch, the following checks will run automatically:
+
+### 1. Lint and Build
+- Installs dependencies using Yarn
+- Runs ESLint to check code quality
+- Builds the Next.js application to ensure no build errors
+
+### 2. Docker Build and Playwright Tests
+- Builds the Docker image for the application
+- Starts a MongoDB container for testing
+- Runs the application in a Docker container
+- Executes Playwright end-to-end tests against the containerized application
+- Uploads test reports as artifacts
+
+All checks must pass before a pull request can be merged.
+
+## Running Tests Locally
+
+To run Playwright tests locally:
+
+```bash
+# Install dependencies
+yarn install
+
+# Install Playwright browsers
+npx playwright install --with-deps chromium
+
+# Run tests (requires the app to be running)
+yarn test:e2e
+```
+
+
 # `next` recipe
 
 The `next` recipe showcases one of the most powerful ways to implement Puck using to provide an authoring tool for any route in your Next app.

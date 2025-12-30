@@ -129,8 +129,8 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
   render: ({ title, pets, puck }) => {
     // Detect if we're in edit mode (Puck editor) or published view
     // In published view, we hide the instruction box, borders, and data summary
-    // Use ?? true as default so it shows in editor when puck prop is undefined
-    const isEditing = puck?.isEditing ?? true;
+    // Default to false so publish view is clean. Only show editor UI when explicitly in edit mode.
+    const isEditing = puck?.isEditing === true;
     
     // Ensure pets is an array
     const petList = Array.isArray(pets) ? pets : [];

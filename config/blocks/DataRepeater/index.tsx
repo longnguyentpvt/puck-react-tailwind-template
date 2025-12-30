@@ -3,6 +3,7 @@ import { ComponentConfig } from "@measured/puck";
 import type { Slot } from "@measured/puck";
 import { Section } from "@/config/components/Section";
 import { withLayout, WithLayout } from "@/config/components/Layout";
+import { DataProvider } from "@/config/contexts/DataContext";
 
 export type DataRepeaterProps = WithLayout<{
   pets: Array<{ pet: any; content: Slot }>;
@@ -13,17 +14,22 @@ export type DataRepeaterProps = WithLayout<{
 }>;
 
 /**
- * DataRepeater component - A flexible wrapper for rendering external data
+ * DataRepeater component - A flexible wrapper for rendering external data with automatic data binding
  * 
  * This component works with external data from the pets API,
- * creating a slot for each data item. Users can drag any component into
- * each slot to create custom layouts.
+ * creating a slot for each data item. Uses React Context to provide data to child components.
  * 
  * How to use:
  * 1. Add DataRepeater component to your page
- * 2. Click "External item" button in the "Select Pets" field
- * 3. Select which pets to display
- * 4. Drag components (Heading, Text, etc.) into each pet's slot
+ * 2. Click "+ Add item" button in the "Pets" field
+ * 3. For each item, click "External item" to select a pet
+ * 4. Drag DataBoundText components into each pet's slot
+ * 5. Configure DataBoundText to show specific fields (name, species, description, etc.)
+ * 
+ * Data Binding:
+ * - Each slot is wrapped in a DataProvider that passes the pet data
+ * - Child components can use DataBoundText to automatically display fields
+ * - No manual copying of data required!
  */
 const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
   fields: {
@@ -178,10 +184,11 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
             <div className="space-y-6">
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-sm text-blue-800 font-medium mb-2">
-                  🎯 {petList.length} pet{petList.length !== 1 ? 's' : ''} selected
+                  🎯 {petList.length} pet{petList.length !== 1 ? 's' : ''} selected - Auto data binding enabled!
                 </p>
                 <p className="text-xs text-blue-600">
-                  Drag any Puck components (Heading, Text, etc.) into each pet's slot below to customize the display.
+                  Drag <strong>DataBoundText</strong> components into each pet's slot below.
+                  They will automatically display data from the pet (name, species, description, etc.)
                 </p>
               </div>
               
@@ -195,10 +202,12 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
                       key={pet?.id || index}
                       className="border-2 border-dashed border-blue-200 rounded-lg p-4 bg-white hover:border-blue-400 transition-colors"
                     >
-                      {/* Render slot for this pet's custom layout */}
-                      <div className="min-h-[120px] mb-3">
-                        <Content />
-                      </div>
+                      {/* Wrap slot content with DataProvider to pass pet data to children */}
+                      <DataProvider data={pet} dataType="pet">
+                        <div className="min-h-[120px] mb-3">
+                          <Content />
+                        </div>
+                      </DataProvider>
                       
                       {/* Show pet data reference */}
                       <div className="mt-3 pt-3 border-t border-gray-200">
@@ -211,15 +220,17 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
                             )}
                           </summary>
                           <div className="mt-2 bg-gray-50 p-3 rounded">
-                            <p className="font-medium text-gray-700 mb-1">Available data:</p>
+                            <p className="font-medium text-gray-700 mb-1">Available data fields:</p>
                             <pre className="overflow-auto text-xs text-gray-600">
 {JSON.stringify(pet, null, 2)}
                             </pre>
-                            <p className="mt-2 text-gray-500 italic text-xs">
-                              💡 Tip: Use standard Puck components in the slot above. For example:
-                              • Heading component for pet name
-                              • Text component for description
-                              • Any other Puck components you need
+                            <p className="mt-2 text-green-700 font-medium text-xs">
+                              ✨ New: Use DataBoundText component!
+                            </p>
+                            <p className="text-gray-600 text-xs mt-1">
+                              Drag a <strong>DataBoundText</strong> component into the slot above, then set:
+                              • Field Path: "name" (or "species", "description", "age", "breed")
+                              • It will automatically show that field's value!
                             </p>
                           </div>
                         </details>
@@ -238,12 +249,13 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
                   Click the "External item" button in the "Select Pets" field above to choose pets from the API
                 </p>
                 <div className="bg-white rounded-lg p-4 text-left text-xs text-gray-600 border border-gray-200">
-                  <p className="font-medium mb-2">How to use DataRepeater:</p>
+                  <p className="font-medium mb-2">How to use DataRepeater with automatic data binding:</p>
                   <ol className="list-decimal list-inside space-y-1">
-                    <li>Click "External item" button above</li>
-                    <li>Select one or more pets from the list</li>
-                    <li>Drag Puck components into each pet's slot</li>
-                    <li>Customize the layout for each pet individually</li>
+                    <li>Click "+ Add item" button above</li>
+                    <li>Click "External item" to select a pet</li>
+                    <li>Drag <strong>DataBoundText</strong> components into the pet's slot</li>
+                    <li>Set Field Path to "name", "species", "description", etc.</li>
+                    <li>Data automatically displays - no manual entry needed!</li>
                   </ol>
                 </div>
               </div>

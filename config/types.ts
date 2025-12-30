@@ -16,6 +16,7 @@ import { TextProps } from "./blocks/Text";
 import { SpaceProps } from "./blocks/Space";
 import { PetListProps } from "./blocks/PetList";
 import { DataRepeaterProps } from "./blocks/DataRepeater";
+import { DataBoundTextProps } from "./blocks/DataBoundText";
 
 import { RootProps } from "./root";
 import { RichTextProps } from "./blocks/RichText";
@@ -31,6 +32,7 @@ export type Components = {
   Carousel: CarouselProps;
   Dialog: DialogProps;
   DataRepeater: DataRepeaterProps;
+  DataBoundText: DataBoundTextProps;
   Grid: GridProps;
   Heading: HeadingProps;
   Flex: FlexProps;

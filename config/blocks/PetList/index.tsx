@@ -34,7 +34,7 @@ const PetListInternal: ComponentConfig<PetListProps> = {
     pets: {
       type: "array",
       label: "Pets",
-      getItemSummary: (item: Pet) => item.name || "Pet",
+      getItemSummary: (item: { pet: Pet }) => item.pet?.name || "Pet",
       arrayFields: {
         pet: {
           type: "external",

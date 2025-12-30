@@ -1,12 +1,23 @@
-# DataRepeater Component - Flexible External Data Rendering with Puck Components
+# DataRepeater Component - Flexible External Data Rendering with Automatic Data Binding
 
-The `DataRepeater` component provides a flexible way to render external data by creating slots for each data item. Unlike fixed components, DataRepeater lets you use any standard Puck components in each slot, ensuring true extensibility.
+The `DataRepeater` component provides a flexible way to render external data by creating slots for each data item. With the new **DataBoundText** component, you get automatic data binding - no manual configuration required!
+
+## ✨ NEW: Automatic Data Binding
+
+**DataBoundText** components automatically display data from their parent DataRepeater:
+
+- **No manual typing** - Set field path (e.g., "name") and it shows the data
+- **Works for all pets** - Automatically adapts to each slot's data
+- **Updates automatically** - Changes in data source reflect immediately
+- **Fully customizable** - Size, weight, alignment, prefix/suffix
+
+**See [DATA_BOUND_TEXT.md](./DATA_BOUND_TEXT.md) for complete guide.**
 
 ## Key Concept
 
 **Problem**: Fixed components like `DataField` aren't extensible - when you update Puck's Heading component with new features, `DataField` doesn't know about them.
 
-**Solution**: DataRepeater creates slots where you drag standard Puck components (Heading, Text, Button, etc.). When Puck components get updated, they automatically work in DataRepeater slots.
+**Solution**: DataRepeater creates slots where you drag standard Puck components (Heading, Text, Button, etc.) OR use **DataBoundText** for automatic data binding. When Puck components get updated, they automatically work in DataRepeater slots.
 
 ## Overview
 
@@ -28,26 +39,44 @@ The `DataRepeater` component provides a flexible way to render external data by 
 ### Step 1: Add DataRepeater and Select Data
 
 1. Add a `DataRepeater` component to your page
-2. Click the "External item" button in the "Select Pets" field
-3. A modal appears showing all available pets from the API
-4. Select the pets you want to display (e.g., Buddy, Whiskers, Max)
-5. Click to confirm selection
+2. Click "+ Add item" button in the "Pets" field
+3. Click "External item" button for that item
+4. A modal appears showing all available pets from the API
+5. Select a pet (e.g., Buddy, Whiskers, Max)
+6. Repeat to add more pets
 
-### Step 2: Compose Your Layout with Standard Puck Components
+### Step 2: Add Components to Slots
 
-For each selected pet, a slot area appears. Drag standard Puck components into each slot:
+For each selected pet, a slot area appears. You have two options:
 
-- **Heading component** → For displaying pet names
-- **Text component** → For pet descriptions  
-- **Button component** → For actions like "Adopt"
-- **Space component** → For spacing
-- **Any other Puck component** → Fully extensible!
+#### Option A: Automatic Data Binding (Recommended) ✨
 
-### Step 3: Configure Components Manually
+Use **DataBoundText** components for automatic data display:
 
-**Important**: Components in slots don't automatically access the pet data. You need to manually configure each component.
+1. Drag **DataBoundText** from the Data category into a slot
+2. Set Field Path to "name" → Automatically shows pet name
+3. Add more DataBoundText for "species", "description", etc.
+4. Customize size, weight, alignment as needed
 
-Each slot shows the pet's data in a collapsible section at the bottom:
+**Benefits:**
+- ✅ No manual data entry
+- ✅ Automatically adapts to each pet
+- ✅ Updates when data changes
+- ✅ Fast and error-free
+
+#### Option B: Manual Configuration
+
+Use standard Puck components with manual setup:
+
+1. Drag **Heading component** into slot
+2. Click on Heading, manually type pet name from JSON
+3. Drag **Text component**, manually type description
+4. Repeat for each field and each pet
+
+**When to use:**
+- Need specific components not compatible with DataBoundText
+- Want full control over every detail
+- Complex layouts requiring standard components
 
 ```json
 {

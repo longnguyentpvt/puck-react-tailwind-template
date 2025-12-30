@@ -16,6 +16,7 @@ import { Space } from "./blocks/Space";
 import { RichText } from "./blocks/RichText";
 import { PetList } from "./blocks/PetList";
 import { DataRepeater } from "./blocks/DataRepeater";
+import { DataBoundText } from "./blocks/DataBoundText";
 
 import Root from "./root";
 import { UserConfig } from "./types";
@@ -37,7 +38,7 @@ export const conf: UserConfig = {
     },
     data: {
       title: "Data",
-      components: ["DataRepeater"],
+      components: ["DataRepeater", "DataBoundText"],
     },
     interactive: {
       title: "Actions",
@@ -57,6 +58,7 @@ export const conf: UserConfig = {
     Carousel,
     Dialog,
     DataRepeater,
+    DataBoundText,
     Grid,
     Heading,
     Flex,

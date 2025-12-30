@@ -447,7 +447,7 @@ export const initialData: Record<string, UserData> = {
         type: "Text",
         props: {
           align: "center",
-          text: "This page demonstrates loading external data into Puck components. The pet information below is fetched from an external data source (API) and rendered dynamically using the PetList component.",
+          text: "This page demonstrates loading external data into Puck components. Select pets below and use template syntax like \"{{name}}\" in Heading/Text components, or drag DataBoundText components to display data automatically.",
           layout: { paddingTop: "0", paddingBottom: "0" },
           size: "m",
           id: "Text-pets-description",
@@ -465,12 +465,14 @@ export const initialData: Record<string, UserData> = {
         },
       },
       {
-        type: "PetList",
+        type: "DataRepeater",
         props: {
-          title: "Meet Our Pets",
-          showSpecies: true,
+          title: "",
+          layoutType: "grid",
+          columns: 3,
+          gap: "6",
           pets: [],
-          id: "PetList-main",
+          id: "DataRepeater-main",
           layout: { paddingTop: "0", paddingBottom: "0" },
         },
       },

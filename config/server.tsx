@@ -9,7 +9,6 @@ import { Grid } from "./blocks/Grid";
 import { Heading } from "./blocks/Heading";
 import { Flex } from "./blocks/Flex";
 import { Logos } from "./blocks/Logos";
-import { PetList } from "./blocks/PetList";
 import { DataRepeater } from "./blocks/DataRepeater";
 import { DataBoundText } from "./blocks/DataBoundText";
 import { Stats } from "./blocks/Stats";
@@ -32,7 +31,7 @@ const conf: UserConfig = {
     },
     content: {
       title: "Content",
-      components: ["Banner", "Carousel", "Accordion", "Dialog", "PetList"],
+      components: ["Banner", "Carousel", "Accordion", "Dialog"],
     },
     data: {
       title: "Data",
@@ -61,7 +60,6 @@ const conf: UserConfig = {
     Heading,
     Flex,
     Logos,
-    PetList,
     Stats,
     Template,
     Text,

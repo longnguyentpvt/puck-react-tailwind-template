@@ -11,6 +11,7 @@ export type DataRepeaterProps = WithLayout<{
   layoutType?: "grid" | "flex" | "stack";
   columns?: number;
   gap?: string;
+  puck?: { isEditing?: boolean }; // Internal prop from Puck to detect edit mode
 }>;
 
 /**
@@ -23,12 +24,14 @@ export type DataRepeaterProps = WithLayout<{
  * 1. Add DataRepeater component to your page
  * 2. Click "+ Add item" button in the "Pets" field
  * 3. For each item, click "External item" to select a pet
- * 4. Drag DataBoundText components into each pet's slot
- * 5. Configure DataBoundText to show specific fields (name, species, description, etc.)
+ * 4. Drag Heading or Text components into each pet's slot
+ * 5. Use template syntax like "{{name}}" or "Pet: {{name}}" in the text field
+ * 6. Or drag DataBoundText components to show specific fields
  * 
  * Data Binding:
  * - Each slot is wrapped in a DataProvider that passes the pet data
- * - Child components can use DataBoundText to automatically display fields
+ * - Child components can use template syntax {{fieldPath}} in Heading/Text
+ * - Or use DataBoundText to select fields via UI
  * - No manual copying of data required!
  */
 const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
@@ -148,8 +151,12 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
       paddingBottom: "8",
     },
   },
-  render: ({ title, pets, layoutType, columns, gap }) => {
+  render: ({ title, pets, layoutType, columns, gap, puck }) => {
     const gapClass = `gap-${gap}`;
+    
+    // Detect if we're in edit mode (Puck editor) or published view
+    // In published view, we hide the instruction box, borders, and data summary
+    const isEditing = puck?.isEditing !== false;
     
     // Use predefined column classes to ensure Tailwind includes them
     const columnClasses: Record<number, string> = {
@@ -182,15 +189,18 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
           
           {petList && petList.length > 0 ? (
             <div className="space-y-6">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-sm text-blue-800 font-medium mb-2">
-                  🎯 {petList.length} pet{petList.length !== 1 ? 's' : ''} selected - Auto data binding enabled!
-                </p>
-                <p className="text-xs text-blue-600">
-                  Drag <strong>DataBoundText</strong> components into each pet's slot below.
-                  They will automatically display data from the pet (name, species, description, etc.)
-                </p>
-              </div>
+              {/* Only show instruction box in edit mode */}
+              {isEditing && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm text-blue-800 font-medium mb-2">
+                    🎯 {petList.length} pet{petList.length !== 1 ? 's' : ''} selected - Auto data binding enabled!
+                  </p>
+                  <p className="text-xs text-blue-600">
+                    Drag <strong>Heading</strong> or <strong>Text</strong> components and use template syntax like <code>{`"{{name}}"`}</code> or <code>{`"Pet: {{name}}"`}</code>.
+                    Or use <strong>DataBoundText</strong> components to select fields via UI.
+                  </p>
+                </div>
+              )}
               
               <div className={containerClass}>
                 {petList.map((item: any, index: number) => {
@@ -200,41 +210,54 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
                   return (
                     <div 
                       key={pet?.id || index}
-                      className="border-2 border-dashed border-blue-200 rounded-lg p-4 bg-white hover:border-blue-400 transition-colors"
+                      className={isEditing 
+                        ? "border-2 border-dashed border-blue-200 rounded-lg p-4 bg-white hover:border-blue-400 transition-colors"
+                        : ""
+                      }
                     >
                       {/* Wrap slot content with DataProvider to pass pet data to children */}
                       <DataProvider data={pet} dataType="pet">
-                        <div className="min-h-[120px] mb-3">
+                        <div className={isEditing ? "min-h-[120px] mb-3" : ""}>
                           <Content />
                         </div>
                       </DataProvider>
                       
-                      {/* Show pet data reference */}
-                      <div className="mt-3 pt-3 border-t border-gray-200">
-                        <details className="text-xs">
-                          <summary className="cursor-pointer font-medium text-gray-700 hover:text-gray-900 flex items-center gap-2">
-                            <span className="text-blue-600">📊</span>
-                            <span className="font-semibold">{pet?.name || `Pet #${index + 1}`}</span>
-                            {pet?.species && (
-                              <span className="text-gray-500">({pet.species})</span>
-                            )}
-                          </summary>
-                          <div className="mt-2 bg-gray-50 p-3 rounded">
-                            <p className="font-medium text-gray-700 mb-1">Available data fields:</p>
-                            <pre className="overflow-auto text-xs text-gray-600">
+                      {/* Only show data summary in edit mode */}
+                      {isEditing && (
+                        <div className="mt-3 pt-3 border-t border-gray-200">
+                          <details className="text-xs">
+                            <summary className="cursor-pointer font-medium text-gray-700 hover:text-gray-900 flex items-center gap-2">
+                              <span className="text-blue-600">📊</span>
+                              <span className="font-semibold">{pet?.name || `Pet #${index + 1}`}</span>
+                              {pet?.species && (
+                                <span className="text-gray-500">({pet.species})</span>
+                              )}
+                            </summary>
+                            <div className="mt-2 bg-gray-50 p-3 rounded">
+                              <p className="font-medium text-gray-700 mb-1">Available data fields:</p>
+                              <pre className="overflow-auto text-xs text-gray-600">
 {JSON.stringify(pet, null, 2)}
-                            </pre>
-                            <p className="mt-2 text-green-700 font-medium text-xs">
-                              ✨ New: Use DataBoundText component!
-                            </p>
-                            <p className="text-gray-600 text-xs mt-1">
-                              Drag a <strong>DataBoundText</strong> component into the slot above, then set:
-                              • Field Path: "name" (or "species", "description", "age", "breed")
-                              • It will automatically show that field's value!
-                            </p>
-                          </div>
-                        </details>
-                      </div>
+                              </pre>
+                              <p className="mt-2 text-green-700 font-medium text-xs">
+                                ✨ Template Syntax (Recommended):
+                              </p>
+                              <p className="text-gray-600 text-xs mt-1">
+                                Drag <strong>Heading</strong> or <strong>Text</strong> component, then use:
+                                • <code>{`"{{name}}"`}</code> → Shows pet name
+                                • <code>{`"Pet: {{name}}"`}</code> → Mix static & dynamic text
+                                • <code>{`"{{species}}: {{name}}"`}</code> → Multiple fields
+                              </p>
+                              <p className="mt-2 text-blue-700 font-medium text-xs">
+                                Or use DataBoundText:
+                              </p>
+                              <p className="text-gray-600 text-xs mt-1">
+                                Drag a <strong>DataBoundText</strong> component and set:
+                                • Field Path: "name" (or "species", "description", "age", "breed")
+                              </p>
+                            </div>
+                          </details>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -245,19 +268,23 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
               <div className="max-w-md mx-auto">
                 <p className="text-4xl mb-4">🐾</p>
                 <p className="text-lg font-medium text-gray-700 mb-2">No pets selected</p>
-                <p className="text-sm text-gray-500 mb-4">
-                  Click the "External item" button in the "Select Pets" field above to choose pets from the API
-                </p>
-                <div className="bg-white rounded-lg p-4 text-left text-xs text-gray-600 border border-gray-200">
-                  <p className="font-medium mb-2">How to use DataRepeater with automatic data binding:</p>
-                  <ol className="list-decimal list-inside space-y-1">
-                    <li>Click "+ Add item" button above</li>
-                    <li>Click "External item" to select a pet</li>
-                    <li>Drag <strong>DataBoundText</strong> components into the pet's slot</li>
-                    <li>Set Field Path to "name", "species", "description", etc.</li>
-                    <li>Data automatically displays - no manual entry needed!</li>
-                  </ol>
-                </div>
+                {isEditing && (
+                  <>
+                    <p className="text-sm text-gray-500 mb-4">
+                      Click the "+ Add item" button in the "Pets" field above to add pets from the API
+                    </p>
+                    <div className="bg-white rounded-lg p-4 text-left text-xs text-gray-600 border border-gray-200">
+                      <p className="font-medium mb-2">How to use DataRepeater with automatic data binding:</p>
+                      <ol className="list-decimal list-inside space-y-1">
+                        <li>Click "+ Add item" button above</li>
+                        <li>Click "External item" to select a pet</li>
+                        <li>Drag <strong>Heading</strong> or <strong>Text</strong> into the slot</li>
+                        <li>Use template syntax: <code>{`"{{name}}"`}</code>, <code>{`"Pet: {{name}}"`}</code></li>
+                        <li>Or use <strong>DataBoundText</strong> with Field Path</li>
+                      </ol>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           )}

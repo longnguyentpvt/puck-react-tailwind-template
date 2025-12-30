@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { ALargeSmall, AlignLeft } from "lucide-react";
 import classNames from "classnames";
 import { ComponentConfig } from "@measured/puck";
@@ -51,9 +51,12 @@ const TextInner: ComponentConfig<TextProps> = {
     const dataContext = useDataContext();
     
     // Process template syntax if data is available
-    const processedText = dataContext?.data 
-      ? processTemplate(text, dataContext.data)
-      : text;
+    // Memoize to avoid unnecessary processing on every render
+    const processedText = useMemo(() => {
+      return dataContext?.data 
+        ? processTemplate(text, dataContext.data)
+        : text;
+    }, [text, dataContext?.data]);
     
     return (
       <Section maxWidth={maxWidth}>

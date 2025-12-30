@@ -5,10 +5,6 @@
  * Can reference nested fields with dot notation: "{{owner.name}}"
  */
 
-export interface TemplateContext {
-  data: any;
-}
-
 /**
  * Process a template string and replace placeholders with data values
  * 
@@ -28,7 +24,7 @@ export interface TemplateContext {
  * processTemplate("Owner: {{owner.name}}", { owner: { name: "John" } })
  * // Returns: "Owner: John"
  */
-export function processTemplate(template: string | undefined, data: any): string {
+export function processTemplate(template: string | undefined, data: unknown): string {
   if (!template) {
     return '';
   }
@@ -54,7 +50,7 @@ export function processTemplate(template: string | undefined, data: any): string
  * @param path - Dot notation path (e.g., "name", "owner.name", "address.city.zipCode")
  * @returns Value at the path or undefined if not found
  */
-function getNestedValue(obj: any, path: string): any {
+function getNestedValue(obj: unknown, path: string): unknown {
   if (!obj || typeof obj !== 'object') {
     return undefined;
   }

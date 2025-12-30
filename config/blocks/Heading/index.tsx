@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { ComponentConfig } from "@measured/puck";
 
 import type { HeadingProps as _HeadingProps } from "@/components/Heading";
@@ -74,9 +74,12 @@ const HeadingInternal: ComponentConfig<HeadingProps> = {
     const dataContext = useDataContext();
     
     // Process template syntax if data is available
-    const processedText = dataContext?.data 
-      ? processTemplate(text, dataContext.data)
-      : text;
+    // Memoize to avoid unnecessary processing on every render
+    const processedText = useMemo(() => {
+      return dataContext?.data 
+        ? processTemplate(text, dataContext.data)
+        : text;
+    }, [text, dataContext?.data]);
     
     return (
       <Section>

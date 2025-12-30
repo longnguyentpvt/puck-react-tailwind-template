@@ -8,9 +8,6 @@ import { DataProvider } from "@/config/contexts/DataContext";
 export type DataRepeaterProps = WithLayout<{
   pets: Array<{ pet: any; content: Slot }>;
   title?: string;
-  layoutType?: "grid" | "flex" | "stack";
-  columns?: number;
-  gap?: string;
   puck?: { isEditing?: boolean }; // Internal prop from Puck to detect edit mode
 }>;
 
@@ -21,18 +18,24 @@ export type DataRepeaterProps = WithLayout<{
  * creating a slot for each data item. Uses React Context to provide data to child components.
  * 
  * How to use:
- * 1. Add DataRepeater component to your page
- * 2. Click "+ Add item" button in the "Pets" field
- * 3. For each item, click "External item" to select a pet
- * 4. Drag Heading or Text components into each pet's slot
- * 5. Use template syntax like "{{name}}" or "Pet: {{name}}" in the text field
- * 6. Or drag DataBoundText components to show specific fields
+ * 1. Add a Grid or Flex component to your page (for layout control)
+ * 2. Drag DataRepeater into the Grid/Flex slot
+ * 3. In DataRepeater, click "+ Add item" button in the "Pets" field
+ * 4. For each item, click "External item" to select a pet
+ * 5. Drag Heading or Text components into each pet's slot
+ * 6. Use template syntax like "{{name}}" or "Pet: {{name}}" in the text field
+ * 7. Or drag DataBoundText components to show specific fields
  * 
  * Data Binding:
  * - Each slot is wrapped in a DataProvider that passes the pet data
  * - Child components can use template syntax {{fieldPath}} in Heading/Text
  * - Or use DataBoundText to select fields via UI
  * - No manual copying of data required!
+ * 
+ * Layout Control:
+ * - DataRepeater focuses on data generation and slot creation
+ * - Place DataRepeater inside Grid or Flex components for layout control
+ * - This separation provides better flexibility and reusability
  */
 const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
   fields: {
@@ -114,67 +117,21 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
         },
       },
     },
-    layoutType: {
-      type: "select",
-      label: "Layout Type",
-      options: [
-        { label: "Grid", value: "grid" },
-        { label: "Flex Row", value: "flex" },
-        { label: "Stack (Vertical)", value: "stack" },
-      ],
-    },
-    columns: {
-      type: "number",
-      label: "Columns (Grid only)",
-      min: 1,
-      max: 6,
-    },
-    gap: {
-      type: "select",
-      label: "Gap",
-      options: [
-        { label: "None", value: "0" },
-        { label: "Small", value: "4" },
-        { label: "Medium", value: "6" },
-        { label: "Large", value: "8" },
-      ],
-    },
   },
   defaultProps: {
     pets: [],
     title: "",
-    layoutType: "grid",
-    columns: 3,
-    gap: "6",
     layout: {
       paddingTop: "8",
       paddingBottom: "8",
     },
   },
-  render: ({ title, pets, layoutType, columns, gap, puck }) => {
-    const gapClass = `gap-${gap}`;
-    
+  render: ({ title, pets, puck }) => {
     // Detect if we're in edit mode (Puck editor) or published view
     // In published view, we hide the instruction box, borders, and data summary
-    const isEditing = puck?.isEditing !== false;
+    // Use ?? true as default so it shows in editor when puck prop is undefined
+    const isEditing = puck?.isEditing ?? true;
     
-    // Use predefined column classes to ensure Tailwind includes them
-    const columnClasses: Record<number, string> = {
-      1: 'md:grid-cols-1',
-      2: 'md:grid-cols-2',
-      3: 'md:grid-cols-3',
-      4: 'md:grid-cols-4',
-      5: 'md:grid-cols-5',
-      6: 'md:grid-cols-6',
-    };
-    
-    const containerClass = 
-      layoutType === "grid" 
-        ? `grid grid-cols-1 ${columnClasses[columns] || 'md:grid-cols-3'} ${gapClass}` 
-        : layoutType === "flex"
-        ? `flex flex-wrap ${gapClass}`
-        : `flex flex-col ${gapClass}`;
-
     // Ensure pets is an array
     const petList = Array.isArray(pets) ? pets : [];
 
@@ -199,10 +156,13 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
                     Drag <strong>Heading</strong> or <strong>Text</strong> components and use template syntax like <code>{`"{{name}}"`}</code> or <code>{`"Pet: {{name}}"`}</code>.
                     Or use <strong>DataBoundText</strong> components to select fields via UI.
                   </p>
+                  <p className="text-xs text-purple-600 mt-2">
+                    💡 <strong>Tip:</strong> Place this DataRepeater inside a <strong>Grid</strong> or <strong>Flex</strong> component to control the layout!
+                  </p>
                 </div>
               )}
               
-              <div className={containerClass}>
+              <div className="space-y-6">
                 {petList.map((item: any, index: number) => {
                   const pet = item.pet;
                   const Content = item.content;
@@ -276,6 +236,7 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
                     <div className="bg-white rounded-lg p-4 text-left text-xs text-gray-600 border border-gray-200">
                       <p className="font-medium mb-2">How to use DataRepeater with automatic data binding:</p>
                       <ol className="list-decimal list-inside space-y-1">
+                        <li>Place DataRepeater inside a <strong>Grid</strong> or <strong>Flex</strong> component</li>
                         <li>Click "+ Add item" button above</li>
                         <li>Click "External item" to select a pet</li>
                         <li>Drag <strong>Heading</strong> or <strong>Text</strong> into the slot</li>

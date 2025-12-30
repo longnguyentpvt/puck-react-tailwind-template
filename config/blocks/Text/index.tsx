@@ -5,6 +5,8 @@ import { ComponentConfig } from "@measured/puck";
 import { Section } from "@/config/components/Section";
 import { WithLayout, withLayout } from "@/config/components/Layout";
 import { WithColor, withColor, getColorClassName, getColorStyle } from "@/config/components/Color";
+import { useDataContext } from "@/config/contexts/DataContext";
+import { processTemplate } from "@/config/utils/template-processor";
 
 export type TextProps = WithLayout<WithColor<{
   align: "left" | "center" | "right";
@@ -45,6 +47,14 @@ const TextInner: ComponentConfig<TextProps> = {
     size: "m",
   },
   render: ({ align, colorType, presetColor, customColor, text, size, maxWidth }) => {
+    // Get data from context if available
+    const dataContext = useDataContext();
+    
+    // Process template syntax if data is available
+    const processedText = dataContext?.data 
+      ? processTemplate(text, dataContext.data)
+      : text;
+    
     return (
       <Section maxWidth={maxWidth}>
         <span
@@ -58,7 +68,7 @@ const TextInner: ComponentConfig<TextProps> = {
           )}
           style={{ maxWidth, ...getColorStyle(colorType, customColor, presetColor) }}
         >
-          {text}
+          {processedText}
         </span>
       </Section>
     );

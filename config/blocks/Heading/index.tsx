@@ -6,6 +6,8 @@ import { Heading as _Heading } from "@/components/Heading";
 import { Section } from "../../components/Section";
 import { WithLayout, withLayout } from "../../components/Layout";
 import { WithColor, withColor, getColorClassName, getColorStyle } from "../../components/Color";
+import { useDataContext } from "@/config/contexts/DataContext";
+import { processTemplate } from "@/config/utils/template-processor";
 
 
 export type HeadingProps = WithLayout<WithColor<{
@@ -68,6 +70,14 @@ const HeadingInternal: ComponentConfig<HeadingProps> = {
     },
   },
   render: ({ align, text, size, level, colorType, presetColor, customColor }) => {
+    // Get data from context if available
+    const dataContext = useDataContext();
+    
+    // Process template syntax if data is available
+    const processedText = dataContext?.data 
+      ? processTemplate(text, dataContext.data)
+      : text;
+    
     return (
       <Section>
         <_Heading size={size} rank={level as any}>
@@ -75,7 +85,7 @@ const HeadingInternal: ComponentConfig<HeadingProps> = {
             className={getColorClassName(colorType, presetColor)}
             style={{ display: "block", textAlign: align, width: "100%", ...getColorStyle(colorType, customColor, presetColor) }}
           >
-            {text}
+            {processedText}
           </span>
         </_Heading>
       </Section>

@@ -1,15 +1,34 @@
 # DataRepeater Component - Flexible External Data Rendering with Automatic Data Binding
 
-The `DataRepeater` component provides a flexible way to render external data by creating slots for each data item. With the new **DataBoundText** component, you get automatic data binding - no manual configuration required!
+The `DataRepeater` component provides a flexible way to render external data by creating slots for each data item. With automatic data binding, you can use standard Puck components (Heading, Text) with template syntax OR specialized DataBoundText components!
 
-## ✨ NEW: Automatic Data Binding
+## ✨ NEW: Two Ways to Display Data Automatically
 
-**DataBoundText** components automatically display data from their parent DataRepeater:
+### Option 1: Template Syntax (Recommended)
+
+Use standard **Heading** and **Text** components with `{{fieldPath}}` syntax:
+
+```
+Heading: "{{name}}"              → Displays "Buddy"
+Text: "Species: {{species}}"     → Displays "Species: Dog"
+Text: "{{species}} - {{name}}"   → Displays "Dog - Buddy"
+```
+
+**Benefits:**
+- ✅ Use familiar Heading/Text components
+- ✅ Mix static and dynamic text
+- ✅ Multiple fields in one component
+- ✅ Full styling control
+
+**See [TEMPLATE_SYNTAX.md](./TEMPLATE_SYNTAX.md) for complete guide.**
+
+### Option 2: DataBoundText Component
+
+Use **DataBoundText** components for simple field display:
 
 - **No manual typing** - Set field path (e.g., "name") and it shows the data
 - **Works for all pets** - Automatically adapts to each slot's data
-- **Updates automatically** - Changes in data source reflect immediately
-- **Fully customizable** - Size, weight, alignment, prefix/suffix
+- **Typography options** - Size, weight, alignment, prefix/suffix
 
 **See [DATA_BOUND_TEXT.md](./DATA_BOUND_TEXT.md) for complete guide.**
 
@@ -17,7 +36,7 @@ The `DataRepeater` component provides a flexible way to render external data by 
 
 **Problem**: Fixed components like `DataField` aren't extensible - when you update Puck's Heading component with new features, `DataField` doesn't know about them.
 
-**Solution**: DataRepeater creates slots where you drag standard Puck components (Heading, Text, Button, etc.) OR use **DataBoundText** for automatic data binding. When Puck components get updated, they automatically work in DataRepeater slots.
+**Solution**: DataRepeater creates slots where you drag standard Puck components (Heading, Text, Button, etc.) with template syntax OR use **DataBoundText** for automatic data binding. When Puck components get updated, they automatically work in DataRepeater slots.
 
 ## Overview
 
@@ -47,11 +66,30 @@ The `DataRepeater` component provides a flexible way to render external data by 
 
 ### Step 2: Add Components to Slots
 
-For each selected pet, a slot area appears. You have two options:
+For each selected pet, a slot area appears. You have three options:
 
-#### Option A: Automatic Data Binding (Recommended) ✨
+#### Option A: Template Syntax in Standard Components (Recommended) ✨
 
-Use **DataBoundText** components for automatic data display:
+Use **Heading** and **Text** components with `{{fieldPath}}` syntax:
+
+1. Drag a **Heading** component into a slot
+2. Set text to `{{name}}` → Automatically shows pet name
+3. Drag a **Text** component
+4. Set text to `Species: {{species}}` → Shows "Species: Dog"
+5. Mix static and dynamic: `Meet {{name}}, a friendly {{species}}!`
+
+**Benefits:**
+- ✅ Use familiar components (Heading, Text)
+- ✅ Full control over component styling
+- ✅ Mix static text with data: "Name: {{name}}"
+- ✅ Multiple fields: "{{species}} - {{name}}"
+- ✅ More flexible and powerful
+
+**See [TEMPLATE_SYNTAX.md](./TEMPLATE_SYNTAX.md) for examples.**
+
+#### Option B: DataBoundText Component
+
+Use **DataBoundText** components for simple field display:
 
 1. Drag **DataBoundText** from the Data category into a slot
 2. Set Field Path to "name" → Automatically shows pet name
@@ -60,36 +98,24 @@ Use **DataBoundText** components for automatic data display:
 
 **Benefits:**
 - ✅ No manual data entry
+- ✅ Field picker UI (dropdown)
 - ✅ Automatically adapts to each pet
-- ✅ Updates when data changes
-- ✅ Fast and error-free
+- ✅ Typography customization options
 
-#### Option B: Manual Configuration
+#### Option C: Manual Configuration (Not Recommended)
 
 Use standard Puck components with manual setup:
 
-1. Drag **Heading component** into slot
+1. Drag **Heading** into slot
 2. Click on Heading, manually type pet name from JSON
-3. Drag **Text component**, manually type description
+3. Drag **Text**, manually type description
 4. Repeat for each field and each pet
 
 **When to use:**
-- Need specific components not compatible with DataBoundText
-- Want full control over every detail
-- Complex layouts requiring standard components
+- Quick prototyping without data binding
+- Static content mixed with dynamic layouts
 
-```json
-{
-  "id": "1",
-  "name": "Buddy",
-  "species": "Dog", 
-  "description": "A friendly golden retriever..."
-}
-```
-
-**To display pet data:**
-1. View the data in the collapsed section
-2. Click on a component you dragged into the slot (e.g., Heading)
+**Note:** With template syntax (Option A), this approach is mostly obsolete.
 3. In the right panel, manually type the value (e.g., type "Buddy" into Heading's text field)
 4. Repeat for other components (Text for description, etc.)
 

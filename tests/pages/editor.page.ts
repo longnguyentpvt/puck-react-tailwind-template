@@ -1,5 +1,5 @@
 import { type Page, type Locator, expect, FrameLocator } from "@playwright/test";
-import { createFieldComponent, FieldComponent, FieldType, InputFieldComponent, SelectFieldComponent, TextareaFieldComponent } from "@/tests/components/field.component";
+import { createFieldComponent, FieldType, InputFieldComponent, SelectFieldComponent, TextareaFieldComponent } from "@/tests/components/field.component";
 
 type FieldComponentMap = {
   input: InputFieldComponent;
@@ -28,14 +28,9 @@ export class EditorPage {
     return this.centerCanvas.locator(`[data-puck-component^="${componentName}-"]`).nth(idx);
   }
 
-  getPuckFieldLocator<T extends FieldType>(fieldName: string, type: T): FieldComponentMap[T];
-  getPuckFieldLocator(fieldName: string): FieldComponent;
-  getPuckFieldLocator<T extends FieldType>(fieldName: string, type?: T): FieldComponent | FieldComponentMap[T] {
+  getPuckFieldLocator<T extends FieldType>(fieldName: string, type: T): FieldComponentMap[T] {
     const container = this.rightSidebar.locator(`[class*="_PuckFields-field"]:has([class*="_Input-label_"]:text-is("${fieldName}"))`);
-    if (type) {
-      return createFieldComponent(container, type);
-    }
-    return new FieldComponent(container);
+    return createFieldComponent(container, type);
   }
 
   async dragComponentToEditor(componentName: string) {

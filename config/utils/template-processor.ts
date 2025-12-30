@@ -25,16 +25,21 @@
  * // Returns: "Owner: John"
  */
 export function processTemplate(template: string | undefined, data: unknown): string {
-  if (!template) {
+  // Handle non-string templates by converting to string or returning empty
+  if (template === null || template === undefined) {
     return '';
   }
   
+  // Ensure template is a string
+  const templateStr = typeof template === 'string' ? template : String(template);
+  
+  // If no data available, return template as-is
   if (!data) {
-    return template;
+    return templateStr;
   }
   
   // Replace all {{fieldPath}} occurrences with actual values
-  return template.replace(/\{\{([^}]+)\}\}/g, (match, fieldPath) => {
+  return templateStr.replace(/\{\{([^}]+)\}\}/g, (match, fieldPath) => {
     const trimmedPath = fieldPath.trim();
     const value = getNestedValue(data, trimmedPath);
     

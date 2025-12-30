@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Application Health Check', () => {
   test('should load the homepage', async ({ page }) => {
     // Navigate to the homepage
-    await page.goto('/');
+    await page.goto('/test/edit');
 
     // Wait for the page to load
     await page.waitForLoadState('networkidle');
@@ -18,7 +18,7 @@ test.describe('Application Health Check', () => {
   });
 
   test('should have valid HTML structure', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/test/edit');
     
     // Check for basic HTML elements
     const html = await page.locator('html').count();
@@ -37,7 +37,7 @@ test.describe('Application Health Check', () => {
       }
     });
 
-    await page.goto('/');
+    await page.goto('/test/edit');
     await page.waitForLoadState('networkidle');
 
     // Filter out known non-critical errors that are expected in the application

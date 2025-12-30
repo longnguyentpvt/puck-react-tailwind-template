@@ -37,27 +37,36 @@ The `DataRepeater` component provides a flexible way to render external data by 
 
 For each selected pet, a slot area appears. Drag standard Puck components into each slot:
 
-- **Heading component** → Configure with pet name
-- **Text component** → Add pet description
-- **Button component** → Add "Adopt" action
-- **Space component** → Add spacing
+- **Heading component** → For displaying pet names
+- **Text component** → For pet descriptions  
+- **Button component** → For actions like "Adopt"
+- **Space component** → For spacing
 - **Any other Puck component** → Fully extensible!
 
-### Step 3: Configure Components
+### Step 3: Configure Components Manually
 
-Each slot shows the pet's data in a collapsible section. Use this data to manually configure the components you dragged in:
+**Important**: Components in slots don't automatically access the pet data. You need to manually configure each component.
 
-```
-Pet data available:
+Each slot shows the pet's data in a collapsible section at the bottom:
+
+```json
 {
-  "id": 1,
+  "id": "1",
   "name": "Buddy",
-  "species": "Dog",
+  "species": "Dog", 
   "description": "A friendly golden retriever..."
 }
 ```
 
-Copy values from the data and paste into your component configurations.
+**To display pet data:**
+1. View the data in the collapsed section
+2. Click on a component you dragged into the slot (e.g., Heading)
+3. In the right panel, manually type the value (e.g., type "Buddy" into Heading's text field)
+4. Repeat for other components (Text for description, etc.)
+
+**See detailed guide**: [Working with Data in Slots](./WORKING_WITH_DATA_IN_SLOTS.md)
+
+**Note**: This manual configuration is a limitation of Puck's slot system. Slots are independent and don't inherit parent data. If you need automatic data binding, use the `PetList` component instead.
 
 ## Why This Approach is Better
 
@@ -118,21 +127,43 @@ Drag these components:
 
 ## Current Limitations
 
-### Manual Data Entry
-Currently, pet data is shown for reference but must be manually entered into components. The data is visible in the collapsed section of each slot.
+### Manual Data Configuration Required
 
-**Workaround**: 
-- View pet data in the slot's collapsed section
-- Copy values (name, description, etc.)
-- Paste into your component configurations
+**Important**: Components in DataRepeater slots don't automatically access pet data. This is a limitation of Puck's slot system - slots are independent component areas without parent data context.
 
-### Future Enhancements
+**How it works:**
+1. Pet data is shown in the collapsed section of each slot (JSON format)
+2. You manually configure each component with values from that JSON
+3. Copy pet name → paste into Heading's text field
+4. Copy description → paste into Text component
+5. Repeat for each pet and each field
 
-To make this fully automatic, you would need to:
-1. Extend Puck's zone context to pass data to child components
-2. Create a resolver that injects data into component props
-3. Use React Context API to share data with nested components
-4. Add data binding expressions like `{{pet.name}}`
+**See**: [Working with Data in Slots](./WORKING_WITH_DATA_IN_SLOTS.md) for detailed guide
+
+### When to Use DataRepeater vs PetList
+
+**Use DataRepeater when:**
+- ✅ You need unique, custom layouts per item
+- ✅ You want full component flexibility (buttons, images, custom elements)
+- ✅ You're okay with manual configuration
+- ✅ You have fewer items (< 10 pets)
+
+**Use PetList when:**
+- ✅ You want automatic data binding (zero configuration)
+- ✅ You need consistent styling across all items
+- ✅ Standard fields (name, description) are sufficient
+- ✅ You have many items to display quickly
+
+### Potential Future Enhancements
+
+Possible solutions to enable automatic data binding:
+
+1. **Template Variables**: Allow `{{pet.name}}` syntax in text fields
+2. **Data Context Provider**: Pass pet data via React Context to slot children
+3. **Data-Aware Components**: Create special components that can read from parent data
+4. **Visual Field Picker**: UI to select which data fields to bind to components
+
+These would require significant changes to Puck's architecture or custom extensions.
 
 For now, the manual approach ensures:
 - Complete flexibility

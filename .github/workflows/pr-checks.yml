@@ -58,7 +58,8 @@ jobs:
         run: |
           echo "Waiting for MongoDB to be ready..."
           for i in {1..30}; do
-            if docker exec mongodb mongosh --eval "db.adminCommand('ping')" --quiet > /dev/null 2>&1; then
+            if docker exec mongodb mongo --eval "db.adminCommand('ping')" --quiet > /dev/null 2>&1 || \
+               docker exec mongodb mongosh --eval "db.adminCommand('ping')" --quiet > /dev/null 2>&1; then
               echo "MongoDB is ready!"
               exit 0
             fi

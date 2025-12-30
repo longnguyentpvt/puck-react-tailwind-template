@@ -42,12 +42,11 @@ test.describe('Application Health Check', () => {
 
     // Filter out known non-critical errors that are expected in the application
     const criticalErrors = errors.filter(error => {
+      const lowerError = error.toLowerCase();
       // Allow favicon errors
-      if (error.toLowerCase().includes('favicon')) return false;
-      // Allow network errors that are handled by the application
-      if (error.includes('net::ERR_') && error.includes('favicon')) return false;
+      if (lowerError.includes('favicon')) return false;
       // Allow certain Next.js hydration warnings in development
-      if (error.includes('Hydration')) return false;
+      if (lowerError.includes('hydration')) return false;
       return true;
     });
     

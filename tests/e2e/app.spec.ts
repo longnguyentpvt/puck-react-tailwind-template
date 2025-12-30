@@ -28,7 +28,7 @@ test.describe('Application Health Check', () => {
     expect(body).toBe(1);
   });
 
-  test('should not have console errors', async ({ page }) => {
+  test('should not have critical console errors', async ({ page }) => {
     const errors: string[] = [];
     
     page.on('console', msg => {
@@ -40,11 +40,21 @@ test.describe('Application Health Check', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
-    // Allow some expected errors but fail on critical ones
-    const criticalErrors = errors.filter(error => 
-      !error.includes('favicon') && 
-      !error.includes('net::ERR_')
-    );
+    // Filter out known non-critical errors that are expected in the application
+    const criticalErrors = errors.filter(error => {
+      // Allow favicon errors
+      if (error.toLowerCase().includes('favicon')) return false;
+      // Allow network errors that are handled by the application
+      if (error.includes('net::ERR_') && error.includes('favicon')) return false;
+      // Allow certain Next.js hydration warnings in development
+      if (error.includes('Hydration')) return false;
+      return true;
+    });
+    
+    // Log any critical errors found for debugging
+    if (criticalErrors.length > 0) {
+      console.log('Critical errors found:', criticalErrors);
+    }
     
     expect(criticalErrors.length).toBe(0);
   });

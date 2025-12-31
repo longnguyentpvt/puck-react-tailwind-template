@@ -6,6 +6,8 @@ test.describe('Application Health Check', () => {
   let context: BrowserContext;
   let editorPage: EditorPage;
 
+  const TEST_HEADING_TEXT = 'Test Heading Content';
+
   test.beforeAll(async ({ browser }) => {
     context = await browser.newContext();
     page = await context.newPage();
@@ -55,11 +57,10 @@ test.describe('Application Health Check', () => {
     await textField.container.scrollIntoViewIfNeeded();
     await expect(textField.container).toBeVisible({ timeout: 5_000 });
     
-    const testText = 'Test Heading Content';
-    await textField.fill(testText);
+    await textField.fill(TEST_HEADING_TEXT);
     
     // Verify the text appears in the editor canvas
-    await expect(headingComponent.getByText(testText)).toBeVisible({ timeout: 5_000 });
+    await expect(headingComponent.getByText(TEST_HEADING_TEXT)).toBeVisible({ timeout: 5_000 });
   });
 
   test('heading appears in publish view', async () => {
@@ -74,8 +75,7 @@ test.describe('Application Health Check', () => {
     await publishPage.waitForLoadState('networkidle');
     
     // Check if the heading with our test text is visible
-    const testText = 'Test Heading Content';
-    const publishedHeading = publishPage.getByText(testText);
+    const publishedHeading = publishPage.getByText(TEST_HEADING_TEXT);
     await expect(publishedHeading).toBeVisible({ timeout: 5_000 });
     
     await publishPage.close();

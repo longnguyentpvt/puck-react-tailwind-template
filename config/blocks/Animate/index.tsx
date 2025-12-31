@@ -3,11 +3,12 @@ import { ComponentConfig } from "@measured/puck";
 import type { Slot } from "@measured/puck";
 
 type AnimationType = "none" | "spin" | "ping" | "pulse" | "bounce";
-type AnimationBehavior = "default" | "click" | "hover";
+type AnimationTrigger = "default" | "hover" | "click";
 
 export type AnimateProps = {
   animate: AnimationType;
-  behavior?: AnimationBehavior;
+  hoverAnimate: AnimationType;
+  clickAnimate: AnimationType;
   children: Slot;
 };
 
@@ -38,10 +39,15 @@ const animationClassMap: Record<Exclude<AnimationType, "none">, string> = {
   bounce: "animate-bounce",
 };
 
-const behaviorPrefixMap: Record<AnimationBehavior, string> = {
+const triggerPrefixMap: Record<AnimationTrigger, string> = {
   default: "",
   click: "active:",
   hover: "hover:",
+};
+
+const buildAnimationClass = (trigger: AnimationTrigger, value: AnimationType) => {
+  if (value === "none") return "";
+  return `${triggerPrefixMap[trigger]}${animationClassMap[value]}`;
 };
 
 export const Animate: ComponentConfig<AnimateProps> = {
@@ -49,7 +55,7 @@ export const Animate: ComponentConfig<AnimateProps> = {
   fields: {
     animate: {
       type: "select",
-      label: "Animation",
+      label: "Default animation",
       options: [
         { label: "None", value: "none" },
         { label: "Spin", value: "spin" },
@@ -58,13 +64,26 @@ export const Animate: ComponentConfig<AnimateProps> = {
         { label: "Bounce", value: "bounce" },
       ],
     },
-    behavior: {
+    hoverAnimate: {
       type: "select",
-      label: "Behavior",
+      label: "Hover animation",
       options: [
-        { label: "Default", value: "default" },
-        { label: "On Click", value: "click" },
-        { label: "On Hover", value: "hover" },
+        { label: "None", value: "none" },
+        { label: "Spin", value: "spin" },
+        { label: "Ping", value: "ping" },
+        { label: "Pulse", value: "pulse" },
+        { label: "Bounce", value: "bounce" },
+      ],
+    },
+    clickAnimate: {
+      type: "select",
+      label: "Click animation",
+      options: [
+        { label: "None", value: "none" },
+        { label: "Spin", value: "spin" },
+        { label: "Ping", value: "ping" },
+        { label: "Pulse", value: "pulse" },
+        { label: "Bounce", value: "bounce" },
       ],
     },
     children: {
@@ -74,20 +93,30 @@ export const Animate: ComponentConfig<AnimateProps> = {
   },
   defaultProps: {
     animate: "none",
-    behavior: "default",
+    hoverAnimate: "none",
+    clickAnimate: "none",
     children: [],
   },
-  render: ({ animate, behavior, children: Children }) => {
-    // Support legacy content that may not yet include a behavior value
-    const resolvedBehavior = behavior ?? "default";
-    const animationPrefix = behaviorPrefixMap[resolvedBehavior];
+  render: ({
+    animate,
+    hoverAnimate,
+    clickAnimate,
+    children: Children,
+  }) => {
+    const classes: string[] = [];
 
-    if (animate === "none") {
+    const defaultClass = buildAnimationClass("default", animate);
+    const hoverClass = buildAnimationClass("hover", hoverAnimate);
+    const clickClass = buildAnimationClass("click", clickAnimate);
+
+    if (defaultClass) classes.push(defaultClass);
+    if (hoverClass) classes.push(hoverClass);
+    if (clickClass) classes.push(clickClass);
+
+    if (classes.length === 0) {
       return <Children className="" />;
     }
 
-    const animationClass = `${animationPrefix}${animationClassMap[animate]}`;
-
-    return <Children className={animationClass} />;
+    return <Children className={classes.join(" ")} />;
   },
 };

@@ -7,7 +7,7 @@ type AnimationBehavior = "default" | "click" | "hover";
 
 export type AnimateProps = {
   animate: AnimationType;
-  behavior: AnimationBehavior;
+  behavior?: AnimationBehavior;
   children: Slot;
 };
 
@@ -15,6 +15,7 @@ export type AnimateProps = {
 // This ensures the animation classes are included in the final CSS bundle
 // even if they're dynamically generated.
 // prettier-ignore
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const TAILWIND_ANIMATION_CLASSES = [
   "animate-spin",
   "animate-ping",
@@ -35,6 +36,12 @@ const animationClassMap: Record<Exclude<AnimationType, "none">, string> = {
   ping: "animate-ping",
   pulse: "animate-pulse",
   bounce: "animate-bounce",
+};
+
+const behaviorPrefixMap: Record<AnimationBehavior, string> = {
+  default: "",
+  click: "active:",
+  hover: "hover:",
 };
 
 export const Animate: ComponentConfig<AnimateProps> = {
@@ -71,20 +78,16 @@ export const Animate: ComponentConfig<AnimateProps> = {
     children: [],
   },
   render: ({ animate, behavior, children: Children }) => {
-    const resolvedBehavior: AnimationBehavior = behavior ?? "default";
+    // Support legacy content that may not yet include a behavior value
+    const resolvedBehavior = behavior ?? "default";
+    const animationPrefix = behaviorPrefixMap[resolvedBehavior];
 
-    const animationClass =
-      animate === "none" ? "" : animationClassMap[animate];
+    if (animate === "none") {
+      return <Children className="" />;
+    }
 
-    const behaviorClass =
-      animate === "none"
-        ? ""
-        : {
-            default: animationClass,
-            click: `active:${animationClass}`,
-            hover: `hover:${animationClass}`,
-          }[resolvedBehavior];
+    const animationClass = `${animationPrefix}${animationClassMap[animate]}`;
 
-    return <Children className={behaviorClass} />;
+    return <Children className={animationClass} />;
   },
 };

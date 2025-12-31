@@ -414,4 +414,98 @@ export const initialData: Record<string, UserData> = {
     content: [],
     root: { props: { title: "About Us" } },
   },
+  "/pets": {
+    content: [
+      {
+        type: "Space",
+        props: {
+          size: "48px",
+          id: "Space-pets-top",
+          direction: "vertical",
+        },
+      },
+      {
+        type: "Heading",
+        props: {
+          align: "center",
+          level: "1",
+          text: "External Data Example: Pet Directory",
+          layout: { paddingTop: "0", paddingBottom: "0" },
+          size: "xxxl",
+          id: "Heading-pets-title",
+        },
+      },
+      {
+        type: "Space",
+        props: {
+          size: "16px",
+          id: "Space-pets-subtitle",
+          direction: "vertical",
+        },
+      },
+      {
+        type: "Text",
+        props: {
+          align: "center",
+          text: "This page demonstrates loading external data into Puck components. Select pets below and use template syntax like \"{{name}}\" in Heading/Text components, or drag DataBoundText components to display data automatically.",
+          layout: { paddingTop: "0", paddingBottom: "0" },
+          size: "m",
+          id: "Text-pets-description",
+          colorType: "preset",
+          presetColor: "text-gray-600",
+          maxWidth: "800px",
+        },
+      },
+      {
+        type: "Space",
+        props: {
+          size: "48px",
+          id: "Space-pets-before-list",
+          direction: "vertical",
+        },
+      },
+      {
+        type: "DataRepeater",
+        props: {
+          title: "",
+          layoutType: "grid",
+          columns: 3,
+          gap: "6",
+          pets: [],
+          id: "DataRepeater-main",
+          layout: { paddingTop: "0", paddingBottom: "0" },
+        },
+      },
+      {
+        type: "Space",
+        props: {
+          size: "48px",
+          id: "Space-pets-bottom",
+          direction: "vertical",
+        },
+      },
+      {
+        type: "Text",
+        props: {
+          align: "center",
+          text: "To edit this page and configure the external data, append /edit to the URL. You can select which pets to display from the external data source in the Puck editor.",
+          layout: { paddingTop: "0", paddingBottom: "0" },
+          size: "s",
+          id: "Text-pets-footer",
+          colorType: "preset",
+          presetColor: "text-gray-500",
+        },
+      },
+      {
+        type: "Space",
+        props: {
+          size: "48px",
+          id: "Space-pets-final",
+          direction: "vertical",
+        },
+      },
+    ],
+    root: { props: { title: "Pet Directory - External Data Example" } },
+    zones: {},
+  },
 };

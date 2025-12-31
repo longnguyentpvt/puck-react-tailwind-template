@@ -9,6 +9,8 @@ import { Grid } from "./blocks/Grid";
 import { Heading } from "./blocks/Heading";
 import { Flex } from "./blocks/Flex";
 import { Logos } from "./blocks/Logos";
+import { DataRepeater } from "./blocks/DataRepeater";
+import { DataBoundText } from "./blocks/DataBoundText";
 import { Stats } from "./blocks/Stats";
 import { Template } from "./blocks/Template/server";
 import { Text } from "./blocks/Text";
@@ -31,6 +33,10 @@ const conf: UserConfig = {
       title: "Content",
       components: ["Banner", "Carousel", "Accordion", "Dialog"],
     },
+    data: {
+      title: "Data",
+      components: ["DataRepeater", "DataBoundText"],
+    },
     interactive: {
       title: "Actions",
       components: ["Button", "Animate"],
@@ -48,6 +54,8 @@ const conf: UserConfig = {
     Card,
     Carousel,
     Dialog,
+    DataRepeater,
+    DataBoundText,
     Grid,
     Heading,
     Flex,

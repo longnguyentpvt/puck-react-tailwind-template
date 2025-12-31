@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { ALargeSmall, AlignLeft } from "lucide-react";
 import classNames from "classnames";
 import { ComponentConfig } from "@measured/puck";
 import { Section } from "@/config/components/Section";
 import { WithLayout, withLayout } from "@/config/components/Layout";
 import { WithColor, withColor, getColorClassName, getColorStyle } from "@/config/components/Color";
+import { useDataContext } from "@/config/contexts/DataContext";
+import { processTemplate } from "@/config/utils/template-processor";
 
 export type TextProps = WithLayout<WithColor<{
   align: "left" | "center" | "right";
@@ -45,6 +47,17 @@ const TextInner: ComponentConfig<TextProps> = {
     size: "m",
   },
   render: ({ align, colorType, presetColor, customColor, text, size, maxWidth }) => {
+    // Get data from context if available
+    const dataContext = useDataContext();
+    
+    // Process template syntax if data is available
+    // Memoize to avoid unnecessary processing on every render
+    const processedText = useMemo(() => {
+      return dataContext?.data 
+        ? processTemplate(text, dataContext.data)
+        : text;
+    }, [text, dataContext?.data]);
+    
     return (
       <Section maxWidth={maxWidth}>
         <span
@@ -58,7 +71,7 @@ const TextInner: ComponentConfig<TextProps> = {
           )}
           style={{ maxWidth, ...getColorStyle(colorType, customColor, presetColor) }}
         >
-          {text}
+          {processedText}
         </span>
       </Section>
     );

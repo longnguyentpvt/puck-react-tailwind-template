@@ -1,48 +1,57 @@
 import React from "react";
 import { ComponentConfig } from "@measured/puck";
 import type { Slot } from "@measured/puck";
-import { Section } from "@/config/components/Section";
-import { withLayout, WithLayout } from "@/config/components/Layout";
 import { DataProvider } from "@/config/contexts/DataContext";
+import { Layout } from "@/config/components/Layout";
+import { spacingOptions } from "@/config/options";
 
-export type DataRepeaterProps = WithLayout<{
-  pets: Array<{ pet: any; content: Slot }>;
-  title?: string;
-  puck?: { isEditing?: boolean }; // Internal prop from Puck to detect edit mode
-}>;
+type LayoutFieldProps = {
+  flex?: string;
+  alignSelf?: string;
+  paddingTop?: string;
+  paddingBottom?: string;
+  marginTop?: string;
+  marginBottom?: string;
+  marginLeft?: string;
+  marginRight?: string;
+};
+
+export type DataRepeaterProps = {
+  pets: Array<{ pet: any; content: Slot; layout?: LayoutFieldProps }>;
+};
+
+// Flex options for array item layout
+const flexOptions = [
+  { label: "flex-1 (grow/shrink equally)", value: "1" },
+  { label: "flex-auto (grow/shrink with basis auto)", value: "auto" },
+  { label: "flex-initial (no grow, can shrink)", value: "initial" },
+  { label: "flex-none (no grow/shrink)", value: "none" },
+  { label: "basis-full (100% width)", value: "full" },
+  { label: "basis-1/2 (50% width)", value: "1/2" },
+  { label: "basis-1/3 (33% width)", value: "1/3" },
+  { label: "basis-2/3 (66% width)", value: "2/3" },
+  { label: "basis-1/4 (25% width)", value: "1/4" },
+  { label: "basis-3/4 (75% width)", value: "3/4" },
+];
+
+const alignSelfOptions = [
+  { label: "Auto", value: "auto" },
+  { label: "Start", value: "start" },
+  { label: "Center", value: "center" },
+  { label: "End", value: "end" },
+  { label: "Stretch", value: "stretch" },
+];
 
 /**
- * DataRepeater component - A flexible wrapper for rendering external data with automatic data binding
+ * DataRepeater component - A data handler that generates slots for external data
  * 
  * This component works with external data from the pets API,
- * creating a slot for each data item. Uses React Context to provide data to child components.
- * 
- * How to use:
- * 1. Add a Grid or Flex component to your page (for layout control)
- * 2. Drag DataRepeater into the Grid/Flex slot
- * 3. In DataRepeater, click "+ Add item" button in the "Pets" field
- * 4. For each item, click "External item" to select a pet
- * 5. Drag Heading or Text components into each pet's slot
- * 6. Use template syntax like "{{name}}" or "Pet: {{name}}" in the text field
- * 7. Or drag DataBoundText components to show specific fields
- * 
- * Data Binding:
- * - Each slot is wrapped in a DataProvider that passes the pet data
- * - Child components can use template syntax {{fieldPath}} in Heading/Text
- * - Or use DataBoundText to select fields via UI
- * - No manual copying of data required!
- * 
- * Layout Control:
- * - DataRepeater focuses on data generation and slot creation
- * - Place DataRepeater inside Grid or Flex components for layout control
- * - This separation provides better flexibility and reusability
+ * creating a slot for each data item. Each slot has its own layout properties
+ * so they can participate properly in parent Flex/Grid layouts.
  */
-const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
+export const DataRepeater: ComponentConfig<DataRepeaterProps> = {
+  inline: true,
   fields: {
-    title: {
-      type: "text",
-      label: "Title (optional)",
-    },
     pets: {
       type: "array",
       label: "Pets",
@@ -115,144 +124,110 @@ const DataRepeaterInternal: ComponentConfig<DataRepeaterProps> = {
           type: "slot",
           label: "Content",
         },
+        layout: {
+          type: "object",
+          label: "Layout",
+          objectFields: {
+            flex: {
+              type: "select",
+              label: "Flex",
+              options: flexOptions,
+            },
+            alignSelf: {
+              type: "select",
+              label: "Align Self",
+              options: alignSelfOptions,
+            },
+            paddingTop: {
+              type: "select",
+              label: "Padding Top",
+              options: spacingOptions,
+            },
+            paddingBottom: {
+              type: "select",
+              label: "Padding Bottom",
+              options: spacingOptions,
+            },
+            marginTop: {
+              type: "select",
+              label: "Margin Top",
+              options: spacingOptions,
+            },
+            marginBottom: {
+              type: "select",
+              label: "Margin Bottom",
+              options: spacingOptions,
+            },
+            marginLeft: {
+              type: "select",
+              label: "Margin Left",
+              options: spacingOptions,
+            },
+            marginRight: {
+              type: "select",
+              label: "Margin Right",
+              options: spacingOptions,
+            },
+          },
+        },
       },
     },
   },
   defaultProps: {
     pets: [],
-    title: "",
-    layout: {
-      paddingTop: "8",
-      paddingBottom: "8",
-    },
   },
-  render: ({ title, pets, puck }) => {
-    // Detect if we're in edit mode (Puck editor) or published view
-    // In published view, we hide the instruction box, borders, and data summary
-    // Default to false so publish view is clean. Only show editor UI when explicitly in edit mode.
-    const isEditing = puck?.isEditing === true;
-    
+  render: ({ pets, puck }) => {
     // Ensure pets is an array
     const petList = Array.isArray(pets) ? pets : [];
+    const isEditing = puck?.isEditing === true;
 
-    return (
-      <Section>
-        <div className="w-full">
-          {title && (
-            <h2 className="text-3xl font-bold mb-6 text-center">
-              {title}
-            </h2>
-          )}
-          
-          {petList && petList.length > 0 ? (
-            <div className="space-y-6">
-              {/* Only show instruction box in edit mode */}
-              {isEditing && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-sm text-blue-800 font-medium mb-2">
-                    🎯 {petList.length} pet{petList.length !== 1 ? 's' : ''} selected - Auto data binding enabled!
-                  </p>
-                  <p className="text-xs text-blue-600">
-                    Drag <strong>Heading</strong> or <strong>Text</strong> components and use template syntax like <code>{`"{{name}}"`}</code> or <code>{`"Pet: {{name}}"`}</code>.
-                    Or use <strong>DataBoundText</strong> components to select fields via UI.
-                  </p>
-                  <p className="text-xs text-purple-600 mt-2">
-                    💡 <strong>Tip:</strong> Place this DataRepeater inside a <strong>Grid</strong> or <strong>Flex</strong> component to control the layout!
-                  </p>
-                </div>
-              )}
-              
-              <div className="space-y-6">
-                {petList.map((item: any, index: number) => {
-                  const pet = item.pet;
-                  const Content = item.content;
-                  
-                  return (
-                    <div 
-                      key={pet?.id || index}
-                      className={isEditing 
-                        ? "border-2 border-dashed border-blue-200 rounded-lg p-4 bg-white hover:border-blue-400 transition-colors"
-                        : ""
-                      }
-                    >
-                      {/* Wrap slot content with DataProvider to pass pet data to children */}
-                      <DataProvider data={pet} dataType="pet">
-                        <div className={isEditing ? "min-h-[120px] mb-3" : ""}>
-                          <Content />
-                        </div>
-                      </DataProvider>
-                      
-                      {/* Only show data summary in edit mode */}
-                      {isEditing && (
-                        <div className="mt-3 pt-3 border-t border-gray-200">
-                          <details className="text-xs">
-                            <summary className="cursor-pointer font-medium text-gray-700 hover:text-gray-900 flex items-center gap-2">
-                              <span className="text-blue-600">📊</span>
-                              <span className="font-semibold">{pet?.name || `Pet #${index + 1}`}</span>
-                              {pet?.species && (
-                                <span className="text-gray-500">({pet.species})</span>
-                              )}
-                            </summary>
-                            <div className="mt-2 bg-gray-50 p-3 rounded">
-                              <p className="font-medium text-gray-700 mb-1">Available data fields:</p>
-                              <pre className="overflow-auto text-xs text-gray-600">
-{JSON.stringify(pet, null, 2)}
-                              </pre>
-                              <p className="mt-2 text-green-700 font-medium text-xs">
-                                ✨ Template Syntax (Recommended):
-                              </p>
-                              <p className="text-gray-600 text-xs mt-1">
-                                Drag <strong>Heading</strong> or <strong>Text</strong> component, then use:
-                                • <code>{`"{{name}}"`}</code> → Shows pet name
-                                • <code>{`"Pet: {{name}}"`}</code> → Mix static & dynamic text
-                                • <code>{`"{{species}}: {{name}}"`}</code> → Multiple fields
-                              </p>
-                              <p className="mt-2 text-blue-700 font-medium text-xs">
-                                Or use DataBoundText:
-                              </p>
-                              <p className="text-gray-600 text-xs mt-1">
-                                Drag a <strong>DataBoundText</strong> component and set:
-                                • Field Path: "name" (or "species", "description", "age", "breed")
-                              </p>
-                            </div>
-                          </details>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border-2 border-dashed border-gray-300">
-              <div className="max-w-md mx-auto">
-                <p className="text-4xl mb-4">🐾</p>
-                <p className="text-lg font-medium text-gray-700 mb-2">No pets selected</p>
-                {isEditing && (
-                  <>
-                    <p className="text-sm text-gray-500 mb-4">
-                      Click the "+ Add item" button in the "Pets" field above to add pets from the API
-                    </p>
-                    <div className="bg-white rounded-lg p-4 text-left text-xs text-gray-600 border border-gray-200">
-                      <p className="font-medium mb-2">How to use DataRepeater with automatic data binding:</p>
-                      <ol className="list-decimal list-inside space-y-1">
-                        <li>Place DataRepeater inside a <strong>Grid</strong> or <strong>Flex</strong> component</li>
-                        <li>Click "+ Add item" button above</li>
-                        <li>Click "External item" to select a pet</li>
-                        <li>Drag <strong>Heading</strong> or <strong>Text</strong> into the slot</li>
-                        <li>Use template syntax: <code>{`"{{name}}"`}</code>, <code>{`"Pet: {{name}}"`}</code></li>
-                        <li>Or use <strong>DataBoundText</strong> with Field Path</li>
-                      </ol>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          )}
+    // When no pets are added, show a selectable placeholder in editor mode
+    if (petList.length === 0) {
+      return (
+        <div 
+          className={isEditing 
+            ? "p-4 text-center text-gray-500 text-sm border border-dashed border-gray-300 rounded min-h-[60px] flex items-center justify-center"
+            : "hidden"
+          }
+        >
+          {isEditing && "Add pets to generate slots"}
         </div>
-      </Section>
+      );
+    }
+
+    // Each slot is wrapped in its own Layout component with flex properties
+    // Using Fragment to avoid any wrapper that would break parent flex layout
+    return (
+      <>
+        {petList.map((item: any, index: number) => {
+          // External field stores the selected value directly in item.pet
+          const pet = item.pet;
+          const Content = item.content;
+          // Default flex to "1" if not set, so slots are properly sized for dragging
+          const itemLayout = { flex: "1", ...item.layout };
+          
+          return (
+            <Layout 
+              key={pet?.id || index} 
+              layout={itemLayout}
+            >
+              <DataProvider data={pet} dataType="pet">
+                {isEditing ? (
+                  // In edit mode, wrap slot in a container with visual indicators
+                  <div className="min-h-[100px] border border-dashed border-blue-200 rounded-lg bg-blue-50/30 p-2 hover:border-blue-400 hover:bg-blue-50/50 transition-all">
+                    <div className="text-xs text-blue-500 mb-1 font-medium">
+                      {pet?.name || `Pet ${index + 1}`} - Drop components here
+                    </div>
+                    <Content />
+                  </div>
+                ) : (
+                  <Content />
+                )}
+              </DataProvider>
+            </Layout>
+          );
+        })}
+      </>
     );
   },
 };
-
-export const DataRepeater = withLayout(DataRepeaterInternal);

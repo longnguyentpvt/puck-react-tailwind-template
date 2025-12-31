@@ -51,12 +51,15 @@ const TextInner: ComponentConfig<TextProps> = {
     const dataContext = useDataContext();
     
     // Process template syntax if data is available
-    // Memoize to avoid unnecessary processing on every render
+    // Stringify data for stable dependency comparison
+    const dataJson = dataContext?.data ? JSON.stringify(dataContext.data) : null;
+    
     const processedText = useMemo(() => {
-      return dataContext?.data 
-        ? processTemplate(text, dataContext.data)
-        : text;
-    }, [text, dataContext?.data]);
+      if (dataContext?.data) {
+        return processTemplate(text, dataContext.data);
+      }
+      return text;
+    }, [text, dataJson]);
     
     return (
       <Section maxWidth={maxWidth}>

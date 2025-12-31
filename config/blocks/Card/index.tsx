@@ -1,9 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { ReactElement } from "react";
+import React, { ReactElement, useMemo } from "react";
 import { ComponentConfig } from "@measured/puck";
 import dynamic from "next/dynamic";
 import dynamicIconImports from "lucide-react/dynamicIconImports";
 import { withLayout, WithLayout } from "../../components/Layout";
+import { useDataContext } from "@/config/contexts/DataContext";
+import { processTemplate } from "@/config/utils/template-processor";
 import {
   Card as ShadcnCard,
   CardHeader,
@@ -179,6 +181,28 @@ const CardInner: ComponentConfig<CardProps> = {
     href,
     variant = "default",
   }) => {
+    // Get data from context if available
+    const dataContext = useDataContext();
+    
+    // Process template syntax for all text fields
+    const dataJson = dataContext?.data ? JSON.stringify(dataContext.data) : null;
+    
+    const processedTitle = useMemo(() => {
+      return dataContext?.data ? processTemplate(title, dataContext.data) : title;
+    }, [title, dataJson]);
+    
+    const processedDescription = useMemo(() => {
+      return dataContext?.data ? processTemplate(description, dataContext.data) : description;
+    }, [description, dataJson]);
+    
+    const processedContent = useMemo(() => {
+      return dataContext?.data ? processTemplate(content, dataContext.data) : content;
+    }, [content, dataJson]);
+    
+    const processedFooter = useMemo(() => {
+      return dataContext?.data ? processTemplate(footer, dataContext.data) : footer;
+    }, [footer, dataJson]);
+
     const variantClasses = {
       default: "",
       bordered: "border-2",
@@ -207,15 +231,15 @@ const CardInner: ComponentConfig<CardProps> = {
         <CardWrapper>
           <div className="h-full flex flex-col items-center gap-4 text-center">
             {iconElement}
-            <div className="text-[22px]">{title}</div>
+            <div className="text-[22px]">{processedTitle}</div>
             <div className="text-base leading-normal text-gray-600 font-light">
-              {description}
+              {processedDescription}
             </div>
-            {showContent && content && (
-              <div className="text-sm text-gray-500 mt-2">{content}</div>
+            {showContent && processedContent && (
+              <div className="text-sm text-gray-500 mt-2">{processedContent}</div>
             )}
-            {showFooter && footer && (
-              <div className="text-xs text-gray-400 mt-auto pt-4">{footer}</div>
+            {showFooter && processedFooter && (
+              <div className="text-xs text-gray-400 mt-auto pt-4">{processedFooter}</div>
             )}
           </div>
         </CardWrapper>
@@ -237,9 +261,9 @@ const CardInner: ComponentConfig<CardProps> = {
               <div className="flex flex-col items-start gap-3">
                 {iconElement}
                 <div className="w-full">
-                  <CardTitle className="text-xl mb-2">{title}</CardTitle>
+                  <CardTitle className="text-xl mb-2">{processedTitle}</CardTitle>
                   <CardDescription className="text-base">
-                    {description}
+                    {processedDescription}
                   </CardDescription>
                 </div>
               </div>
@@ -247,22 +271,22 @@ const CardInner: ComponentConfig<CardProps> = {
               <div className="flex items-start gap-4">
                 {iconElement}
                 <div className="flex-1">
-                  <CardTitle className="text-xl mb-2">{title}</CardTitle>
+                  <CardTitle className="text-xl mb-2">{processedTitle}</CardTitle>
                   <CardDescription className="text-base">
-                    {description}
+                    {processedDescription}
                   </CardDescription>
                 </div>
               </div>
             )}
           </CardHeader>
-          {showContent && content && (
+          {showContent && processedContent && (
             <CardContent>
-              <p className="text-sm text-gray-700">{content}</p>
+              <p className="text-sm text-gray-700">{processedContent}</p>
             </CardContent>
           )}
-          {showFooter && footer && (
+          {showFooter && processedFooter && (
             <CardFooter>
-              <p className="text-xs text-gray-500">{footer}</p>
+              <p className="text-xs text-gray-500">{processedFooter}</p>
             </CardFooter>
           )}
         </ShadcnCard>

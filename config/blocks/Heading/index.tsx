@@ -74,12 +74,16 @@ const HeadingInternal: ComponentConfig<HeadingProps> = {
     const dataContext = useDataContext();
     
     // Process template syntax if data is available
-    // Memoize to avoid unnecessary processing on every render
+    // Stringify data for stable dependency comparison
+    const dataJson = dataContext?.data ? JSON.stringify(dataContext.data) : null;
+    
     const processedText = useMemo(() => {
-      return dataContext?.data 
-        ? processTemplate(text, dataContext.data)
-        : text;
-    }, [text, dataContext?.data]);
+      if (dataContext?.data) {
+        const result = processTemplate(text, dataContext.data);
+        return result;
+      }
+      return text;
+    }, [text, dataJson]);
     
     return (
       <Section>

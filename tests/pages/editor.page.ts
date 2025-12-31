@@ -62,4 +62,19 @@ export class EditorPage {
     await this.page.mouse.move(targetX, targetY, { steps: 10 });
     await this.page.mouse.up();
   }
+
+  async deleteAllComponents() {
+    // Get all components in the canvas
+    const components = this.centerCanvas.locator('[data-puck-component]');
+    const count = await components.count();
+    
+    // Delete each component by clicking on it and pressing Delete/Backspace key
+    for (let i = count - 1; i >= 0; i--) {
+      const component = components.nth(i);
+      await component.click();
+      await this.page.keyboard.press('Backspace');
+      // Wait a bit for the component to be removed
+      await this.page.waitForTimeout(200);
+    }
+  }
 }

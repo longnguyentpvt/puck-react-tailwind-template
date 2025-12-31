@@ -12,12 +12,14 @@ export class EditorPage {
   readonly rightSidebar: Locator;
   readonly centerCanvas: Locator;
   readonly canvasIframe: FrameLocator;
+  readonly publishButton: Locator;
 
   constructor(public readonly page: Page) {
     this.leftSidebar = page.locator('[class*="_Sidebar--left_"]');
     this.rightSidebar = page.locator('[class*="_Sidebar--right_"]');
     this.canvasIframe = page.frameLocator('#preview-frame');
     this.centerCanvas = this.canvasIframe.getByTestId('dropzone:root:default-zone');
+    this.publishButton = page.locator('button:has-text("Publish")');
   }
 
   getDrawerLocator(drawerName: string): Locator {
@@ -61,5 +63,26 @@ export class EditorPage {
     await this.page.mouse.down();
     await this.page.mouse.move(targetX, targetY, { steps: 10 });
     await this.page.mouse.up();
+  }
+
+  async deleteAllComponents() {
+    // Get all components in the canvas
+    const components = this.centerCanvas.locator('[data-puck-component]');
+    const count = await components.count();
+    
+    // Delete each component by clicking on it and pressing Delete/Backspace key
+    for (let i = count - 1; i >= 0; i--) {
+      const component = components.nth(i);
+      await component.click();
+      await this.page.keyboard.press('Backspace');
+      // Wait a bit for the component to be removed
+      await this.page.waitForTimeout(200);
+    }
+  }
+
+  async publish() {
+    await this.publishButton.click();
+    // Wait for publish to complete
+    await this.page.waitForTimeout(1000);
   }
 }

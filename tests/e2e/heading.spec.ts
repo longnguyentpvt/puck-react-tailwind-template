@@ -63,6 +63,9 @@ test.describe('Application Health Check', () => {
   });
 
   test('heading appears in publish view', async () => {
+    // Publish the page first
+    await editorPage.publish();
+    
     // Navigate to the publish view
     const publishPage = await context.newPage();
     await publishPage.goto('/test');

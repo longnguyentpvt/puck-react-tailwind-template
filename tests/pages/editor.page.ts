@@ -12,12 +12,14 @@ export class EditorPage {
   readonly rightSidebar: Locator;
   readonly centerCanvas: Locator;
   readonly canvasIframe: FrameLocator;
+  readonly publishButton: Locator;
 
   constructor(public readonly page: Page) {
     this.leftSidebar = page.locator('[class*="_Sidebar--left_"]');
     this.rightSidebar = page.locator('[class*="_Sidebar--right_"]');
     this.canvasIframe = page.frameLocator('#preview-frame');
     this.centerCanvas = this.canvasIframe.getByTestId('dropzone:root:default-zone');
+    this.publishButton = page.locator('button:has-text("Publish")');
   }
 
   getDrawerLocator(drawerName: string): Locator {
@@ -76,5 +78,11 @@ export class EditorPage {
       // Wait a bit for the component to be removed
       await this.page.waitForTimeout(200);
     }
+  }
+
+  async publish() {
+    await this.publishButton.click();
+    // Wait for publish to complete
+    await this.page.waitForTimeout(1000);
   }
 }

@@ -20,7 +20,8 @@ export type PayloadDataProps = WithLayout<{
   _payloadData?: any; // Internal property to store resolved data
 }>;
 
-// Available collections - this should match your Payload config
+// Available collections - Update this list to match your Payload config
+// For automatic detection, collections would need to be loaded at build time
 const availableCollections = ["users", "media", "pages"];
 
 const PayloadDataInternal: ComponentConfig<PayloadDataProps> = {
@@ -43,13 +44,11 @@ const PayloadDataInternal: ComponentConfig<PayloadDataProps> = {
     },
     documentId: {
       type: "text",
-      label: "Document ID",
-      // Only show for single mode
+      label: "Document ID (required for single mode)",
     },
     whereConditions: {
       type: "textarea",
-      label: "Where Conditions (JSON)",
-      // Only show for multiple mode
+      label: "Where Conditions (JSON) - Optional",
     },
     limit: {
       type: "number",
@@ -67,7 +66,7 @@ const PayloadDataInternal: ComponentConfig<PayloadDataProps> = {
     },
     selectedIndex: {
       type: "number",
-      label: "Selected Index (0-based)",
+      label: "Selected Index (0-based, for index mode)",
       min: 0,
     },
     items: {
@@ -139,7 +138,7 @@ const PayloadDataInternal: ComponentConfig<PayloadDataProps> = {
     if (!isArray) {
       return (
         <Section>
-          <PayloadDataProvider value={{ data }}>
+          <PayloadDataProvider value={{ data, index: 0, isRepeating: false }}>
             <Items />
           </PayloadDataProvider>
         </Section>
@@ -177,7 +176,7 @@ const PayloadDataInternal: ComponentConfig<PayloadDataProps> = {
 
     return (
       <Section>
-        <PayloadDataProvider value={{ data: selectedItem, index: selectedIndex }}>
+        <PayloadDataProvider value={{ data: selectedItem, index: selectedIndex, isRepeating: false }}>
           <Items />
         </PayloadDataProvider>
       </Section>

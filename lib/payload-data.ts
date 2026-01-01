@@ -92,11 +92,12 @@ export async function fetchPayloadData(
 
 /**
  * Get a list of available collections from Payload config
- * This is a placeholder that should be enhanced to dynamically read from Payload config
+ * NOTE: This is a static list. To dynamically read from Payload config,
+ * the collections would need to be loaded at build time.
+ * Update this list to match your Payload config collections.
  */
 export function getAvailableCollections(): string[] {
-  // In a real implementation, this would read from the Payload config
-  // For now, we'll return the known collections
+  // Hardcoded list - update this when you add new collections to Payload
   return ['users', 'media', 'pages']
 }
 

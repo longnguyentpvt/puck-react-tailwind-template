@@ -9,11 +9,11 @@
  * @param path - The path to the value (e.g., "user.name" or "items.0.title")
  * @returns The value at the path, or undefined if not found
  */
-export function getValueByPath(data: any, path: string): any {
+export function getValueByPath(data: Record<string, any> | any[] | null | undefined, path: string): unknown {
   if (!data || !path) return undefined;
 
   const keys = path.split('.');
-  let current = data;
+  let current: any = data;
 
   for (const key of keys) {
     if (current === null || current === undefined) {
@@ -31,7 +31,7 @@ export function getValueByPath(data: any, path: string): any {
  * @param data - The data object to extract values from
  * @returns The parsed string with values replaced
  */
-export function parseTemplate(template: string | undefined, data: any): string {
+export function parseTemplate(template: string | undefined, data: Record<string, any> | any[] | null | undefined): string {
   if (!template) return '';
   if (!data) return template;
 

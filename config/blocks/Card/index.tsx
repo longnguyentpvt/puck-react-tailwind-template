@@ -13,6 +13,7 @@ import {
   CardFooter,
   CardAction,
 } from "@/components/ui/card";
+import { useTemplateParsing } from "../../components/TemplateParsing";
 
 const icons = Object.keys(dynamicIconImports).reduce<
   Record<string, ReactElement>
@@ -179,6 +180,15 @@ const CardInner: ComponentConfig<CardProps> = {
     href,
     variant = "default",
   }) => {
+    // Parse template patterns if within PayloadData context
+    const parsedTitle = useTemplateParsing(title);
+    const parsedDescription = useTemplateParsing(description);
+    const parsedContent = useTemplateParsing(content);
+    const parsedFooter = useTemplateParsing(footer);
+    const parsedActionText = useTemplateParsing(actionText);
+    const parsedHref = useTemplateParsing(href);
+    const parsedActionHref = useTemplateParsing(actionHref);
+    
     const variantClasses = {
       default: "",
       bordered: "border-2",
@@ -192,9 +202,9 @@ const CardInner: ComponentConfig<CardProps> = {
     );
 
     const CardWrapper = ({ children }: { children: React.ReactNode }) => {
-      if (href) {
+      if (parsedHref) {
         return (
-          <a href={href} className="block h-full no-underline">
+          <a href={parsedHref} className="block h-full no-underline">
             {children}
           </a>
         );
@@ -207,15 +217,15 @@ const CardInner: ComponentConfig<CardProps> = {
         <CardWrapper>
           <div className="h-full flex flex-col items-center gap-4 text-center">
             {iconElement}
-            <div className="text-[22px]">{title}</div>
+            <div className="text-[22px]">{parsedTitle}</div>
             <div className="text-base leading-normal text-gray-600 font-light">
-              {description}
+              {parsedDescription}
             </div>
-            {showContent && content && (
-              <div className="text-sm text-gray-500 mt-2">{content}</div>
+            {showContent && parsedContent && (
+              <div className="text-sm text-gray-500 mt-2">{parsedContent}</div>
             )}
-            {showFooter && footer && (
-              <div className="text-xs text-gray-400 mt-auto pt-4">{footer}</div>
+            {showFooter && parsedFooter && (
+              <div className="text-xs text-gray-400 mt-auto pt-4">{parsedFooter}</div>
             )}
           </div>
         </CardWrapper>
@@ -226,10 +236,10 @@ const CardInner: ComponentConfig<CardProps> = {
       <CardWrapper>
         <ShadcnCard className={`h-full ${variantClasses[variant]}`}>
           <CardHeader>
-            {showAction && actionText && (
+            {showAction && parsedActionText && (
               <CardAction>
-                <a href={actionHref} className="text-sm text-blue-600 hover:text-blue-800">
-                  {actionText}
+                <a href={parsedActionHref} className="text-sm text-blue-600 hover:text-blue-800">
+                  {parsedActionText}
                 </a>
               </CardAction>
             )}
@@ -237,9 +247,9 @@ const CardInner: ComponentConfig<CardProps> = {
               <div className="flex flex-col items-start gap-3">
                 {iconElement}
                 <div className="w-full">
-                  <CardTitle className="text-xl mb-2">{title}</CardTitle>
+                  <CardTitle className="text-xl mb-2">{parsedTitle}</CardTitle>
                   <CardDescription className="text-base">
-                    {description}
+                    {parsedDescription}
                   </CardDescription>
                 </div>
               </div>
@@ -247,22 +257,22 @@ const CardInner: ComponentConfig<CardProps> = {
               <div className="flex items-start gap-4">
                 {iconElement}
                 <div className="flex-1">
-                  <CardTitle className="text-xl mb-2">{title}</CardTitle>
+                  <CardTitle className="text-xl mb-2">{parsedTitle}</CardTitle>
                   <CardDescription className="text-base">
-                    {description}
+                    {parsedDescription}
                   </CardDescription>
                 </div>
               </div>
             )}
           </CardHeader>
-          {showContent && content && (
+          {showContent && parsedContent && (
             <CardContent>
-              <p className="text-sm text-gray-700">{content}</p>
+              <p className="text-sm text-gray-700">{parsedContent}</p>
             </CardContent>
           )}
-          {showFooter && footer && (
+          {showFooter && parsedFooter && (
             <CardFooter>
-              <p className="text-xs text-gray-500">{footer}</p>
+              <p className="text-xs text-gray-500">{parsedFooter}</p>
             </CardFooter>
           )}
         </ShadcnCard>

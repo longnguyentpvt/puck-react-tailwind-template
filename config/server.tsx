@@ -14,6 +14,7 @@ import { Template } from "./blocks/Template/server";
 import { Text } from "./blocks/Text";
 import { Space } from "./blocks/Space";
 import { RichText } from "./blocks/RichText";
+import { PayloadData } from "./blocks/PayloadData";
 import Root from "./root";
 import { UserConfig } from "./types";
 
@@ -34,6 +35,10 @@ const conf: UserConfig = {
     interactive: {
       title: "Actions",
       components: ["Button", "Animate"],
+    },
+    data: {
+      title: "Data",
+      components: ["PayloadData"],
     },
     other: {
       title: "Other",
@@ -57,6 +62,7 @@ const conf: UserConfig = {
     Text,
     Space,
     RichText,
+    PayloadData,
     HeadingBlock: {
       label: "Heading",
       fields: { title: { type: "text" } },

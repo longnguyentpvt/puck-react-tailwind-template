@@ -1,6 +1,7 @@
 import React from "react";
 import { ComponentConfig } from "@measured/puck";
 import { Button as ShadcnButton } from "@/components/ui/button";
+import { useTemplateParsing } from "@/config/components/TemplateParsing";
 
 export type ButtonProps = {
   label: string;
@@ -46,7 +47,11 @@ export const Button: ComponentConfig<ButtonProps> = {
     size: "default",
   },
   render: ({ href, variant, label, size, puck }) => {
-    const isLink = href && href !== "#" && !puck.isEditing;
+    // Parse template patterns if within PayloadData context
+    const parsedLabel = useTemplateParsing(label);
+    const parsedHref = useTemplateParsing(href);
+    
+    const isLink = parsedHref && parsedHref !== "#" && !puck.isEditing;
     
     return (
       <div>
@@ -57,9 +62,9 @@ export const Button: ComponentConfig<ButtonProps> = {
           tabIndex={puck.isEditing ? -1 : undefined}
         >
           {isLink ? (
-            <a href={href}>{label}</a>
+            <a href={parsedHref}>{parsedLabel}</a>
           ) : (
-            label
+            parsedLabel
           )}
         </ShadcnButton>
       </div>

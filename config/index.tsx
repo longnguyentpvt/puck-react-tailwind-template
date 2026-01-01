@@ -14,6 +14,7 @@ import { Template } from "./blocks/Template";
 import { Text } from "./blocks/Text";
 import { Space } from "./blocks/Space";
 import { RichText } from "./blocks/RichText";
+import { PayloadData } from "./blocks/PayloadData";
 
 import Root from "./root";
 import { UserConfig } from "./types";
@@ -37,6 +38,10 @@ export const conf: UserConfig = {
       title: "Actions",
       components: ["Button", "Animate"],
     },
+    data: {
+      title: "Data",
+      components: ["PayloadData"],
+    },
     other: {
       title: "Other",
       components: ["Card", "Logos", "Stats", "Template", "HeadingBlock"],
@@ -59,6 +64,7 @@ export const conf: UserConfig = {
     Text,
     Space,
     RichText,
+    PayloadData,
     HeadingBlock: {
       fields: {
         title: { type: "text" },

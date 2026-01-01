@@ -5,6 +5,7 @@ import { ComponentConfig } from "@measured/puck";
 import { Section } from "@/config/components/Section";
 import { WithLayout, withLayout } from "@/config/components/Layout";
 import { WithColor, withColor, getColorClassName, getColorStyle } from "@/config/components/Color";
+import { useTemplateParsing } from "@/config/components/TemplateParsing";
 
 export type TextProps = WithLayout<WithColor<{
   align: "left" | "center" | "right";
@@ -45,6 +46,9 @@ const TextInner: ComponentConfig<TextProps> = {
     size: "m",
   },
   render: ({ align, colorType, presetColor, customColor, text, size, maxWidth }) => {
+    // Parse template patterns if within PayloadData context
+    const parsedText = useTemplateParsing(text);
+    
     return (
       <Section maxWidth={maxWidth}>
         <span
@@ -58,7 +62,7 @@ const TextInner: ComponentConfig<TextProps> = {
           )}
           style={{ maxWidth, ...getColorStyle(colorType, customColor, presetColor) }}
         >
-          {text}
+          {parsedText}
         </span>
       </Section>
     );

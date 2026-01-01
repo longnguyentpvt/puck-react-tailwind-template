@@ -6,6 +6,7 @@ import { Heading as _Heading } from "@/components/Heading";
 import { Section } from "../../components/Section";
 import { WithLayout, withLayout } from "../../components/Layout";
 import { WithColor, withColor, getColorClassName, getColorStyle } from "../../components/Color";
+import { useTemplateParsing } from "../../components/TemplateParsing";
 
 
 export type HeadingProps = WithLayout<WithColor<{
@@ -68,6 +69,9 @@ const HeadingInternal: ComponentConfig<HeadingProps> = {
     },
   },
   render: ({ align, text, size, level, colorType, presetColor, customColor }) => {
+    // Parse template patterns if within PayloadData context
+    const parsedText = useTemplateParsing(text);
+    
     return (
       <Section>
         <_Heading size={size} rank={level as any}>
@@ -75,7 +79,7 @@ const HeadingInternal: ComponentConfig<HeadingProps> = {
             className={getColorClassName(colorType, presetColor)}
             style={{ display: "block", textAlign: align, width: "100%", ...getColorStyle(colorType, customColor, presetColor) }}
           >
-            {text}
+            {parsedText}
           </span>
         </_Heading>
       </Section>

@@ -14,6 +14,7 @@ import { StatsProps } from "./blocks/Stats";
 import { TemplateProps } from "./blocks/Template";
 import { TextProps } from "./blocks/Text";
 import { SpaceProps } from "./blocks/Space";
+import { PayloadDataProps } from "./blocks/PayloadData";
 
 import { RootProps } from "./root";
 import { RichTextProps } from "./blocks/RichText";
@@ -37,13 +38,14 @@ export type Components = {
   Text: TextProps;
   Space: SpaceProps;
   RichText: RichTextProps;
+  PayloadData: PayloadDataProps;
   HeadingBlock: { title: string };
 };
 
 export type UserConfig = Config<{
   components: Components;
   root: RootProps;
-  categories: ["layout", "typography", "content", "interactive"];
+  categories: ["layout", "typography", "content", "interactive", "data"];
   fields: {
     userField: {
       type: "userField";

@@ -68,8 +68,8 @@ const CustomElementInternal: ComponentConfig<CustomElementProps> = {
 
     return (
       <Section>
-        <Element className={safeClasses || ""}>
-          <Children />
+        <Element className={`${safeClasses || ""} w-full`}>
+          <Children className="w-full" />
         </Element>
       </Section>
     );

@@ -53,22 +53,81 @@ test.describe('CustomElement Component', () => {
     await elementField.selectOptionByLabel('Section');
   });
 
-  test('should be able to modify content', async () => {
+  test('should be able to drag components into CustomElement slot', async () => {
+    // First, click on the CustomElement to ensure it's selected
     const customElementComponent = editorPage.getPuckComponentLocator('CustomElement', 0);
     await customElementComponent.click();
     
-    const contentField = editorPage.getPuckFieldLocator('Content', 'textarea');
-    const fieldLocator = contentField.container;
-    await fieldLocator.scrollIntoViewIfNeeded();
-    await expect(fieldLocator).toBeVisible({ timeout: 5_000 });
+    // Now drag a Text component into the CustomElement
+    // Get the Text component from the drawer
+    const textDrawerItem = editorPage.getDrawerLocator('Text');
+    await expect(textDrawerItem).toBeVisible({ timeout: 5_000 });
     
-    // Verify default content
-    await expect(contentField.textarea).toHaveValue('Custom Element');
+    // Get the CustomElement's dropzone within the iframe
+    const customElementDropzone = editorPage.canvasIframe.locator('[data-puck-component^="CustomElement-"]').first().locator('[data-testid*="dropzone"]').first();
     
-    // Change content
-    await contentField.textarea.fill('This is my custom element with any Tailwind classes');
+    // Get positions
+    const sourceBox = await textDrawerItem.boundingBox();
+    if (!sourceBox) throw new Error('Could not get source bounding box');
     
-    // Verify the change was applied
-    await expect(contentField.textarea).toHaveValue('This is my custom element with any Tailwind classes');
+    const iframeElement = page.locator('#preview-frame');
+    const iframeBox = await iframeElement.boundingBox();
+    if (!iframeBox) throw new Error('Could not get iframe bounding box');
+    
+    const targetBox = await customElementDropzone.boundingBox();
+    if (!targetBox) throw new Error('Could not get target bounding box');
+    
+    // Calculate positions for drag and drop
+    const sourceX = sourceBox.x + sourceBox.width / 2;
+    const sourceY = sourceBox.y + sourceBox.height / 2;
+    const targetX = iframeBox.x + targetBox.x + targetBox.width / 2;
+    const targetY = iframeBox.y + targetBox.y + targetBox.height / 2;
+    
+    // Perform drag
+    await page.mouse.move(sourceX, sourceY);
+    await page.mouse.down();
+    await page.mouse.move(targetX, targetY, { steps: 10 });
+    await page.mouse.up();
+    
+    // Wait a moment for the component to be added
+    await page.waitForTimeout(1000);
+    
+    // Verify that a Text component now exists within the CustomElement
+    const textInCustomElement = editorPage.canvasIframe.locator('[data-puck-component^="CustomElement-"]').first().locator('[data-puck-component^="Text-"]').first();
+    await expect(textInCustomElement).toBeVisible({ timeout: 5_000 });
+  });
+
+  test('should allow multiple components in CustomElement slot', async () => {
+    // Drag another component (Button) into the CustomElement
+    const buttonDrawerItem = editorPage.getDrawerLocator('Button');
+    await expect(buttonDrawerItem).toBeVisible({ timeout: 5_000 });
+    
+    const customElementDropzone = editorPage.canvasIframe.locator('[data-puck-component^="CustomElement-"]').first().locator('[data-testid*="dropzone"]').first();
+    
+    const sourceBox = await buttonDrawerItem.boundingBox();
+    if (!sourceBox) throw new Error('Could not get source bounding box');
+    
+    const iframeElement = page.locator('#preview-frame');
+    const iframeBox = await iframeElement.boundingBox();
+    if (!iframeBox) throw new Error('Could not get iframe bounding box');
+    
+    const targetBox = await customElementDropzone.boundingBox();
+    if (!targetBox) throw new Error('Could not get target bounding box');
+    
+    const sourceX = sourceBox.x + sourceBox.width / 2;
+    const sourceY = sourceBox.y + sourceBox.height / 2;
+    const targetX = iframeBox.x + targetBox.x + targetBox.width / 2;
+    const targetY = iframeBox.y + targetBox.y + targetBox.height / 2;
+    
+    await page.mouse.move(sourceX, sourceY);
+    await page.mouse.down();
+    await page.mouse.move(targetX, targetY, { steps: 10 });
+    await page.mouse.up();
+    
+    await page.waitForTimeout(1000);
+    
+    // Verify both Text and Button components exist in CustomElement
+    const componentsInCustomElement = editorPage.canvasIframe.locator('[data-puck-component^="CustomElement-"]').first().locator('[data-puck-component]');
+    await expect(componentsInCustomElement).toHaveCount(3); // CustomElement itself + Text + Button
   });
 });

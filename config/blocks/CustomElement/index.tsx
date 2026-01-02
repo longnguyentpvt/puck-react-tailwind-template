@@ -1,11 +1,12 @@
 import React from "react";
 import { ComponentConfig } from "@measured/puck";
+import type { Slot } from "@measured/puck";
 import { Section } from "../../components/Section";
 import { WithLayout, withLayout } from "../../components/Layout";
 
 export type CustomElementProps = WithLayout<{
   element: "div" | "span" | "section" | "article" | "aside" | "header" | "footer" | "nav" | "main";
-  content?: string;
+  children: Slot;
   customClasses?: string;
 }>;
 
@@ -40,10 +41,9 @@ const CustomElementInternal: ComponentConfig<CustomElementProps> = {
         { label: "Main", value: "main" },
       ],
     },
-    content: {
-      type: "textarea",
+    children: {
+      type: "slot",
       label: "Content",
-      contentEditable: true,
     },
     customClasses: {
       type: "textarea",
@@ -53,14 +53,14 @@ const CustomElementInternal: ComponentConfig<CustomElementProps> = {
   },
   defaultProps: {
     element: "div",
-    content: "Custom Element",
+    children: [],
     customClasses: "p-4 bg-gray-100 rounded",
     layout: {
       paddingTop: "0",
       paddingBottom: "0",
     },
   },
-  render: ({ element, content, customClasses }) => {
+  render: ({ element, children: Children, customClasses }) => {
     const Element = element;
     // Basic validation - in production, you may want to implement
     // more strict validation or use a CSS class whitelist for untrusted users
@@ -69,7 +69,7 @@ const CustomElementInternal: ComponentConfig<CustomElementProps> = {
     return (
       <Section>
         <Element className={safeClasses || ""}>
-          {content}
+          <Children />
         </Element>
       </Section>
     );

@@ -10,13 +10,13 @@ This repository is to building a template for UI builder by drag and drop and si
 
 ## CustomElement Component
 
-The CustomElement component allows you to create custom elements with any Tailwind CSS classes you need, providing maximum flexibility when the existing components don't fit your requirements.
+The CustomElement component allows you to create custom wrapper elements with any Tailwind CSS classes you need, providing maximum flexibility when the existing components don't fit your requirements.
 
 ### Features
 
-- **Custom Tailwind Classes**: Add any Tailwind CSS utility classes to style your element
+- **Custom Tailwind Classes**: Add any Tailwind CSS utility classes to style your wrapper element
 - **HTML Element Selection**: Choose from various HTML semantic elements (div, span, section, article, aside, header, footer, nav, main)
-- **Editable Content**: Add and edit text content directly
+- **Slot for Any Components**: Drag and drop any Puck components inside the CustomElement
 - **Layout Support**: Includes full layout system support with padding, margins, flex, and grid options
 
 ### Usage
@@ -24,16 +24,16 @@ The CustomElement component allows you to create custom elements with any Tailwi
 1. Drag the **CustomElement** component from the "Other" category in the Puck editor
 2. Click on the component to configure it in the right sidebar:
    - **HTML Element**: Select the semantic HTML element type
-   - **Content**: Add your text content
    - **Custom Tailwind Classes**: Enter any Tailwind CSS classes (e.g., `bg-blue-500 text-white p-4 rounded-lg shadow-md`)
-3. Use the Layout tab to adjust spacing and positioning
+3. Drag other components (Text, Button, Heading, etc.) into the CustomElement's content area
+4. Use the Layout tab to adjust spacing and positioning
 
 ### Example Use Cases
 
-- Creating unique call-to-action sections with custom styling
+- Creating unique call-to-action sections with custom styling and nested components
 - Building custom card layouts not covered by the Card component
-- Adding custom-styled dividers or spacers
-- Creating unique header or footer sections with specific Tailwind classes
+- Adding custom-styled containers for grouping components
+- Creating unique header or footer sections with specific Tailwind classes and nested elements
 
 
 # CI/CD

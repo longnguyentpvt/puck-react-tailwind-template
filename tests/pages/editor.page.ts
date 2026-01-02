@@ -36,6 +36,7 @@ export class EditorPage {
   async dragComponentToEditor(componentName: string) {
     await expect(this.centerCanvas).toBeVisible({ timeout: 5_000 });
     const componentLocator = this.getDrawerLocator(componentName);
+    await componentLocator.scrollIntoViewIfNeeded({ timeout: 5_000 });
     
     // Get source element bounding box
     const sourceBox = await componentLocator.boundingBox();
@@ -54,7 +55,7 @@ export class EditorPage {
     const sourceX = sourceBox.x + sourceBox.width / 2;
     const sourceY = sourceBox.y + sourceBox.height / 2;
     const targetX = iframeBox.x + targetBox.x + targetBox.width / 2;
-    const targetY = iframeBox.y + targetBox.y + targetBox.height - 10; // Bottom center with small offset
+    const targetY = iframeBox.y + targetBox.y + 10; // Top center with small offset
     
     // Perform manual drag operation
     await this.page.mouse.move(sourceX, sourceY);

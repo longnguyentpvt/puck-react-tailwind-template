@@ -1,22 +1,26 @@
 import { test, expect, Page, BrowserContext } from '@playwright/test';
 import { EditorPage } from '@/tests/pages/editor.page';
 
+// Annotate the entire file as serial
+test.describe.configure({ mode: 'serial' });
+
 test.describe('CustomElement Component', () => {
   let page: Page;
   let context: BrowserContext;
   let editorPage: EditorPage;
 
+
   test.beforeAll(async ({ browser }) => {
     context = await browser.newContext();
     page = await context.newPage();
 
-    await page.goto('/test/edit');
+    await page.goto('/puck/edit');
     editorPage = new EditorPage(page);
+
   });
 
   test('should drag CustomElement to editor', async () => {
     await editorPage.dragComponentToEditor('CustomElement');
-
     const customElementComponent = editorPage.getPuckComponentLocator('CustomElement', 0);
     await expect(customElementComponent).toBeVisible({ timeout: 5_000 });
   });

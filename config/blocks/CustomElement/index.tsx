@@ -9,6 +9,20 @@ export type CustomElementProps = WithLayout<{
   customClasses?: string;
 }>;
 
+// Basic validation to ensure classes look reasonable
+// Allows: alphanumeric, hyphens, underscores, colons (for pseudo-classes), 
+// slashes (for fractions like w-1/2), brackets (for arbitrary values),
+// and spaces (to separate multiple classes)
+const isValidClassString = (classes: string): boolean => {
+  // Allow empty string
+  if (!classes) return true;
+  
+  // Check if it only contains valid characters for CSS classes
+  // This is a basic check, not a complete CSS validator
+  const validPattern = /^[a-zA-Z0-9\s\-_:\/\[\]\.#%]+$/;
+  return validPattern.test(classes);
+};
+
 const CustomElementInternal: ComponentConfig<CustomElementProps> = {
   fields: {
     element: {
@@ -48,10 +62,13 @@ const CustomElementInternal: ComponentConfig<CustomElementProps> = {
   },
   render: ({ element, content, customClasses }) => {
     const Element = element;
+    // Basic validation - in production, you may want to implement
+    // more strict validation or use a CSS class whitelist for untrusted users
+    const safeClasses = isValidClassString(customClasses || "") ? customClasses : "";
 
     return (
       <Section>
-        <Element className={customClasses || ""}>
+        <Element className={safeClasses || ""}>
           {content}
         </Element>
       </Section>

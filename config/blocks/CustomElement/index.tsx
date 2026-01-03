@@ -61,16 +61,18 @@ const CustomElementInternal: ComponentConfig<CustomElementProps> = {
     },
   },
   render: ({ element, children: Children, customClasses }) => {
-    const Element = element;
     // Basic validation - in production, you may want to implement
     // more strict validation or use a CSS class whitelist for untrusted users
     const safeClasses = isValidClassString(customClasses || "") ? customClasses : "";
 
+    // Apply classes directly to the slot component (like Flex and Grid do)
+    // This ensures the dropzone is full width
+    // Note: Puck slots always render as divs regardless of the element prop
     return (
       <Section>
-        <Element className={`${safeClasses || ""} w-full`}>
-          <Children className="w-full" />
-        </Element>
+        <Children 
+          className={`${safeClasses || ""} w-full block`}
+        />
       </Section>
     );
   },

@@ -1,7 +1,6 @@
 import React from "react";
 import { ComponentConfig } from "@measured/puck";
 import type { Slot } from "@measured/puck";
-import { Section } from "../../components/Section";
 import { WithLayout, withLayout } from "../../components/Layout";
 
 export type CustomElementProps = WithLayout<{
@@ -65,15 +64,12 @@ const CustomElementInternal: ComponentConfig<CustomElementProps> = {
     // more strict validation or use a CSS class whitelist for untrusted users
     const safeClasses = isValidClassString(customClasses || "") ? customClasses : "";
 
-    // Apply classes directly to the slot component (like Flex and Grid do)
-    // This ensures the dropzone is full width
-    // Note: Puck slots always render as divs regardless of the element prop
+    // Render directly like Flex (no Section wrapper to avoid max-width constraints)
+    // Apply classes directly to the slot component for full-width dropzone
     return (
-      <Section>
-        <Children 
-          className={`${safeClasses || ""} w-full block`}
-        />
-      </Section>
+      <Children 
+        className={`${safeClasses || ""} w-full block`}
+      />
     );
   },
 };

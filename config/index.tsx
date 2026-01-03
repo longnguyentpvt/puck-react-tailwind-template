@@ -4,6 +4,7 @@ import { Banner } from "./blocks/Banner";
 import { Button } from "./blocks/Button";
 import { Card } from "./blocks/Card";
 import { Carousel } from "./blocks/Carousel";
+import { CustomElement } from "./blocks/CustomElement";
 import { Dialog } from "./blocks/Dialog";
 import { Grid } from "./blocks/Grid";
 import { Heading } from "./blocks/Heading";
@@ -39,7 +40,7 @@ export const conf: UserConfig = {
     },
     other: {
       title: "Other",
-      components: ["Card", "Logos", "Stats", "Template", "HeadingBlock"],
+      components: ["Card", "Logos", "Stats", "Template", "HeadingBlock", "CustomElement"],
     },
   },
   components: {
@@ -49,6 +50,7 @@ export const conf: UserConfig = {
     Button,
     Card,
     Carousel,
+    CustomElement,
     Dialog,
     Grid,
     Heading,

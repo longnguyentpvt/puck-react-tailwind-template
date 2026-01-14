@@ -5,6 +5,7 @@ import { ComponentConfig } from "@measured/puck";
 import { Section } from "@/config/components/Section";
 import { WithLayout, withLayout } from "@/config/components/Layout";
 import { WithColor, withColor, getColorClassName, getColorStyle } from "@/config/components/Color";
+import { withBindableProps } from "@/lib/data-binding";
 
 export type TextProps = WithLayout<WithColor<{
   align: "left" | "center" | "right";
@@ -65,4 +66,4 @@ const TextInner: ComponentConfig<TextProps> = {
   },
 };
 
-export const Text = withLayout(withColor(TextInner));
+export const Text = withBindableProps(withLayout(withColor(TextInner)));

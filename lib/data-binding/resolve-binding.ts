@@ -153,8 +153,8 @@ export function extractBindingVariables(template: string): string[] {
   const variables: Set<string> = new Set();
   let match: RegExpExecArray | null;
   
-  // Reset regex state
-  const regex = new RegExp(BINDING_PATTERN);
+  // Create a new regex with global flag to avoid infinite loop
+  const regex = new RegExp(BINDING_PATTERN.source, 'g');
   
   while ((match = regex.exec(template)) !== null) {
     const expression = match[1].trim();

@@ -109,10 +109,12 @@ function ListDataRenderer({
 }) {
   // In edit mode, only show the preview item
   if (isEditing) {
-    const previewItem = data[previewIndex] ?? data[0];
+    // Ensure index matches the actual item being shown
+    const actualIndex = data[previewIndex] !== undefined ? previewIndex : 0;
+    const previewItem = data[actualIndex];
     const variables: DataScope = {
       [variableName]: previewItem,
-      index: previewIndex,
+      index: actualIndex,
     };
 
     return (

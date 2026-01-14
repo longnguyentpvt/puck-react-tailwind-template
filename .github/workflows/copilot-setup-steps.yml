@@ -36,12 +36,5 @@ jobs:
           PAYLOAD_SECRET: ${{ secrets['PAYLOAD_TEST_SECRET'] }}
           DATABASE_URI: ${{ secrets['PAYLOAD_TEST_DATABASE_URI'] }}
         run: |
-          set -eo pipefail
-          umask 077
-
-          {
-            echo "PAYLOAD_SECRET=${PAYLOAD_SECRET:-}"
-            echo "DATABASE_URI=${DATABASE_URI:-}"
-          } > .env
-
-          cp .env .env.local
+          echo "DATABASE_URI=${DATABASE_URI}" >> .env
+          echo "PAYLOAD_SECRET=${PAYLOAD_SECRET}" >> .env

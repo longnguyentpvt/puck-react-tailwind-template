@@ -25,6 +25,7 @@ type LayoutFieldProps = {
   spanRow?: ResponsiveValue<number> | number;
   flex?: ResponsiveValue<"1" | "auto" | "initial" | "none" | "1/2" | "1/3" | "2/3" | "1/4" | "3/4" | "full"> | "1" | "auto" | "initial" | "none" | "1/2" | "1/3" | "2/3" | "1/4" | "3/4" | "full";
   alignSelf?: ResponsiveValue<"auto" | "start" | "center" | "end" | "stretch"> | "auto" | "start" | "center" | "end" | "stretch";
+  customClasses?: string;
 };
 
 export type WithLayout<Props extends DefaultComponentProps> = Props & {
@@ -109,6 +110,10 @@ export const layoutField: ObjectField<LayoutFieldProps> = {
       label: "Margin Right",
       options: spacingOptions,
     },
+    customClasses: {
+      type: "text",
+      label: "Custom Tailwind Classes",
+    },
   },
 };
 
@@ -122,6 +127,7 @@ export const layoutFieldDefinition: ObjectField<LayoutFieldProps> = {
     marginBottom: layoutField.objectFields.marginBottom,
     marginLeft: layoutField.objectFields.marginLeft,
     marginRight: layoutField.objectFields.marginRight,
+    customClasses: layoutField.objectFields.customClasses,
   },
 };
 
@@ -223,6 +229,9 @@ const Layout = forwardRef<HTMLDivElement, LayoutProps>(
       "20": "mr-20", "24": "mr-24", "32": "mr-32",
     });
 
+    // Custom Tailwind classes from user input
+    const customClasses = layout?.customClasses || "";
+
     // Helper to get responsive style values
     const getResponsiveValue = (value: ResponsiveValue<number> | number | undefined): number | undefined => {
       if (!value) return undefined;
@@ -230,7 +239,7 @@ const Layout = forwardRef<HTMLDivElement, LayoutProps>(
       return value.base; // Only use base value for inline styles
     };
     
-    const finalClassName = `${className || ""} ${flexClasses} ${alignSelfClasses} ${paddingTopClasses} ${paddingBottomClasses} ${marginTopClasses} ${marginBottomClasses} ${marginLeftClasses} ${marginRightClasses}`.trim();
+    const finalClassName = `${className || ""} ${flexClasses} ${alignSelfClasses} ${paddingTopClasses} ${paddingBottomClasses} ${marginTopClasses} ${marginBottomClasses} ${marginLeftClasses} ${marginRightClasses} ${customClasses}`.trim();
 
     return (
       <div
@@ -278,6 +287,7 @@ export function withLayout<
         marginRight: { base: "0" },
         flex: { base: "initial" },
         alignSelf: { base: "auto" },
+        customClasses: "",
         ...componentConfig.defaultProps?.layout,
       },
     },
@@ -296,8 +306,9 @@ export function withLayout<
           marginBottom: layoutField.objectFields.marginBottom,
           marginLeft: layoutField.objectFields.marginLeft,
           marginRight: layoutField.objectFields.marginRight,
+          customClasses: layoutField.objectFields.customClasses,
         };
-      } else if (parentType === "Flex") {
+      } else if (parentType === "Flex" || parentType === "Block") {
         layoutFields = {
           flex: layoutField.objectFields.flex,
           alignSelf: layoutField.objectFields.alignSelf,
@@ -307,6 +318,7 @@ export function withLayout<
           marginBottom: layoutField.objectFields.marginBottom,
           marginLeft: layoutField.objectFields.marginLeft,
           marginRight: layoutField.objectFields.marginRight,
+          customClasses: layoutField.objectFields.customClasses,
         };
       } else {
         layoutFields = {
@@ -316,6 +328,7 @@ export function withLayout<
           marginBottom: layoutField.objectFields.marginBottom,
           marginLeft: layoutField.objectFields.marginLeft,
           marginRight: layoutField.objectFields.marginRight,
+          customClasses: layoutField.objectFields.customClasses,
         };
       }
       

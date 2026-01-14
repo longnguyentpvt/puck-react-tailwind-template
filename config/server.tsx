@@ -1,6 +1,7 @@
 import { Accordion } from "./blocks/Accordion";
 import { Animate } from "./blocks/Animate";
 import { Banner } from "./blocks/Banner";
+import { Block } from "./blocks/Block";
 import { Button } from "./blocks/Button";
 import { Card } from "./blocks/Card";
 import { Carousel } from "./blocks/Carousel";
@@ -22,7 +23,7 @@ const conf: UserConfig = {
   root: Root,
   categories: {
     layout: {
-      components: ["Grid", "Flex", "Space"],
+      components: ["Grid", "Flex", "Block", "Space"],
     },
     typography: {
       components: ["Heading", "Text"],
@@ -44,6 +45,7 @@ const conf: UserConfig = {
     Accordion,
     Animate,
     Banner,
+    Block,
     Button,
     Card,
     Carousel,

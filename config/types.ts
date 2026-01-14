@@ -5,6 +5,7 @@ import { BannerProps } from "./blocks/Banner";
 import { ButtonProps } from "./blocks/Button";
 import { CardProps } from "./blocks/Card";
 import { CarouselProps } from "./blocks/Carousel";
+import { DataProps } from "./blocks/Data";
 import { DialogProps } from "./blocks/Dialog";
 import { GridProps } from "./blocks/Grid";
 import { HeadingProps } from "./blocks/Heading";
@@ -27,6 +28,7 @@ export type Components = {
   Button: ButtonProps;
   Card: CardProps;
   Carousel: CarouselProps;
+  Data: DataProps;
   Dialog: DialogProps;
   Grid: GridProps;
   Heading: HeadingProps;
@@ -43,7 +45,7 @@ export type Components = {
 export type UserConfig = Config<{
   components: Components;
   root: RootProps;
-  categories: ["layout", "typography", "content", "interactive"];
+  categories: ["layout", "typography", "content", "interactive", "data"];
   fields: {
     userField: {
       type: "userField";

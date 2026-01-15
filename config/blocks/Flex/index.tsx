@@ -159,4 +159,6 @@ const FlexInternal: ComponentConfig<FlexProps> = {
   },
 };
 
-export const Flex = withData(withLayout(FlexInternal));
+// Apply withData first, then withLayout, so the data binding fields are included
+// when withLayout's resolveFields spreads componentConfig.fields
+export const Flex = withLayout(withData(FlexInternal));

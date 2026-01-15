@@ -81,4 +81,6 @@ export const GridInternal: ComponentConfig<GridProps> = {
   },
 };
 
-export const Grid = withData(withLayout(GridInternal));
+// Apply withData first, then withLayout, so the data binding fields are included
+// when withLayout's resolveFields spreads componentConfig.fields
+export const Grid = withLayout(withData(GridInternal));

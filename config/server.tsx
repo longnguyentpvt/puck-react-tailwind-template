@@ -4,7 +4,6 @@ import { Banner } from "./blocks/Banner";
 import { Button } from "./blocks/Button";
 import { Card } from "./blocks/Card";
 import { Carousel } from "./blocks/Carousel";
-import { Data } from "./blocks/Data";
 import { Dialog } from "./blocks/Dialog";
 import { Grid } from "./blocks/Grid";
 import { Heading } from "./blocks/Heading";
@@ -36,10 +35,6 @@ const conf: UserConfig = {
       title: "Actions",
       components: ["Button", "Animate"],
     },
-    data: {
-      title: "Data",
-      components: ["Data"],
-    },
     other: {
       title: "Other",
       components: ["Card", "Logos", "Stats", "Template"],
@@ -52,7 +47,6 @@ const conf: UserConfig = {
     Button,
     Card,
     Carousel,
-    Data,
     Dialog,
     Grid,
     Heading,

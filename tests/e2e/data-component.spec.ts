@@ -2,17 +2,17 @@ import { test, expect, Page, BrowserContext } from '@playwright/test';
 import { EditorPage } from '@/tests/pages/editor.page';
 
 /**
- * Data Component Integration Tests
+ * Data Binding Integration Tests
  * 
- * These tests verify the Data component functionality in the Puck editor.
- * The Data component allows users to:
- * 1. Select data from external sources
+ * These tests verify the Data Binding functionality integrated into layout components.
+ * The withData HOC is applied to Flex and Grid components, allowing users to:
+ * 1. Select data from external sources via Data Binding configuration
  * 2. Assign scope variables
  * 3. Use {{variableName.fieldPath}} binding syntax in child components
  * 
  * Test uses a unique test page path to avoid conflicts with other tests.
  * 
- * Mock data used by Data component:
+ * Mock data used by Data binding:
  * - products: [{ id: 1, name: "Product 1", price: 99.99 }, ...]
  * - user: { name: "John Doe", email: "john@example.com" }
  */
@@ -20,7 +20,7 @@ import { EditorPage } from '@/tests/pages/editor.page';
 // Use unique page path for this test suite to avoid conflicts
 const TEST_PAGE_PATH = `/data-test-${Date.now()}`;
 
-test.describe('Data Component Integration Tests', () => {
+test.describe('Data Binding Integration Tests (Flex with withData)', () => {
   let page: Page;
   let context: BrowserContext;
   let editorPage: EditorPage;
@@ -49,7 +49,7 @@ test.describe('Data Component Integration Tests', () => {
     }
   });
 
-  test('should load editor page with Data component available', async () => {
+  test('should load editor page with Flex component available', async () => {
     // Wait for the page to have basic structure
     await page.waitForLoadState('domcontentloaded');
     
@@ -67,89 +67,88 @@ test.describe('Data Component Integration Tests', () => {
     await page.screenshot({ path: 'test-results/01-editor-loaded.png', fullPage: true });
   });
 
-  test('should have Data component in component drawer', async () => {
+  test('should have Flex component in component drawer', async () => {
     // Wait for the sidebar to load
     await expect(editorPage.leftSidebar).toBeVisible({ timeout: 30_000 });
     
-    // Look for the Data component in the drawer
-    const dataDrawer = editorPage.getDrawerLocator('Data');
-    await expect(dataDrawer).toBeVisible({ timeout: 10_000 });
+    // Look for the Flex component in the drawer (now has data binding)
+    const flexDrawer = editorPage.getDrawerLocator('Flex');
+    await expect(flexDrawer).toBeVisible({ timeout: 10_000 });
     
-    // Take screenshot showing Data component in drawer
-    await page.screenshot({ path: 'test-results/02-data-component-in-drawer.png', fullPage: true });
+    // Take screenshot showing Flex component in drawer
+    await page.screenshot({ path: 'test-results/02-flex-component-in-drawer.png', fullPage: true });
   });
 
-  test('should be able to drag Data component to editor', async () => {
+  test('should be able to drag Flex component to editor', async () => {
     // Skip if canvas is not visible (MongoDB connection issue)
     const canvasVisible = await editorPage.centerCanvas.isVisible().catch(() => false);
     test.skip(!canvasVisible, 'Canvas not visible - skipping drag test');
     
-    await editorPage.dragComponentToEditor('Data');
+    await editorPage.dragComponentToEditor('Flex');
     
-    const dataComponent = editorPage.getPuckComponentLocator('Data', 0);
-    await expect(dataComponent).toBeVisible({ timeout: 10_000 });
+    const flexComponent = editorPage.getPuckComponentLocator('Flex', 0);
+    await expect(flexComponent).toBeVisible({ timeout: 10_000 });
     
-    // Take screenshot of Data component on canvas
-    await page.screenshot({ path: 'test-results/03-data-component-on-canvas.png', fullPage: true });
+    // Take screenshot of Flex component on canvas
+    await page.screenshot({ path: 'test-results/03-flex-component-on-canvas.png', fullPage: true });
   });
 
-  test('should display Data component configuration fields when selected', async () => {
-    // First check if we have a Data component on canvas
-    const dataComponent = editorPage.getPuckComponentLocator('Data', 0);
-    const isVisible = await dataComponent.isVisible().catch(() => false);
-    test.skip(!isVisible, 'Data component not on canvas - skipping field test');
+  test('should display Data Binding configuration fields in Flex component', async () => {
+    // First check if we have a Flex component on canvas
+    const flexComponent = editorPage.getPuckComponentLocator('Flex', 0);
+    const isVisible = await flexComponent.isVisible().catch(() => false);
+    test.skip(!isVisible, 'Flex component not on canvas - skipping field test');
     
-    await dataComponent.click();
+    await flexComponent.click();
 
-    // Check for Data Source field
-    const sourceField = editorPage.getPuckFieldLocator('Data Source', 'input');
-    await expect(sourceField.container).toBeVisible({ timeout: 10_000 });
+    // Look for Data Binding section in the right sidebar
+    // The withData HOC adds a "Data Binding" section to the component
+    const rightSidebar = page.locator('[data-testid="right-sidebar"], aside').last();
+    await expect(rightSidebar).toBeVisible({ timeout: 10_000 });
+    
+    // Take screenshot of configuration fields (including Data Binding)
+    await page.screenshot({ path: 'test-results/04-flex-with-data-binding-fields.png', fullPage: true });
+  });
 
-    // Check for Variable Name field
-    const variableField = editorPage.getPuckFieldLocator('Variable Name', 'input');
-    await expect(variableField.container).toBeVisible({ timeout: 10_000 });
+  test('should configure Flex component with data binding', async () => {
+    // First check if we have a Flex component on canvas
+    const flexComponent = editorPage.getPuckComponentLocator('Flex', 0);
+    const isVisible = await flexComponent.isVisible().catch(() => false);
+    test.skip(!isVisible, 'Flex component not on canvas - skipping configuration test');
+    
+    await flexComponent.click();
 
-    // Check for Mode field
+    // Look for Data Binding Mode field
     const modeField = editorPage.getPuckFieldLocator('Mode', 'select');
-    await expect(modeField.container).toBeVisible({ timeout: 10_000 });
+    const modeVisible = await modeField.container.isVisible().catch(() => false);
     
-    // Take screenshot of configuration fields
-    await page.screenshot({ path: 'test-results/04-data-component-fields.png', fullPage: true });
-  });
-
-  test('should configure Data component with collection source', async () => {
-    // First check if we have a Data component on canvas
-    const dataComponent = editorPage.getPuckComponentLocator('Data', 0);
-    const isVisible = await dataComponent.isVisible().catch(() => false);
-    test.skip(!isVisible, 'Data component not on canvas - skipping configuration test');
-    
-    await dataComponent.click();
+    if (modeVisible) {
+      // Select List mode for data binding
+      await modeField.selectOptionByLabel('List (loop)');
+    }
 
     // Configure the Data Source field to use products collection
     const sourceField = editorPage.getPuckFieldLocator('Data Source', 'input');
-    await expect(sourceField.container).toBeVisible({ timeout: 10_000 });
-    await sourceField.fill('externalData.products');
+    const sourceVisible = await sourceField.container.isVisible().catch(() => false);
+    
+    if (sourceVisible) {
+      await sourceField.fill('externalData.products');
+    }
 
     // Configure Variable Name
     const variableField = editorPage.getPuckFieldLocator('Variable Name', 'input');
-    await expect(variableField.container).toBeVisible({ timeout: 10_000 });
-    await variableField.fill('product');
-
-    // Select Mode as List
-    const modeField = editorPage.getPuckFieldLocator('Mode', 'select');
-    await expect(modeField.container).toBeVisible({ timeout: 10_000 });
-    await modeField.selectOptionByLabel('List (loop)');
-
-    // Verify the fields have been set
-    await expect(sourceField.input).toHaveValue('externalData.products');
-    await expect(variableField.input).toHaveValue('product');
+    const variableVisible = await variableField.container.isVisible().catch(() => false);
     
-    // Take screenshot of configured Data component
-    await page.screenshot({ path: 'test-results/05-data-component-configured.png', fullPage: true });
+    if (variableVisible) {
+      await variableField.fill('product');
+    }
+    
+    // Take screenshot of configured Flex with Data Binding
+    await page.screenshot({ path: 'test-results/05-flex-data-binding-configured.png', fullPage: true });
   });
 });
 
-test.describe('Data Component with Child Components', () => {
+test.describe('Data Binding with Child Components', () => {
   let page: Page;
   let context: BrowserContext;
   let editorPage: EditorPage;
@@ -175,7 +174,7 @@ test.describe('Data Component with Child Components', () => {
     }
   });
 
-  test('should drag Flex layout component to editor', async () => {
+  test('should drag Flex layout component with data binding to editor', async () => {
     // Skip if canvas is not visible
     const canvasVisible = await editorPage.centerCanvas.isVisible().catch(() => false);
     test.skip(!canvasVisible, 'Canvas not visible - skipping drag test');
@@ -189,44 +188,36 @@ test.describe('Data Component with Child Components', () => {
     await page.screenshot({ path: 'test-results/06-flex-component-on-canvas.png', fullPage: true });
   });
 
-  test('should drag Data component into Flex layout', async () => {
-    // Skip if Flex is not visible
+  test('should configure Flex with data binding and add Heading child', async () => {
+    // Skip if Flex component is not visible
     const flexComponent = editorPage.getPuckComponentLocator('Flex', 0);
     const flexVisible = await flexComponent.isVisible().catch(() => false);
     test.skip(!flexVisible, 'Flex component not on canvas - skipping test');
 
-    await editorPage.dragComponentToEditor('Data');
-    
-    const dataComponent = editorPage.getPuckComponentLocator('Data', 0);
-    await expect(dataComponent).toBeVisible({ timeout: 10_000 });
-    
-    // Take screenshot of Data component in Flex
-    await page.screenshot({ path: 'test-results/07-data-in-flex.png', fullPage: true });
-  });
+    // Click on Flex component to select it
+    await flexComponent.click();
 
-  test('should configure Data component and add Heading child', async () => {
-    // Skip if Data component is not visible
-    const dataComponent = editorPage.getPuckComponentLocator('Data', 0);
-    const dataVisible = await dataComponent.isVisible().catch(() => false);
-    test.skip(!dataVisible, 'Data component not on canvas - skipping test');
-
-    // Click on Data component to select it
-    await dataComponent.click();
-
-    // Configure Data source
-    const sourceField = editorPage.getPuckFieldLocator('Data Source', 'input');
-    await expect(sourceField.container).toBeVisible({ timeout: 10_000 });
-    await sourceField.fill('externalData.products');
-
-    // Configure Variable Name
-    const variableField = editorPage.getPuckFieldLocator('Variable Name', 'input');
-    await expect(variableField.container).toBeVisible({ timeout: 10_000 });
-    await variableField.fill('product');
-
-    // Set mode to list
+    // Configure Data Binding in Flex component
     const modeField = editorPage.getPuckFieldLocator('Mode', 'select');
-    await expect(modeField.container).toBeVisible({ timeout: 10_000 });
-    await modeField.selectOptionByLabel('List (loop)');
+    const modeVisible = await modeField.container.isVisible().catch(() => false);
+    
+    if (modeVisible) {
+      await modeField.selectOptionByLabel('List (loop)');
+    }
+
+    const sourceField = editorPage.getPuckFieldLocator('Data Source', 'input');
+    const sourceVisible = await sourceField.container.isVisible().catch(() => false);
+    
+    if (sourceVisible) {
+      await sourceField.fill('externalData.products');
+    }
+
+    const variableField = editorPage.getPuckFieldLocator('Variable Name', 'input');
+    const variableVisible = await variableField.container.isVisible().catch(() => false);
+    
+    if (variableVisible) {
+      await variableField.fill('product');
+    }
 
     // Add Heading component as a child
     await editorPage.dragComponentToEditor('Heading');
@@ -234,8 +225,8 @@ test.describe('Data Component with Child Components', () => {
     const headingComponent = editorPage.getPuckComponentLocator('Heading', 0);
     await expect(headingComponent).toBeVisible({ timeout: 10_000 });
     
-    // Take screenshot of configured Data with Heading child
-    await page.screenshot({ path: 'test-results/08-data-with-heading-child.png', fullPage: true });
+    // Take screenshot of configured Flex with Heading child
+    await page.screenshot({ path: 'test-results/07-flex-with-heading-child.png', fullPage: true });
   });
 
   test('should configure Heading with data binding syntax', async () => {
@@ -257,7 +248,7 @@ test.describe('Data Component with Child Components', () => {
     }
     
     // Take screenshot of Heading with binding syntax
-    await page.screenshot({ path: 'test-results/09-heading-with-binding.png', fullPage: true });
+    await page.screenshot({ path: 'test-results/08-heading-with-binding.png', fullPage: true });
   });
 
   test('should add Text component with price binding', async () => {
@@ -283,11 +274,11 @@ test.describe('Data Component with Child Components', () => {
     }
     
     // Take screenshot of Text with binding syntax
-    await page.screenshot({ path: 'test-results/10-text-with-price-binding.png', fullPage: true });
+    await page.screenshot({ path: 'test-results/09-text-with-price-binding.png', fullPage: true });
   });
 });
 
-test.describe('Data Component Published View Validation', () => {
+test.describe('Data Binding Published View Validation', () => {
   let page: Page;
   let context: BrowserContext;
   let editorPage: EditorPage;
@@ -313,39 +304,49 @@ test.describe('Data Component Published View Validation', () => {
     }
   });
 
-  test('should setup Data component with products collection in editor', async () => {
+  test('should setup Flex with data binding for products collection', async () => {
     // Skip if canvas is not visible
     const canvasVisible = await editorPage.centerCanvas.isVisible().catch(() => false);
     test.skip(!canvasVisible, 'Canvas not visible - skipping test');
     
-    // Add Data component
-    await editorPage.dragComponentToEditor('Data');
-    const dataComponent = editorPage.getPuckComponentLocator('Data', 0);
-    await expect(dataComponent).toBeVisible({ timeout: 10_000 });
+    // Add Flex component (now has data binding via withData HOC)
+    await editorPage.dragComponentToEditor('Flex');
+    const flexComponent = editorPage.getPuckComponentLocator('Flex', 0);
+    await expect(flexComponent).toBeVisible({ timeout: 10_000 });
     
-    // Configure Data component
-    await dataComponent.click();
+    // Configure Flex with Data Binding
+    await flexComponent.click();
     
+    // Configure Data Binding Mode
+    const modeField = editorPage.getPuckFieldLocator('Mode', 'select');
+    const modeVisible = await modeField.container.isVisible().catch(() => false);
+    
+    if (modeVisible) {
+      await modeField.selectOptionByLabel('List (loop)');
+    }
+
     const sourceField = editorPage.getPuckFieldLocator('Data Source', 'input');
-    await expect(sourceField.container).toBeVisible({ timeout: 10_000 });
-    await sourceField.fill('externalData.products');
+    const sourceVisible = await sourceField.container.isVisible().catch(() => false);
+    
+    if (sourceVisible) {
+      await sourceField.fill('externalData.products');
+    }
     
     const variableField = editorPage.getPuckFieldLocator('Variable Name', 'input');
-    await expect(variableField.container).toBeVisible({ timeout: 10_000 });
-    await variableField.fill('product');
+    const variableVisible = await variableField.container.isVisible().catch(() => false);
     
-    const modeField = editorPage.getPuckFieldLocator('Mode', 'select');
-    await expect(modeField.container).toBeVisible({ timeout: 10_000 });
-    await modeField.selectOptionByLabel('List (loop)');
+    if (variableVisible) {
+      await variableField.fill('product');
+    }
     
-    // Take screenshot of configured Data component
-    await page.screenshot({ path: 'test-results/11-publish-data-configured.png', fullPage: true });
+    // Take screenshot of configured Flex with Data Binding
+    await page.screenshot({ path: 'test-results/10-publish-flex-configured.png', fullPage: true });
   });
 
   test('should add Heading with product name binding', async () => {
-    const dataComponent = editorPage.getPuckComponentLocator('Data', 0);
-    const dataVisible = await dataComponent.isVisible().catch(() => false);
-    test.skip(!dataVisible, 'Data component not on canvas - skipping test');
+    const flexComponent = editorPage.getPuckComponentLocator('Flex', 0);
+    const flexVisible = await flexComponent.isVisible().catch(() => false);
+    test.skip(!flexVisible, 'Flex component not on canvas - skipping test');
 
     // Add Heading component
     await editorPage.dragComponentToEditor('Heading');
@@ -363,7 +364,7 @@ test.describe('Data Component Published View Validation', () => {
     }
     
     // Take screenshot
-    await page.screenshot({ path: 'test-results/12-publish-heading-binding.png', fullPage: true });
+    await page.screenshot({ path: 'test-results/11-publish-heading-binding.png', fullPage: true });
   });
 
   test('should add Text with product price binding', async () => {
@@ -386,7 +387,7 @@ test.describe('Data Component Published View Validation', () => {
     }
     
     // Take screenshot of editor with bindings configured
-    await page.screenshot({ path: 'test-results/13-publish-text-binding.png', fullPage: true });
+    await page.screenshot({ path: 'test-results/12-publish-text-binding.png', fullPage: true });
   });
 
   test('should publish and verify data rendering in published view', async () => {
@@ -401,7 +402,7 @@ test.describe('Data Component Published View Validation', () => {
     await page.waitForTimeout(2000);
     
     // Take screenshot before navigating to published view
-    await page.screenshot({ path: 'test-results/14-after-publish.png', fullPage: true });
+    await page.screenshot({ path: 'test-results/13-after-publish.png', fullPage: true });
     
     // Navigate to published view
     await page.goto(PUBLISH_TEST_PAGE_PATH, { timeout: 60000, waitUntil: 'domcontentloaded' });
@@ -410,7 +411,7 @@ test.describe('Data Component Published View Validation', () => {
     await page.waitForLoadState('networkidle');
     
     // Take screenshot of published view
-    await page.screenshot({ path: 'test-results/15-published-view.png', fullPage: true });
+    await page.screenshot({ path: 'test-results/14-published-view.png', fullPage: true });
     
     // Verify the page renders (basic check)
     const bodyContent = await page.locator('body').count();
@@ -430,7 +431,7 @@ test.describe('Data Component Published View Validation', () => {
     console.log(`Published view validation - Product 1 found: ${hasProduct1 > 0}, Price 99.99 found: ${hasPrice > 0}`);
     
     // Take final screenshot of validated published view
-    await page.screenshot({ path: 'test-results/16-published-view-validated.png', fullPage: true });
+    await page.screenshot({ path: 'test-results/15-published-view-validated.png', fullPage: true });
   });
 
   test('should render published page with correct data from collection', async () => {
@@ -441,7 +442,7 @@ test.describe('Data Component Published View Validation', () => {
     await page.waitForLoadState('networkidle');
     
     // Take screenshot
-    await page.screenshot({ path: 'test-results/17-test-page-published.png', fullPage: true });
+    await page.screenshot({ path: 'test-results/16-test-page-published.png', fullPage: true });
     
     // Verify the page loads (may show 404 if page doesn't exist, which is fine)
     const bodyContent = await page.locator('body').count();

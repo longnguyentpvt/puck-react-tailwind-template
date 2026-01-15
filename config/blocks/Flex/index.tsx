@@ -3,7 +3,6 @@ import { ComponentConfig } from "@measured/puck";
 import type { Slot } from "@measured/puck";
 import { Section } from "@/config/components/Section";
 import { WithLayout, withLayout } from "@/config/components/Layout";
-import { WithData, withData } from "@/config/components/Data";
 
 export type FlexItemProps = {
   alignSelf?: "auto" | "start" | "center" | "end" | "stretch";
@@ -11,7 +10,7 @@ export type FlexItemProps = {
   flex?: "1" | "auto" | "initial" | "none";
 };
 
-export type FlexProps = WithLayout<WithData<{
+export type FlexProps = WithLayout<{
   containerType: "full-width" | "container";
   justifyContent: "start" | "center" | "end" | "between" | "around" | "evenly";
   alignItems: "start" | "center" | "end" | "stretch" | "baseline";
@@ -19,7 +18,7 @@ export type FlexProps = WithLayout<WithData<{
   gap: string;
   wrap: "wrap" | "nowrap" | "wrap-reverse";
   items: Slot;
-}>>;
+}>;
 
 const FlexInternal: ComponentConfig<FlexProps> = {
   fields: {
@@ -159,6 +158,5 @@ const FlexInternal: ComponentConfig<FlexProps> = {
   },
 };
 
-// Apply withData first, then withLayout, so the data binding fields are included
-// when withLayout's resolveFields spreads componentConfig.fields
-export const Flex = withLayout(withData(FlexInternal));
+// Apply only withLayout - data binding for slot looping should use the DataRepeater block
+export const Flex = withLayout(FlexInternal);

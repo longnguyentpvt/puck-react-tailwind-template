@@ -18,5 +18,6 @@ export {
 
 export {
   withBindableProps,
+  wrapAllWithBindableProps,
   BindableText,
 } from './withBindableProps';

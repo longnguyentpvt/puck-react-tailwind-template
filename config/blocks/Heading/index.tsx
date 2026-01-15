@@ -6,7 +6,6 @@ import { Heading as _Heading } from "@/components/Heading";
 import { Section } from "../../components/Section";
 import { WithLayout, withLayout } from "../../components/Layout";
 import { WithColor, withColor, getColorClassName, getColorStyle } from "../../components/Color";
-import { withBindableProps } from "@/lib/data-binding";
 
 
 export type HeadingProps = WithLayout<WithColor<{
@@ -84,4 +83,4 @@ const HeadingInternal: ComponentConfig<HeadingProps> = {
   },
 };
 
-export const Heading = withBindableProps(withLayout(withColor(HeadingInternal)));
+export const Heading = withLayout(withColor(HeadingInternal));

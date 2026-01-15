@@ -86,3 +86,35 @@ export function BindableText({
   
   return <Component className={className}>{resolvedText}</Component>;
 }
+
+/**
+ * Wrap all components in a config object with withBindableProps.
+ * This automatically enables {{binding}} syntax for all components.
+ * 
+ * @param components - Object containing component configurations
+ * @returns New object with all components wrapped with withBindableProps
+ * 
+ * @example
+ * ```tsx
+ * import { wrapAllWithBindableProps } from "@/lib/data-binding";
+ * 
+ * const components = {
+ *   Card: CardConfig,
+ *   Button: ButtonConfig,
+ * };
+ * 
+ * // All components now support {{binding}} syntax
+ * const bindableComponents = wrapAllWithBindableProps(components);
+ * ```
+ */
+export function wrapAllWithBindableProps<
+  T extends Record<string, ComponentConfig<any>>
+>(components: T): T {
+  const wrapped: Record<string, ComponentConfig<any>> = {};
+  
+  for (const [name, config] of Object.entries(components)) {
+    wrapped[name] = withBindableProps(config);
+  }
+  
+  return wrapped as T;
+}

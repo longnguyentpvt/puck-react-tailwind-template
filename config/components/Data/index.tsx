@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ReactNode } from "react";
+import React, { ReactNode, Children, cloneElement, isValidElement } from "react";
 import {
   ComponentConfig,
   DefaultComponentProps,
@@ -250,4 +250,122 @@ export function withData<
       );
     },
   };
+}
+
+/**
+ * Props for SlotLoop component
+ */
+interface SlotLoopProps {
+  /** The slot component to render (Items from Puck slot) */
+  children: ReactNode;
+  /** Data binding configuration */
+  data?: DataFieldProps;
+  /** Whether in editing mode */
+  isEditing?: boolean;
+}
+
+/**
+ * SlotLoop component that loops slot content for list data binding.
+ * 
+ * NOTE: This component will repeat the ENTIRE slot element (including its wrapper)
+ * for each data item. 
+ * 
+ * RECOMMENDED APPROACH: Use the DataRender block instead, which is specifically
+ * designed for repeating content with proper layout handling.
+ * 
+ * Good pattern (RECOMMENDED):
+ * ```
+ * Flex (container once)
+ *   └── DataRender (loops its slot children with layout per item)
+ *         └── Card (repeated for each item)
+ * ```
+ * 
+ * @deprecated Consider using DataRender block for better control over repeating content
+ * 
+ * @example Basic usage where repeating the whole slot is acceptable
+ * ```tsx
+ * <SlotLoop data={data} isEditing={puck?.isEditing}>
+ *   <Items />
+ * </SlotLoop>
+ * ```
+ */
+export function SlotLoop({ children, data, isEditing = false }: SlotLoopProps) {
+  // If no data binding configured or not in list mode, render children directly
+  if (!data || data.mode === "none" || !data.source || !data.as) {
+    return <>{children}</>;
+  }
+
+  const { source, as: variableName, mode = "auto", previewIndex = 0, maxItems = 0 } = data;
+
+  // Resolve the source path to get the data
+  const cleanPath = source.startsWith("externalData.")
+    ? source.substring("externalData.".length)
+    : source;
+  
+  const resolvedData = cleanPath ? getValueByPath(mockExternalData, cleanPath) : mockExternalData;
+
+  // Handle missing data
+  if (resolvedData === undefined || resolvedData === null) {
+    return <>{children}</>;
+  }
+
+  const effectiveMode = getEffectiveMode(resolvedData, mode);
+
+  if (effectiveMode === "none" || effectiveMode === "single") {
+    // For single mode, just provide the data scope
+    if (effectiveMode === "single") {
+      const variables: DataScope = {
+        [variableName]: resolvedData,
+      };
+      return (
+        <DataScopeProvider variables={variables}>
+          {children}
+        </DataScopeProvider>
+      );
+    }
+    return <>{children}</>;
+  }
+
+  // List mode - this is where the magic happens
+  if (!isArrayData(resolvedData)) {
+    return <>{children}</>;
+  }
+
+  // In edit mode, only show the preview item
+  if (isEditing) {
+    const actualIndex = resolvedData[previewIndex] !== undefined ? previewIndex : 0;
+    const previewItem = resolvedData[actualIndex];
+    const variables: DataScope = {
+      [variableName]: previewItem,
+      index: actualIndex,
+    };
+
+    return (
+      <DataScopeProvider variables={variables}>
+        {children}
+      </DataScopeProvider>
+    );
+  }
+
+  // In render mode, we need to clone the slot for each item
+  // The slot component (Items) renders children, so we iterate and provide scope to each
+  const itemsToRender = maxItems > 0 ? resolvedData.slice(0, maxItems) : resolvedData;
+
+  // Clone children for each data item
+  return (
+    <>
+      {itemsToRender.map((item, index) => {
+        const variables: DataScope = {
+          [variableName]: item,
+          index,
+        };
+
+        return (
+          <DataScopeProvider key={index} variables={variables}>
+            {children}
+          </DataScopeProvider>
+        );
+      })}
+    </>
+  );
 }

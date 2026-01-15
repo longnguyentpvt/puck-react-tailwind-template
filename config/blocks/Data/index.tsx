@@ -1,7 +1,7 @@
 "use client";
 
 import React, { ReactNode } from "react";
-import type { Slot, ComponentConfig, PuckComponent } from "@measured/puck";
+import type { Slot, ComponentConfig, PuckComponent, PuckContext } from "@measured/puck";
 import { DataScopeProvider, DataScope, getValueByPath } from "@/lib/data-binding";
 
 /**
@@ -158,6 +158,7 @@ const DataRenderer: PuckComponent<DataProps> = ({
   puck,
 }) => {
   const isEditing = puck?.isEditing ?? false;
+  const dragRef = (puck as PuckContext | undefined)?.dragRef;
 
   // For now, we'll use a placeholder data object
   // In a real implementation, this would come from externalData passed via Puck
@@ -189,7 +190,7 @@ const DataRenderer: PuckComponent<DataProps> = ({
   if (data === undefined || data === null) {
     if (isEditing) {
       return (
-        <div className="p-4 border-2 border-dashed border-amber-400 bg-amber-50 rounded-lg">
+        <div ref={dragRef} className="p-4 border-2 border-dashed border-amber-400 bg-amber-50 rounded-lg">
           <p className="text-amber-700 text-sm">
             ⚠️ Data not found at path: <code className="bg-amber-100 px-1 rounded">{source}</code>
           </p>
@@ -202,26 +203,34 @@ const DataRenderer: PuckComponent<DataProps> = ({
 
   const effectiveMode = getEffectiveMode(data, mode);
 
-  if (effectiveMode === "list" && isArrayData(data)) {
-    return (
-      <ListDataRenderer
-        data={data}
-        variableName={variableName}
-        previewIndex={previewIndex}
-        maxItems={maxItems}
-        isEditing={isEditing}
-        children={Children}
-      />
-    );
-  }
-
-  return (
+  // Wrap the content in a div with dragRef for drag-and-drop support
+  const content = effectiveMode === "list" && isArrayData(data) ? (
+    <ListDataRenderer
+      data={data}
+      variableName={variableName}
+      previewIndex={previewIndex}
+      maxItems={maxItems}
+      isEditing={isEditing}
+      children={Children}
+    />
+  ) : (
     <SingleDataRenderer
       data={data}
       variableName={variableName}
       children={Children}
     />
   );
+
+  // In edit mode, wrap with draggable div
+  if (isEditing && dragRef) {
+    return (
+      <div ref={dragRef} className="block">
+        {content}
+      </div>
+    );
+  }
+
+  return content;
 };
 
 /**

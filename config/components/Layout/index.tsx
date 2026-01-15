@@ -282,7 +282,27 @@ export function withLayout<
       },
     },
     resolveFields: (data, params) => {
-      const parentType = params.parent?.type;
+      // Helper function to find the layout parent type
+      // When inside a Data component, we need to check if the Data's parent is a layout component
+      const getLayoutParentType = (): string | undefined => {
+        let parentType = params.parent?.type;
+        
+        // If direct parent is Data, look at its parent (if available through props)
+        // Data component is transparent for layout purposes
+        if (parentType === "Data") {
+          // Check if there's a grandparent through the parent chain
+          // Since Puck doesn't provide grandparent directly, we check if the Data
+          // component inherits flex/grid context from its containing slot
+          // For now, we return undefined to show all layout options when inside Data
+          // This allows users to set flex/grid options which will apply when
+          // Data is placed inside Flex or Grid
+          return undefined; // Show all options when inside Data
+        }
+        
+        return parentType;
+      };
+      
+      const parentType = getLayoutParentType();
       
       let layoutFields = {};
       
@@ -299,6 +319,20 @@ export function withLayout<
         };
       } else if (parentType === "Flex") {
         layoutFields = {
+          flex: layoutField.objectFields.flex,
+          alignSelf: layoutField.objectFields.alignSelf,
+          paddingTop: layoutField.objectFields.paddingTop,
+          paddingBottom: layoutField.objectFields.paddingBottom,
+          marginTop: layoutField.objectFields.marginTop,
+          marginBottom: layoutField.objectFields.marginBottom,
+          marginLeft: layoutField.objectFields.marginLeft,
+          marginRight: layoutField.objectFields.marginRight,
+        };
+      } else if (parentType === undefined) {
+        // Show all layout options (for components inside Data or unknown containers)
+        layoutFields = {
+          spanCol: layoutField.objectFields.spanCol,
+          spanRow: layoutField.objectFields.spanRow,
           flex: layoutField.objectFields.flex,
           alignSelf: layoutField.objectFields.alignSelf,
           paddingTop: layoutField.objectFields.paddingTop,

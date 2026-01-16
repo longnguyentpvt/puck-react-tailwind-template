@@ -80,9 +80,28 @@ export const initialData: Record<string, UserData> = {
             {
               type: "Card",
               props: {
-                title: "Built for content teams",
-                description:
-                  "Puck enables content teams to make changes to their content without a developer or breaking the UI.",
+                showHeader: true,
+                header: [
+                  {
+                    type: "Heading",
+                    props: {
+                      text: "Built for content teams",
+                      size: "l",
+                      align: "left",
+                      id: "Heading-card1-title",
+                    },
+                  },
+                  {
+                    type: "Text",
+                    props: {
+                      text: "Puck enables content teams to make changes to their content without a developer or breaking the UI.",
+                      align: "left",
+                      id: "Text-card1-desc",
+                    },
+                  },
+                ],
+                content: [],
+                footer: [],
                 icon: "pen-tool",
                 mode: "flat",
                 layout: { flex: "1", spanCol: 1, spanRow: 1, paddingTop: "0", paddingBottom: "0" },
@@ -92,9 +111,28 @@ export const initialData: Record<string, UserData> = {
             {
               type: "Card",
               props: {
-                title: "Easy to integrate",
-                description:
-                  "Front-end developers can easily integrate their own components using a familiar React API.",
+                showHeader: true,
+                header: [
+                  {
+                    type: "Heading",
+                    props: {
+                      text: "Easy to integrate",
+                      size: "l",
+                      align: "left",
+                      id: "Heading-card2-title",
+                    },
+                  },
+                  {
+                    type: "Text",
+                    props: {
+                      text: "Front-end developers can easily integrate their own components using a familiar React API.",
+                      align: "left",
+                      id: "Text-card2-desc",
+                    },
+                  },
+                ],
+                content: [],
+                footer: [],
                 icon: "git-merge",
                 mode: "flat",
                 layout: { flex: "1", spanCol: 1, spanRow: 1, paddingTop: "0", paddingBottom: "0" },
@@ -104,9 +142,28 @@ export const initialData: Record<string, UserData> = {
             {
               type: "Card",
               props: {
-                title: "No vendor lock-in",
-                description:
-                  "Completely open-source, Puck is designed to be integrated into your existing React application.",
+                showHeader: true,
+                header: [
+                  {
+                    type: "Heading",
+                    props: {
+                      text: "No vendor lock-in",
+                      size: "l",
+                      align: "left",
+                      id: "Heading-card3-title",
+                    },
+                  },
+                  {
+                    type: "Text",
+                    props: {
+                      text: "Completely open-source, Puck is designed to be integrated into your existing React application.",
+                      align: "left",
+                      id: "Text-card3-desc",
+                    },
+                  },
+                ],
+                content: [],
+                footer: [],
                 icon: "github",
                 mode: "flat",
                 layout: { flex: "1", spanCol: 1, spanRow: 1, paddingTop: "0", paddingBottom: "0" },
@@ -243,9 +300,28 @@ export const initialData: Record<string, UserData> = {
             {
               type: "Card",
               props: {
-                title: "plugin-heading-analyzer",
-                description:
-                  "Analyze the document structure and identify WCAG 2.1 issues with your heading hierarchy.",
+                showHeader: true,
+                header: [
+                  {
+                    type: "Heading",
+                    props: {
+                      text: "plugin-heading-analyzer",
+                      size: "l",
+                      align: "left",
+                      id: "Heading-card4-title",
+                    },
+                  },
+                  {
+                    type: "Text",
+                    props: {
+                      text: "Analyze the document structure and identify WCAG 2.1 issues with your heading hierarchy.",
+                      align: "left",
+                      id: "Text-card4-desc",
+                    },
+                  },
+                ],
+                content: [],
+                footer: [],
                 icon: "align-left",
                 mode: "card",
                 layout: { flex: "initial", spanCol: 1, spanRow: 1, paddingTop: "0", paddingBottom: "0" },
@@ -255,9 +331,28 @@ export const initialData: Record<string, UserData> = {
             {
               type: "Card",
               props: {
-                title: "External data",
-                description:
-                  "Connect your components with an existing data source, like Strapi.js.",
+                showHeader: true,
+                header: [
+                  {
+                    type: "Heading",
+                    props: {
+                      text: "External data",
+                      size: "l",
+                      align: "left",
+                      id: "Heading-card5-title",
+                    },
+                  },
+                  {
+                    type: "Text",
+                    props: {
+                      text: "Connect your components with an existing data source, like Strapi.js.",
+                      align: "left",
+                      id: "Text-card5-desc",
+                    },
+                  },
+                ],
+                content: [],
+                footer: [],
                 icon: "feather",
                 mode: "card",
                 layout: { flex: "initial", spanCol: 1, spanRow: 1, paddingTop: "0", paddingBottom: "0" },
@@ -267,9 +362,28 @@ export const initialData: Record<string, UserData> = {
             {
               type: "Card",
               props: {
-                title: "Custom plugins",
-                description:
-                  "Create your own plugin to extend Puck for your use case using React.",
+                showHeader: true,
+                header: [
+                  {
+                    type: "Heading",
+                    props: {
+                      text: "Custom plugins",
+                      size: "l",
+                      align: "left",
+                      id: "Heading-card6-title",
+                    },
+                  },
+                  {
+                    type: "Text",
+                    props: {
+                      text: "Create your own plugin to extend Puck for your use case using React.",
+                      align: "left",
+                      id: "Text-card6-desc",
+                    },
+                  },
+                ],
+                content: [],
+                footer: [],
                 icon: "plug",
                 mode: "card",
                 layout: { flex: "initial", spanCol: 1, spanRow: 1, paddingTop: "0", paddingBottom: "0" },
@@ -279,8 +393,28 @@ export const initialData: Record<string, UserData> = {
             {
               type: "Card",
               props: {
-                title: "Title",
-                description: "Description",
+                showHeader: true,
+                header: [
+                  {
+                    type: "Heading",
+                    props: {
+                      text: "Title",
+                      size: "l",
+                      align: "left",
+                      id: "Heading-card7-title",
+                    },
+                  },
+                  {
+                    type: "Text",
+                    props: {
+                      text: "Description",
+                      align: "left",
+                      id: "Text-card7-desc",
+                    },
+                  },
+                ],
+                content: [],
+                footer: [],
                 icon: "Feather",
                 mode: "card",
                 layout: { flex: "initial", spanCol: 1, spanRow: 1, paddingTop: "0", paddingBottom: "0" },
@@ -290,8 +424,28 @@ export const initialData: Record<string, UserData> = {
             {
               type: "Card",
               props: {
-                title: "Title",
-                description: "Description",
+                showHeader: true,
+                header: [
+                  {
+                    type: "Heading",
+                    props: {
+                      text: "Title",
+                      size: "l",
+                      align: "left",
+                      id: "Heading-card8-title",
+                    },
+                  },
+                  {
+                    type: "Text",
+                    props: {
+                      text: "Description",
+                      align: "left",
+                      id: "Text-card8-desc",
+                    },
+                  },
+                ],
+                content: [],
+                footer: [],
                 icon: "Feather",
                 mode: "card",
                 layout: { flex: "initial", spanCol: 1, spanRow: 1, paddingTop: "0", paddingBottom: "0" },
@@ -301,8 +455,28 @@ export const initialData: Record<string, UserData> = {
             {
               type: "Card",
               props: {
-                title: "Title",
-                description: "Description",
+                showHeader: true,
+                header: [
+                  {
+                    type: "Heading",
+                    props: {
+                      text: "Title",
+                      size: "l",
+                      align: "left",
+                      id: "Heading-card9-title",
+                    },
+                  },
+                  {
+                    type: "Text",
+                    props: {
+                      text: "Description",
+                      align: "left",
+                      id: "Text-card9-desc",
+                    },
+                  },
+                ],
+                content: [],
+                footer: [],
                 icon: "Feather",
                 mode: "card",
                 layout: { flex: "initial", spanCol: 1, spanRow: 1, paddingTop: "0", paddingBottom: "0" },

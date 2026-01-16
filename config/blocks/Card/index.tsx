@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { ReactElement } from "react";
 import { ComponentConfig } from "@measured/puck";
+import type { Slot } from "@measured/puck";
 import dynamic from "next/dynamic";
 import dynamicIconImports from "lucide-react/dynamicIconImports";
 import { withLayout, WithLayout } from "../../components/Layout";
@@ -31,15 +32,15 @@ const iconOptions = Object.keys(dynamicIconImports).map((iconName) => ({
 }));
 
 export type CardProps = WithLayout<{
-  title: string;
-  description: string;
+  header: Slot;
+  content: Slot;
+  footer: Slot;
   icon?: string;
   mode: "flat" | "card";
   showIcon?: boolean;
   iconPosition?: "left" | "top";
-  content?: string;
+  showHeader?: boolean;
   showContent?: boolean;
-  footer?: string;
   showFooter?: boolean;
   actionText?: string;
   actionHref?: string;
@@ -50,15 +51,17 @@ export type CardProps = WithLayout<{
 
 const CardInner: ComponentConfig<CardProps> = {
   fields: {
-    title: {
-      type: "text",
-      contentEditable: true,
-      label: "Title",
+    showHeader: {
+      type: "radio",
+      label: "Show Header Section",
+      options: [
+        { label: "Yes", value: true },
+        { label: "No", value: false },
+      ],
     },
-    description: {
-      type: "textarea",
-      contentEditable: true,
-      label: "Description",
+    header: {
+      type: "slot",
+      label: "Header Content (Title/Description)",
     },
     mode: {
       type: "radio",
@@ -107,9 +110,8 @@ const CardInner: ComponentConfig<CardProps> = {
       ],
     },
     content: {
-      type: "textarea",
+      type: "slot",
       label: "Content",
-      contentEditable: true,
     },
     showFooter: {
       type: "radio",
@@ -120,9 +122,8 @@ const CardInner: ComponentConfig<CardProps> = {
       ],
     },
     footer: {
-      type: "textarea",
-      label: "Footer Text",
-      contentEditable: true,
+      type: "slot",
+      label: "Footer Content",
     },
     showAction: {
       type: "radio",
@@ -146,16 +147,16 @@ const CardInner: ComponentConfig<CardProps> = {
     },
   },
   defaultProps: {
-    title: "Title",
-    description: "Description",
+    header: [],
+    content: [],
+    footer: [],
     icon: "Feather",
     mode: "flat",
     showIcon: true,
     iconPosition: "left",
+    showHeader: true,
     showContent: false,
-    content: "",
     showFooter: false,
-    footer: "",
     showAction: false,
     actionText: "Learn More",
     actionHref: "#",
@@ -163,22 +164,25 @@ const CardInner: ComponentConfig<CardProps> = {
     variant: "default",
   },
   render: ({ 
-    title, 
+    header: Header,
     icon, 
-    description, 
     mode, 
     showIcon = true,
     iconPosition = "left",
-    content,
+    content: Content,
+    showHeader = true,
     showContent = false,
-    footer,
+    footer: Footer,
     showFooter = false,
     actionText,
     actionHref,
     showAction = false,
     href,
     variant = "default",
+    puck,
   }) => {
+    const isEditMode = puck.isEditing;
+    
     const variantClasses = {
       default: "",
       bordered: "border-2",
@@ -202,67 +206,119 @@ const CardInner: ComponentConfig<CardProps> = {
       return <>{children}</>;
     };
 
+    // Edit mode with clear drop zones
+    if (isEditMode) {
+      return (
+        <div className="border-2 border-dashed border-blue-300 rounded-lg p-4">
+          <div className="text-xs font-medium text-blue-600 mb-4 bg-blue-50 p-2 rounded">
+            Card Editor - Drop components into Header, Content, or Footer areas
+          </div>
+          <CardWrapper>
+            <ShadcnCard className={`h-full ${variantClasses[variant]}`}>
+              {showHeader && (
+                <CardHeader>
+                  {showAction && actionText && (
+                    <CardAction>
+                      <a href={actionHref} className="text-sm text-blue-600 hover:text-blue-800">
+                        {actionText}
+                      </a>
+                    </CardAction>
+                  )}
+                  <div className="flex items-start gap-4">
+                    {iconElement}
+                    <div className="flex-1 min-h-20 border border-dashed border-gray-300 rounded p-2">
+                      <div className="text-xs text-gray-500 mb-2">Header Area (drop Title, Text, or other components):</div>
+                      <Header />
+                    </div>
+                  </div>
+                </CardHeader>
+              )}
+              {showContent && (
+                <CardContent>
+                  <div className="min-h-20 border border-dashed border-gray-300 rounded p-2">
+                    <div className="text-xs text-gray-500 mb-2">Content Area:</div>
+                    <Content />
+                  </div>
+                </CardContent>
+              )}
+              {showFooter && (
+                <CardFooter>
+                  <div className="min-h-[60px] border border-dashed border-gray-300 rounded p-2 flex-1">
+                    <div className="text-xs text-gray-500 mb-2">Footer Area:</div>
+                    <Footer />
+                  </div>
+                </CardFooter>
+              )}
+            </ShadcnCard>
+          </CardWrapper>
+        </div>
+      );
+    }
+
+    // Normal render mode for flat card style
     if (mode === "flat") {
       return (
         <CardWrapper>
           <div className="h-full flex flex-col items-center gap-4 text-center">
             {iconElement}
-            <div className="text-[22px]">{title}</div>
-            <div className="text-base leading-normal text-gray-600 font-light">
-              {description}
-            </div>
-            {showContent && content && (
-              <div className="text-sm text-gray-500 mt-2">{content}</div>
+            {showHeader && (
+              <div className="w-full">
+                <Header />
+              </div>
             )}
-            {showFooter && footer && (
-              <div className="text-xs text-gray-400 mt-auto pt-4">{footer}</div>
+            {showContent && (
+              <div className="w-full">
+                <Content />
+              </div>
+            )}
+            {showFooter && (
+              <div className="w-full mt-auto pt-4">
+                <Footer />
+              </div>
             )}
           </div>
         </CardWrapper>
       );
     }
 
+    // Normal render mode for card style
     return (
       <CardWrapper>
         <ShadcnCard className={`h-full ${variantClasses[variant]}`}>
-          <CardHeader>
-            {showAction && actionText && (
-              <CardAction>
-                <a href={actionHref} className="text-sm text-blue-600 hover:text-blue-800">
-                  {actionText}
-                </a>
-              </CardAction>
-            )}
-            {iconPosition === "top" ? (
-              <div className="flex flex-col items-start gap-3">
-                {iconElement}
-                <div className="w-full">
-                  <CardTitle className="text-xl mb-2">{title}</CardTitle>
-                  <CardDescription className="text-base">
-                    {description}
-                  </CardDescription>
+          {showHeader && (
+            <CardHeader>
+              {showAction && actionText && (
+                <CardAction>
+                  <a href={actionHref} className="text-sm text-blue-600 hover:text-blue-800">
+                    {actionText}
+                  </a>
+                </CardAction>
+              )}
+              {iconPosition === "top" ? (
+                <div className="flex flex-col items-start gap-3">
+                  {iconElement}
+                  <div className="w-full">
+                    <Header />
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <div className="flex items-start gap-4">
-                {iconElement}
-                <div className="flex-1">
-                  <CardTitle className="text-xl mb-2">{title}</CardTitle>
-                  <CardDescription className="text-base">
-                    {description}
-                  </CardDescription>
+              ) : (
+                <div className="flex items-start gap-4">
+                  {iconElement}
+                  <div className="flex-1">
+                    <Header />
+                  </div>
                 </div>
-              </div>
-            )}
-          </CardHeader>
-          {showContent && content && (
+              )}
+            </CardHeader>
+          )}
+          {showContent && (
             <CardContent>
-              <p className="text-sm text-gray-700">{content}</p>
+              <Content />
             </CardContent>
           )}
-          {showFooter && footer && (
+          {showFooter && (
             <CardFooter>
-              <p className="text-xs text-gray-500">{footer}</p>
+              <Footer />
             </CardFooter>
           )}
         </ShadcnCard>

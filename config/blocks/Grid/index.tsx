@@ -3,13 +3,14 @@ import { ComponentConfig } from "@measured/puck";
 import type { Slot } from "@measured/puck";
 import { Section } from "@/config/components/Section";
 import { withLayout } from "@/config/components/Layout";
+import { WithData, withData } from "@/config/components/Data";
 
-export type GridProps = {
+export type GridProps = WithData<{
   containerType: "full-width" | "container";
   numColumns: number;
   gap: string;
   items: Slot;
-};
+}>;
 
 export const GridInternal: ComponentConfig<GridProps> = {
   fields: {
@@ -80,4 +81,6 @@ export const GridInternal: ComponentConfig<GridProps> = {
   },
 };
 
-export const Grid = withLayout(GridInternal);
+// Apply withData first, then withLayout, so the data binding fields are included
+// when withLayout's resolveFields spreads componentConfig.fields
+export const Grid = withLayout(withData(GridInternal));

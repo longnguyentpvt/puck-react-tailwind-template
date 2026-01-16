@@ -9,7 +9,7 @@ export type ButtonProps = {
   size: "default" | "sm" | "lg" | "icon";
 };
 
-export const Button: ComponentConfig<ButtonProps> = {
+const ButtonInner: ComponentConfig<ButtonProps> = {
   label: "Button",
   fields: {
     label: {
@@ -66,3 +66,5 @@ export const Button: ComponentConfig<ButtonProps> = {
     );
   },
 };
+
+export const Button = ButtonInner;

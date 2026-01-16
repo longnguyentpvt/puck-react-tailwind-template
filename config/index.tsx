@@ -4,6 +4,7 @@ import { Banner } from "./blocks/Banner";
 import { Button } from "./blocks/Button";
 import { Card } from "./blocks/Card";
 import { Carousel } from "./blocks/Carousel";
+import { DataRender } from "./blocks/DataRender";
 import { Dialog } from "./blocks/Dialog";
 import { Grid } from "./blocks/Grid";
 import { Heading } from "./blocks/Heading";
@@ -18,6 +19,7 @@ import { RichText } from "./blocks/RichText";
 import Root from "./root";
 import { UserConfig } from "./types";
 import { initialData } from "./initial-data";
+import { wrapAllWithBindableProps } from "@/lib/data-binding";
 
 // We avoid the name config as next gets confused
 export const conf: UserConfig = {
@@ -25,6 +27,10 @@ export const conf: UserConfig = {
   categories: {
     layout: {
       components: ["Grid", "Flex", "Space"],
+    },
+    data: {
+      title: "Data",
+      components: ["DataRender"],
     },
     typography: {
       components: ["Heading", "Text", "RichText"],
@@ -42,13 +48,15 @@ export const conf: UserConfig = {
       components: ["Card", "Logos", "Stats", "Template", "HeadingBlock"],
     },
   },
-  components: {
+  // Wrap all components with bindable props to enable {{binding}} syntax
+  components: wrapAllWithBindableProps({
     Accordion,
     Animate,
     Banner,
     Button,
     Card,
     Carousel,
+    DataRender,
     Dialog,
     Grid,
     Heading,
@@ -72,7 +80,7 @@ export const conf: UserConfig = {
         </div>
       ),
     },
-  },
+  }),
 };
 
 export const componentKey = Buffer.from(

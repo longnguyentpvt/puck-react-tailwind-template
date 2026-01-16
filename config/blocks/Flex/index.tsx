@@ -158,4 +158,5 @@ const FlexInternal: ComponentConfig<FlexProps> = {
   },
 };
 
+// Apply only withLayout - data binding for slot looping should use the DataRepeater block
 export const Flex = withLayout(FlexInternal);

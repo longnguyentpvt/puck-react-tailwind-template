@@ -11,7 +11,7 @@ export type FlexItemProps = {
   flex?: "1" | "auto" | "initial" | "none";
 };
 
-export type FlexProps = WithData<{
+export type FlexProps = WithLayout<WithData<{
   containerType: "full-width" | "container";
   justifyContent: "start" | "center" | "end" | "between" | "around" | "evenly";
   alignItems: "start" | "center" | "end" | "stretch" | "baseline";
@@ -19,7 +19,7 @@ export type FlexProps = WithData<{
   gap: string;
   wrap: "wrap" | "nowrap" | "wrap-reverse";
   items: Slot;
-}>;
+}>>;
 
 const FlexInternal: ComponentConfig<FlexProps> = {
   fields: {

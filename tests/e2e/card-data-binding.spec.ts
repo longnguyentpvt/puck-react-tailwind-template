@@ -95,21 +95,20 @@ test.describe('Card Component with Data Binding - Editor Tests', () => {
     
     await page.screenshot({ path: 'test-results/card-data-03-flex-selected.png', fullPage: true });
     
-    // The Data Binding fields are nested inside an object field
-    // We need to use label-based locators for these nested fields
-    
     // Configure Mode to "List (loop)"
-    const dataBindingContainer = editorPage.rightSidebar.locator('[class*="_PuckFields-field"]:has(label:text-is("Data Binding"))');
-    const modeSelect = dataBindingContainer.locator('label:has-text("Mode")').locator('..').locator('select');
+    const modeField = editorPage.getNestedFieldLocator('Data Binding', 'Mode');
+    const modeSelect = modeField.locator('select');
     await modeSelect.selectOption({ label: 'List (loop)' });
     
     // Configure Data Source to "products"
-    const sourceInput = dataBindingContainer.locator('label:has-text("Data Source")').locator('..').locator('input');
+    const sourceField = editorPage.getNestedFieldLocator('Data Binding', 'Data Source');
+    const sourceInput = sourceField.locator('input');
     await sourceInput.fill('products');
     await expect(sourceInput).toHaveValue('products');
     
     // Configure Variable Name to "product"
-    const variableInput = dataBindingContainer.locator('label:has-text("Variable Name")').locator('..').locator('input');
+    const variableField = editorPage.getNestedFieldLocator('Data Binding', 'Variable Name');
+    const variableInput = variableField.locator('input');
     await variableInput.fill('product');
     await expect(variableInput).toHaveValue('product');
     
@@ -236,19 +235,17 @@ test.describe('Card with Data Binding - Published View Validation', () => {
     await flexComponent.click();
     await page.waitForTimeout(500);
     
-    // Locate Data Binding section
-    const dataBindingContainer = editorPage.rightSidebar.locator('[class*="_PuckFields-field"]:has(label:text-is("Data Binding"))');
-    
-    // Set Mode to List
-    const modeSelect = dataBindingContainer.locator('label:has-text("Mode")').locator('..').locator('select');
+    // Configure using the nested field helper method
+    const modeField = editorPage.getNestedFieldLocator('Data Binding', 'Mode');
+    const modeSelect = modeField.locator('select');
     await modeSelect.selectOption({ label: 'List (loop)' });
     
-    // Set Data Source to products
-    const sourceInput = dataBindingContainer.locator('label:has-text("Data Source")').locator('..').locator('input');
+    const sourceField = editorPage.getNestedFieldLocator('Data Binding', 'Data Source');
+    const sourceInput = sourceField.locator('input');
     await sourceInput.fill('products');
     
-    // Set Variable Name to product
-    const variableInput = dataBindingContainer.locator('label:has-text("Variable Name")').locator('..').locator('input');
+    const variableField = editorPage.getNestedFieldLocator('Data Binding', 'Variable Name');
+    const variableInput = variableField.locator('input');
     await variableInput.fill('product');
     
     await page.screenshot({ path: 'test-results/card-data-10-publish-flex-configured.png', fullPage: true });
@@ -325,12 +322,12 @@ test.describe('Card with Data Binding - Published View Validation', () => {
     // Count occurrences of "Product" to verify multiple cards are rendered
     const productMatches = pageText?.match(/Product \d+/g);
     expect(productMatches).toBeTruthy();
-    expect(productMatches!.length).toBeGreaterThanOrEqual(3); // At least 3 products from mock data
+    expect(productMatches?.length).toBeGreaterThanOrEqual(3); // At least 3 products from mock data
     
     // Verify multiple price elements exist
     const priceMatches = pageText?.match(/Price: \$[\d.]+/g);
     expect(priceMatches).toBeTruthy();
-    expect(priceMatches!.length).toBeGreaterThanOrEqual(3);
+    expect(priceMatches?.length).toBeGreaterThanOrEqual(3);
     
     await page.screenshot({ path: 'test-results/card-data-15-multiple-cards-validated.png', fullPage: true });
   });

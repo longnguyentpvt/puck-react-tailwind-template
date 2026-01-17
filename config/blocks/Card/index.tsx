@@ -272,6 +272,6 @@ const CardInner: ComponentConfig<CardProps> = {
   },
 };
 
-// Apply withDataPayloadHint first to show data hints in the editor,
-// then withLayout to add layout capabilities
-export const Card = withLayout(withDataPayloadHint(CardInner));
+// Apply withLayout first to add layout capabilities,
+// then withDataPayloadHint outside to iterate the whole component including layout div
+export const Card = withDataPayloadHint(withLayout(CardInner));

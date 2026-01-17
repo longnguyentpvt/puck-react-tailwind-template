@@ -4,9 +4,8 @@ import React, { ReactNode } from "react";
 import {
   ComponentConfig,
   DefaultComponentProps,
-  CustomField,
 } from "@measured/puck";
-import { useDataScope, DataScopeProvider, DataScope, getValueByPath } from "@/lib/data-binding";
+import { useDataScope, DataScopeProvider, DataScope } from "@/lib/data-binding";
 
 /**
  * Props for components that support data payload hints and iteration
@@ -14,61 +13,6 @@ import { useDataScope, DataScopeProvider, DataScope, getValueByPath } from "@/li
 export type WithDataPayloadHint<Props extends DefaultComponentProps> = Props & {
   loopData?: boolean;
   maxItems?: number;
-};
-
-/**
- * Custom field component that displays the current data scope payload as JSON
- * This helps users understand what data is available from parent components
- * 
- * @param _name - Required by CustomField interface but not used in this display-only component
- */
-const DataPayloadHintField: React.FC<{ name: string }> = ({ name: _name }) => {
-  const { scope } = useDataScope();
-  
-  // Filter out empty or undefined values from scope
-  const filteredScope = Object.entries(scope).reduce((acc, [key, val]) => {
-    if (val !== undefined && val !== null && val !== "") {
-      acc[key] = val;
-    }
-    return acc;
-  }, {} as Record<string, any>);
-  
-  const hasData = Object.keys(filteredScope).length > 0;
-  
-  if (!hasData) {
-    return (
-      <div className="p-4 bg-gray-50 border border-gray-200 rounded-md">
-        <h4 className="text-sm font-semibold text-gray-700 mb-2">Available Data Payload</h4>
-        <p className="text-xs text-gray-500 italic">
-          No data available. Add this component inside a Flex or Grid component with data binding configured.
-        </p>
-      </div>
-    );
-  }
-  
-  return (
-    <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
-      <h4 className="text-sm font-semibold text-blue-700 mb-2">Available Data Payload</h4>
-      <p className="text-xs text-gray-600 mb-2">
-        You can use the following data in any text field using the syntax: <code className="bg-white px-1 py-0.5 rounded">{"{{variableName.property}}"}</code>
-      </p>
-      <pre className="text-xs bg-white p-2 rounded border border-blue-100 overflow-auto max-h-48">
-        {JSON.stringify(filteredScope, null, 2)}
-      </pre>
-      <p className="text-xs text-gray-500 mt-2 italic">
-        Example: <code className="bg-white px-1 py-0.5 rounded">{"{{item.name}}"}</code> or <code className="bg-white px-1 py-0.5 rounded">{"{{item.price}}"}</code>
-      </p>
-    </div>
-  );
-};
-
-/**
- * Custom field definition for data payload hint
- */
-const dataPayloadHintField: CustomField<any> = {
-  type: "custom",
-  label: "",
-  render: ({ name }) => <DataPayloadHintField name={name} />,
 };
 
 /**
@@ -192,8 +136,6 @@ export function withDataPayloadHint<
   return {
     ...componentConfig,
     fields: {
-      // Add the data payload hint field at the top
-      _dataPayloadHint: dataPayloadHintField,
       // Add iteration control fields
       loopData: {
         type: "radio",
@@ -213,10 +155,67 @@ export function withDataPayloadHint<
     },
     defaultProps: {
       ...componentConfig.defaultProps,
-      // This field is purely for UI display and doesn't hold any data
-      _dataPayloadHint: undefined,
       loopData: false,
       maxItems: 0,
+    },
+    resolveFields: (data, params) => {
+      // Get parent's data configuration if available
+      let parentData: any = null;
+      let parentDataSource = "";
+      let parentVariableName = "";
+      
+      if (params.parent?.props?.data) {
+        parentData = params.parent.props.data;
+        parentDataSource = parentData.source || "";
+        parentVariableName = parentData.as || "";
+      }
+
+      // Build the hint message
+      let hintContent = "";
+      if (parentDataSource && parentVariableName) {
+        // Show what data is available
+        const exampleData = mockExternalData[parentDataSource as keyof typeof mockExternalData];
+        if (exampleData) {
+          const dataPreview = Array.isArray(exampleData) ? exampleData[0] : exampleData;
+          hintContent = `Data from parent: "${parentVariableName}" from "${parentDataSource}"\n\nExample:\n${JSON.stringify(dataPreview, null, 2)}\n\nUse: {{${parentVariableName}.property}}`;
+        }
+      } else {
+        hintContent = "No data available. Add this component inside a Flex or Grid component with data binding configured.";
+      }
+
+      // Original fields
+      const baseFields = componentConfig.resolveFields 
+        ? componentConfig.resolveFields(data, params)
+        : componentConfig.fields;
+
+      return {
+        _dataPayloadHint: {
+          type: "custom",
+          label: "Available Data",
+          render: () => (
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-md mb-4">
+              <h4 className="text-sm font-semibold text-blue-700 mb-2">Available Data Payload</h4>
+              <pre className="text-xs bg-white p-2 rounded border border-blue-100 overflow-auto max-h-48 whitespace-pre-wrap">
+                {hintContent}
+              </pre>
+            </div>
+          ),
+        },
+        loopData: {
+          type: "radio",
+          label: "Loop through data",
+          options: [
+            { label: "Yes", value: true },
+            { label: "No", value: false },
+          ],
+        },
+        maxItems: {
+          type: "number",
+          label: "Max Items (0 = unlimited)",
+          min: 0,
+        },
+        ...baseFields,
+      };
     },
     render: (props) => {
       const isEditing = props.puck?.isEditing ?? false;

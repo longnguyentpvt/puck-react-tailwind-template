@@ -95,30 +95,21 @@ test.describe('Card Component with Data Binding - Editor Tests', () => {
     
     await page.screenshot({ path: 'test-results/card-data-03-flex-selected.png', fullPage: true });
     
-    // Expand Data Binding section if it's collapsible
-    const dataBindingContainer = page.locator('[class*="_PuckFields-field"]:has([class*="_Input-label_"]:has-text("Data Binding"))');
-    await expect(dataBindingContainer).toBeVisible({ timeout: 5_000 });
+    // The Data Binding fields are nested inside an object field
+    // We need to use label-based locators for these nested fields
     
     // Configure Mode to "List (loop)"
-    const modeLabel = page.locator('label:has-text("Mode")');
-    await expect(modeLabel).toBeVisible({ timeout: 5_000 });
-    
-    const modeSelect = page.locator('select').filter({ has: page.locator('option:has-text("List (loop)")') }).first();
+    const dataBindingContainer = editorPage.rightSidebar.locator('[class*="_PuckFields-field"]:has(label:text-is("Data Binding"))');
+    const modeSelect = dataBindingContainer.locator('label:has-text("Mode")').locator('..').locator('select');
     await modeSelect.selectOption({ label: 'List (loop)' });
     
     // Configure Data Source to "products"
-    const sourceLabel = page.locator('label:has-text("Data Source")');
-    await expect(sourceLabel).toBeVisible({ timeout: 5_000 });
-    
-    const sourceInput = sourceLabel.locator('..').locator('input').first();
+    const sourceInput = dataBindingContainer.locator('label:has-text("Data Source")').locator('..').locator('input');
     await sourceInput.fill('products');
     await expect(sourceInput).toHaveValue('products');
     
     // Configure Variable Name to "product"
-    const variableLabel = page.locator('label:has-text("Variable Name")');
-    await expect(variableLabel).toBeVisible({ timeout: 5_000 });
-    
-    const variableInput = variableLabel.locator('..').locator('input').first();
+    const variableInput = dataBindingContainer.locator('label:has-text("Variable Name")').locator('..').locator('input');
     await variableInput.fill('product');
     await expect(variableInput).toHaveValue('product');
     
@@ -245,18 +236,19 @@ test.describe('Card with Data Binding - Published View Validation', () => {
     await flexComponent.click();
     await page.waitForTimeout(500);
     
+    // Locate Data Binding section
+    const dataBindingContainer = editorPage.rightSidebar.locator('[class*="_PuckFields-field"]:has(label:text-is("Data Binding"))');
+    
     // Set Mode to List
-    const modeSelect = page.locator('select').filter({ has: page.locator('option:has-text("List (loop)")') }).first();
+    const modeSelect = dataBindingContainer.locator('label:has-text("Mode")').locator('..').locator('select');
     await modeSelect.selectOption({ label: 'List (loop)' });
     
     // Set Data Source to products
-    const sourceLabel = page.locator('label:has-text("Data Source")');
-    const sourceInput = sourceLabel.locator('..').locator('input').first();
+    const sourceInput = dataBindingContainer.locator('label:has-text("Data Source")').locator('..').locator('input');
     await sourceInput.fill('products');
     
     // Set Variable Name to product
-    const variableLabel = page.locator('label:has-text("Variable Name")');
-    const variableInput = variableLabel.locator('..').locator('input').first();
+    const variableInput = dataBindingContainer.locator('label:has-text("Variable Name")').locator('..').locator('input');
     await variableInput.fill('product');
     
     await page.screenshot({ path: 'test-results/card-data-10-publish-flex-configured.png', fullPage: true });

@@ -17,9 +17,9 @@ export type WithDataPayloadHint<Props extends DefaultComponentProps> = Props;
  * Custom field component that displays the current data scope payload as JSON
  * This helps users understand what data is available from parent components
  * 
- * @param name - Required by CustomField interface but not used in this display-only component
+ * @param _name - Required by CustomField interface but not used in this display-only component
  */
-const DataPayloadHintField: React.FC<{ name: string }> = () => {
+const DataPayloadHintField: React.FC<{ name: string }> = ({ name: _name }) => {
   const { scope } = useDataScope();
   
   // Filter out empty or undefined values from scope

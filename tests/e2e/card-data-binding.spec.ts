@@ -298,7 +298,7 @@ test.describe('Card with Data Binding - Published View Validation', () => {
     
     const pageText = await page.locator('body').textContent();
     expect(pageText).toBeTruthy();
-    expect(pageText!.length).toBeGreaterThan(50);
+    expect(pageText?.length || 0).toBeGreaterThan(50);
     
     // Validate data binding - check for product names and prices
     const hasProduct1 = pageText?.includes('Product 1') || false;

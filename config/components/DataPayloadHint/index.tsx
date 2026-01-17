@@ -5,7 +5,7 @@ import {
   ComponentConfig,
   DefaultComponentProps,
 } from "@measured/puck";
-import { useDataScope, DataScopeProvider, DataScope } from "@/lib/data-binding";
+import { useDataScope, DataScopeProvider, DataScope, resolveBindings, hasBindings } from "@/lib/data-binding";
 
 /**
  * Props for components that support data payload hints and iteration
@@ -46,17 +46,18 @@ function isArrayData(data: unknown): data is unknown[] {
 
 /**
  * Component wrapper that handles data iteration for child components
+ * and resolves bindings within the correct scope for each iteration
  */
 const DataIterationWrapper: React.FC<{
   loopData: boolean;
   maxItems: number;
   isEditing: boolean;
-  children: ReactNode;
+  children: (scope: DataScope) => ReactNode;
   scope: DataScope;
 }> = ({ loopData, maxItems, isEditing, children, scope }) => {
   // If loopData is not enabled, just render children with current scope
   if (!loopData) {
-    return <>{children}</>;
+    return <>{children(scope)}</>;
   }
 
   // Find array data in the scope to loop over
@@ -66,7 +67,7 @@ const DataIterationWrapper: React.FC<{
 
   if (!arrayEntry) {
     // No array data found, render children as-is
-    return <>{children}</>;
+    return <>{children(scope)}</>;
   }
 
   const [variableName, arrayData] = arrayEntry;
@@ -85,7 +86,7 @@ const DataIterationWrapper: React.FC<{
 
     return (
       <DataScopeProvider variables={variables}>
-        {children}
+        {children(variables)}
       </DataScopeProvider>
     );
   }
@@ -104,7 +105,7 @@ const DataIterationWrapper: React.FC<{
 
         return (
           <DataScopeProvider key={index} variables={variables}>
-            {children}
+            {children(variables)}
           </DataScopeProvider>
         );
       })}
@@ -222,14 +223,55 @@ export function withDataPayloadHint<
       const loopData = props.loopData ?? false;
       const maxItems = props.maxItems ?? 0;
 
+      // Component that resolves bindings and renders the original component
+      // This function will be called with the correct scope for each iteration
+      const renderWithResolvedBindings = (scope: DataScope) => {
+        // Resolve bindings in props (excluding puck, id, and our iteration control props)
+        const { puck, id, loopData: _loopData, maxItems: _maxItems, ...dataProps } = props;
+        
+        // Create resolve function from scope
+        const resolve = (template: string) => resolveBindings(template, scope);
+        
+        // Recursively resolve bindings in all props
+        const resolvePropsBindings = (obj: Record<string, unknown>): Record<string, unknown> => {
+          const resolved: Record<string, unknown> = {};
+          
+          for (const [key, value] of Object.entries(obj)) {
+            if (typeof value === "string" && hasBindings(value)) {
+              resolved[key] = resolve(value);
+            } else if (value && typeof value === "object" && !React.isValidElement(value)) {
+              if (Array.isArray(value)) {
+                resolved[key] = value.map((item) => {
+                  if (typeof item === "string" && hasBindings(item)) {
+                    return resolve(item);
+                  }
+                  if (item && typeof item === "object" && !React.isValidElement(item)) {
+                    return resolvePropsBindings(item as Record<string, unknown>);
+                  }
+                  return item;
+                });
+              } else {
+                resolved[key] = resolvePropsBindings(value as Record<string, unknown>);
+              }
+            } else {
+              resolved[key] = value;
+            }
+          }
+          
+          return resolved;
+        };
+        
+        const resolvedDataProps = resolvePropsBindings(dataProps);
+        
+        // Render the original component with resolved props
+        return originalRender({ ...resolvedDataProps, puck, id });
+      };
+
       // Get the current data scope from context
       const ScopeConsumer: React.FC<{ children: (scope: DataScope) => ReactNode }> = ({ children }) => {
         const { scope } = useDataScope();
         return <>{children(scope)}</>;
       };
-
-      // Get the original rendered content
-      const content = originalRender(props);
 
       return (
         <ScopeConsumer>
@@ -240,7 +282,7 @@ export function withDataPayloadHint<
               isEditing={isEditing}
               scope={scope}
             >
-              {content}
+              {renderWithResolvedBindings}
             </DataIterationWrapper>
           )}
         </ScopeConsumer>

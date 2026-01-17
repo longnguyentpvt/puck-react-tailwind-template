@@ -49,26 +49,25 @@ export const conf: UserConfig = {
     },
   },
   // Wrap all components with bindable props to enable {{binding}} syntax
-  // Note: Card is wrapped manually in its own file to ensure correct HOC order with withDataPayloadHint
+  // Note: Card uses withDataPayloadHint which includes binding resolution, so it's excluded
   components: {
-    Accordion: wrapAllWithBindableProps({ Accordion }).Accordion,
-    Animate: wrapAllWithBindableProps({ Animate }).Animate,
-    Banner: wrapAllWithBindableProps({ Banner }).Banner,
-    Button: wrapAllWithBindableProps({ Button }).Button,
-    Card, // Manually wrapped in Card/index.tsx
-    Carousel: wrapAllWithBindableProps({ Carousel }).Carousel,
-    DataRender: wrapAllWithBindableProps({ DataRender }).DataRender,
-    Dialog: wrapAllWithBindableProps({ Dialog }).Dialog,
-    Grid: wrapAllWithBindableProps({ Grid }).Grid,
-    Heading: wrapAllWithBindableProps({ Heading }).Heading,
-    Flex: wrapAllWithBindableProps({ Flex }).Flex,
-    Logos: wrapAllWithBindableProps({ Logos }).Logos,
-    Stats: wrapAllWithBindableProps({ Stats }).Stats,
-    Template: wrapAllWithBindableProps({ Template }).Template,
-    Text: wrapAllWithBindableProps({ Text }).Text,
-    Space: wrapAllWithBindableProps({ Space }).Space,
-    RichText: wrapAllWithBindableProps({ RichText }).RichText,
-    HeadingBlock: wrapAllWithBindableProps({
+    ...wrapAllWithBindableProps({
+      Accordion,
+      Animate,
+      Banner,
+      Button,
+      Carousel,
+      DataRender,
+      Dialog,
+      Grid,
+      Heading,
+      Flex,
+      Logos,
+      Stats,
+      Template,
+      Text,
+      Space,
+      RichText,
       HeadingBlock: {
         fields: {
           title: { type: "text" },
@@ -82,7 +81,9 @@ export const conf: UserConfig = {
           </div>
         ),
       },
-    }).HeadingBlock,
+    }),
+    // Card uses withDataPayloadHint which includes binding resolution
+    Card,
   },
 };
 

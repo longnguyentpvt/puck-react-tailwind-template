@@ -272,9 +272,8 @@ const CardInner: ComponentConfig<CardProps> = {
   },
 };
 
-// Apply withBindableProps to CardInner first to enable {{}} syntax within the correct scope,
-// then withLayout to add layout capabilities,
-// then withDataPayloadHint outside to iterate the whole component including layout div
-import { withBindableProps } from "@/lib/data-binding";
-
-export const Card = withDataPayloadHint(withLayout(withBindableProps(CardInner)));
+// Apply withLayout first to add layout capabilities,
+// then withDataPayloadHint outside to:
+// 1. Iterate the whole component including layout div (preserves DOM structure)
+// 2. Resolve {{binding}} syntax within the correct scope for each iteration
+export const Card = withDataPayloadHint(withLayout(CardInner));

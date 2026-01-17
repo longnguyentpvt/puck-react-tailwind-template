@@ -4,6 +4,7 @@ import { ComponentConfig } from "@measured/puck";
 import dynamic from "next/dynamic";
 import dynamicIconImports from "lucide-react/dynamicIconImports";
 import { withLayout, WithLayout } from "../../components/Layout";
+import { withDataPayloadHint } from "../../components/DataPayloadHint";
 import {
   Card as ShadcnCard,
   CardHeader,
@@ -271,4 +272,6 @@ const CardInner: ComponentConfig<CardProps> = {
   },
 };
 
-export const Card = withLayout(CardInner);
+// Apply withDataPayloadHint first to show data hints in the editor,
+// then withLayout to add layout capabilities
+export const Card = withLayout(withDataPayloadHint(CardInner));

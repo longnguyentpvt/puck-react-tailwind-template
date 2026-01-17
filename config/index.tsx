@@ -49,38 +49,41 @@ export const conf: UserConfig = {
     },
   },
   // Wrap all components with bindable props to enable {{binding}} syntax
-  components: wrapAllWithBindableProps({
-    Accordion,
-    Animate,
-    Banner,
-    Button,
-    Card,
-    Carousel,
-    DataRender,
-    Dialog,
-    Grid,
-    Heading,
-    Flex,
-    Logos,
-    Stats,
-    Template,
-    Text,
-    Space,
-    RichText,
-    HeadingBlock: {
-      fields: {
-        title: { type: "text" },
+  // Note: Card is wrapped manually in its own file to ensure correct HOC order with withDataPayloadHint
+  components: {
+    Accordion: wrapAllWithBindableProps({ Accordion }).Accordion,
+    Animate: wrapAllWithBindableProps({ Animate }).Animate,
+    Banner: wrapAllWithBindableProps({ Banner }).Banner,
+    Button: wrapAllWithBindableProps({ Button }).Button,
+    Card, // Manually wrapped in Card/index.tsx
+    Carousel: wrapAllWithBindableProps({ Carousel }).Carousel,
+    DataRender: wrapAllWithBindableProps({ DataRender }).DataRender,
+    Dialog: wrapAllWithBindableProps({ Dialog }).Dialog,
+    Grid: wrapAllWithBindableProps({ Grid }).Grid,
+    Heading: wrapAllWithBindableProps({ Heading }).Heading,
+    Flex: wrapAllWithBindableProps({ Flex }).Flex,
+    Logos: wrapAllWithBindableProps({ Logos }).Logos,
+    Stats: wrapAllWithBindableProps({ Stats }).Stats,
+    Template: wrapAllWithBindableProps({ Template }).Template,
+    Text: wrapAllWithBindableProps({ Text }).Text,
+    Space: wrapAllWithBindableProps({ Space }).Space,
+    RichText: wrapAllWithBindableProps({ RichText }).RichText,
+    HeadingBlock: wrapAllWithBindableProps({
+      HeadingBlock: {
+        fields: {
+          title: { type: "text" },
+        },
+        defaultProps: {
+          title: "Heading",
+        },
+        render: ({ title }) => (
+          <div style={{ padding: 64 }}>
+            <h1>{title}</h1>
+          </div>
+        ),
       },
-      defaultProps: {
-        title: "Heading",
-      },
-      render: ({ title }) => (
-        <div style={{ padding: 64 }}>
-          <h1>{title}</h1>
-        </div>
-      ),
-    },
-  }),
+    }).HeadingBlock,
+  },
 };
 
 export const componentKey = Buffer.from(

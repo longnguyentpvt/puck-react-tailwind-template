@@ -1,17 +1,12 @@
 "use client";
 
-import React, { ReactNode, Children, cloneElement, isValidElement } from "react";
+import React, { ReactNode } from "react";
 import {
   ComponentConfig,
   DefaultComponentProps,
   ObjectField,
 } from "@measured/puck";
 import { DataScopeProvider, DataScope, getValueByPath } from "@/lib/data-binding";
-
-/**
- * Data binding mode for handling different data types
- */
-export type DataMode = "none" | "auto" | "single" | "list";
 
 /**
  * Data binding field props that can be added to any component
@@ -27,22 +22,6 @@ export type DataFieldProps = {
    * Children can access it using {{variableName.fieldPath}}
    */
   as?: string;
-  /**
-   * Mode for handling the data:
-   * - "none": No data binding
-   * - "auto": Automatically detect if data is array or object
-   * - "single": Treat data as a single object
-   * - "list": Treat data as an array and loop over items
-   */
-  mode?: DataMode;
-  /**
-   * For list mode in editor: which item index to preview (0-based)
-   */
-  previewIndex?: number;
-  /**
-   * Maximum items to render in list mode (0 = unlimited)
-   */
-  maxItems?: number;
 };
 
 export type WithData<Props extends DefaultComponentProps> = Props & {
@@ -56,16 +35,6 @@ export const dataField: ObjectField<DataFieldProps> = {
   type: "object",
   label: "Data Binding",
   objectFields: {
-    mode: {
-      type: "select",
-      label: "Mode",
-      options: [
-        { label: "None (no data binding)", value: "none" },
-        { label: "Auto (detect from data)", value: "auto" },
-        { label: "Single Object", value: "single" },
-        { label: "List (loop)", value: "list" },
-      ],
-    },
     source: {
       type: "text",
       label: "Data Source",
@@ -73,16 +42,6 @@ export const dataField: ObjectField<DataFieldProps> = {
     as: {
       type: "text",
       label: "Variable Name",
-    },
-    previewIndex: {
-      type: "number",
-      label: "Preview Item Index",
-      min: 0,
-    },
-    maxItems: {
-      type: "number",
-      label: "Max Items (0 = unlimited)",
-      min: 0,
     },
   },
 };
@@ -95,30 +54,25 @@ function isArrayData(data: unknown): data is unknown[] {
 }
 
 /**
- * Helper to determine effective mode based on data and mode setting
- */
-function getEffectiveMode(data: unknown, mode: DataMode): "single" | "list" | "none" {
-  if (mode === "none" || !mode) return "none";
-  if (mode === "list") return "list";
-  if (mode === "single") return "single";
-  // Auto mode
-  return isArrayData(data) ? "list" : "single";
-}
-
-/**
  * Mock external data for demonstration
  * In production, this would come from externalData passed via Puck
  */
 const mockExternalData = {
   products: [
-    { id: 1, name: "Product 1", price: 99.99 },
-    { id: 2, name: "Product 2", price: 149.99 },
-    { id: 3, name: "Product 3", price: 199.99 },
+    { id: 1, name: "Product 1", price: 99.99, image: "https://picsum.photos/seed/p1/400/300" },
+    { id: 2, name: "Product 2", price: 149.99, image: "https://picsum.photos/seed/p2/400/300" },
+    { id: 3, name: "Product 3", price: 199.99, image: "https://picsum.photos/seed/p3/400/300" },
+    { id: 4, name: "Product 4", price: 249.99, image: "https://picsum.photos/seed/p4/400/300" },
   ],
   user: {
     name: "John Doe",
     email: "john@example.com",
   },
+  categories: [
+    { id: 1, name: "Electronics", icon: "📱" },
+    { id: 2, name: "Clothing", icon: "👕" },
+    { id: 3, name: "Home & Garden", icon: "🏠" },
+  ],
 };
 
 /**
@@ -126,20 +80,21 @@ const mockExternalData = {
  */
 interface DataWrapperProps {
   data?: DataFieldProps;
-  isEditing: boolean;
   children: ReactNode;
 }
 
 /**
- * DataWrapper component that wraps children with data scope when configured
+ * DataWrapper component that wraps children with data scope when configured.
+ * Note: This component only provides data to the scope. Iteration is handled
+ * by child components using the withDataPayloadHint HOC.
  */
-export function DataWrapper({ data, isEditing, children }: DataWrapperProps) {
+export function DataWrapper({ data, children }: DataWrapperProps) {
   // If no data binding is configured, render children directly
-  if (!data || data.mode === "none" || !data.source || !data.as) {
+  if (!data || !data.source || !data.as) {
     return <>{children}</>;
   }
 
-  const { source, as: variableName, mode = "auto", previewIndex = 0, maxItems = 0 } = data;
+  const { source, as: variableName } = data;
 
   // Resolve the source path to get the data
   // Remove "externalData." prefix if present
@@ -154,51 +109,7 @@ export function DataWrapper({ data, isEditing, children }: DataWrapperProps) {
     return <>{children}</>;
   }
 
-  const effectiveMode = getEffectiveMode(resolvedData, mode);
-
-  if (effectiveMode === "none") {
-    return <>{children}</>;
-  }
-
-  if (effectiveMode === "list" && isArrayData(resolvedData)) {
-    // In edit mode, only show the preview item
-    if (isEditing) {
-      const actualIndex = resolvedData[previewIndex] !== undefined ? previewIndex : 0;
-      const previewItem = resolvedData[actualIndex];
-      const variables: DataScope = {
-        [variableName]: previewItem,
-        index: actualIndex,
-      };
-
-      return (
-        <DataScopeProvider variables={variables}>
-          {children}
-        </DataScopeProvider>
-      );
-    }
-
-    // In render mode, render all items (respecting maxItems)
-    const itemsToRender = maxItems > 0 ? resolvedData.slice(0, maxItems) : resolvedData;
-
-    return (
-      <>
-        {itemsToRender.map((item, index) => {
-          const variables: DataScope = {
-            [variableName]: item,
-            index,
-          };
-
-          return (
-            <DataScopeProvider key={index} variables={variables}>
-              {children}
-            </DataScopeProvider>
-          );
-        })}
-      </>
-    );
-  }
-
-  // Single object mode
+  // Provide the data to the scope (whether it's an array or object)
   const variables: DataScope = {
     [variableName]: resolvedData,
   };
@@ -227,16 +138,12 @@ export function withData<
     defaultProps: {
       ...componentConfig.defaultProps,
       data: {
-        mode: "none",
         source: "",
         as: "",
-        previewIndex: 0,
-        maxItems: 0,
         ...componentConfig.defaultProps?.data,
       },
     },
     render: (props) => {
-      const isEditing = props.puck?.isEditing ?? false;
       const dataProps = props.data as DataFieldProps | undefined;
 
       // Get the original rendered content
@@ -244,7 +151,7 @@ export function withData<
 
       // Wrap with DataWrapper
       return (
-        <DataWrapper data={dataProps} isEditing={isEditing}>
+        <DataWrapper data={dataProps}>
           {content}
         </DataWrapper>
       );
@@ -260,42 +167,28 @@ interface SlotLoopProps {
   children: ReactNode;
   /** Data binding configuration */
   data?: DataFieldProps;
-  /** Whether in editing mode */
-  isEditing?: boolean;
 }
 
 /**
- * SlotLoop component that loops slot content for list data binding.
+ * SlotLoop component that provides data scope to slot content.
  * 
- * NOTE: This component will repeat the ENTIRE slot element (including its wrapper)
- * for each data item. 
+ * @deprecated This component is deprecated. Use withData HOC on layout components
+ * and withDataPayloadHint on child components for better control.
  * 
- * RECOMMENDED APPROACH: Use the DataRender block instead, which is specifically
- * designed for repeating content with proper layout handling.
- * 
- * Good pattern (RECOMMENDED):
- * ```
- * Flex (container once)
- *   └── DataRender (loops its slot children with layout per item)
- *         └── Card (repeated for each item)
- * ```
- * 
- * @deprecated Consider using DataRender block for better control over repeating content
- * 
- * @example Basic usage where repeating the whole slot is acceptable
+ * @example Basic usage
  * ```tsx
- * <SlotLoop data={data} isEditing={puck?.isEditing}>
+ * <SlotLoop data={data}>
  *   <Items />
  * </SlotLoop>
  * ```
  */
-export function SlotLoop({ children, data, isEditing = false }: SlotLoopProps) {
-  // If no data binding configured or not in list mode, render children directly
-  if (!data || data.mode === "none" || !data.source || !data.as) {
+export function SlotLoop({ children, data }: SlotLoopProps) {
+  // If no data binding configured, render children directly
+  if (!data || !data.source || !data.as) {
     return <>{children}</>;
   }
 
-  const { source, as: variableName, mode = "auto", previewIndex = 0, maxItems = 0 } = data;
+  const { source, as: variableName } = data;
 
   // Resolve the source path to get the data
   const cleanPath = source.startsWith("externalData.")
@@ -309,63 +202,14 @@ export function SlotLoop({ children, data, isEditing = false }: SlotLoopProps) {
     return <>{children}</>;
   }
 
-  const effectiveMode = getEffectiveMode(resolvedData, mode);
+  // Just provide the data scope, let child components handle iteration
+  const variables: DataScope = {
+    [variableName]: resolvedData,
+  };
 
-  if (effectiveMode === "none" || effectiveMode === "single") {
-    // For single mode, just provide the data scope
-    if (effectiveMode === "single") {
-      const variables: DataScope = {
-        [variableName]: resolvedData,
-      };
-      return (
-        <DataScopeProvider variables={variables}>
-          {children}
-        </DataScopeProvider>
-      );
-    }
-    return <>{children}</>;
-  }
-
-  // List mode - this is where the magic happens
-  if (!isArrayData(resolvedData)) {
-    return <>{children}</>;
-  }
-
-  // In edit mode, only show the preview item
-  if (isEditing) {
-    const actualIndex = resolvedData[previewIndex] !== undefined ? previewIndex : 0;
-    const previewItem = resolvedData[actualIndex];
-    const variables: DataScope = {
-      [variableName]: previewItem,
-      index: actualIndex,
-    };
-
-    return (
-      <DataScopeProvider variables={variables}>
-        {children}
-      </DataScopeProvider>
-    );
-  }
-
-  // In render mode, we need to clone the slot for each item
-  // The slot component (Items) renders children, so we iterate and provide scope to each
-  const itemsToRender = maxItems > 0 ? resolvedData.slice(0, maxItems) : resolvedData;
-
-  // Clone children for each data item
   return (
-    <>
-      {itemsToRender.map((item, index) => {
-        const variables: DataScope = {
-          [variableName]: item,
-          index,
-        };
-
-        return (
-          <DataScopeProvider key={index} variables={variables}>
-            {children}
-          </DataScopeProvider>
-        );
-      })}
-    </>
+    <DataScopeProvider variables={variables}>
+      {children}
+    </DataScopeProvider>
   );
 }

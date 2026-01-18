@@ -56,6 +56,7 @@ export const conf: UserConfig = {
       Animate,
       Banner,
       Button,
+      Card, // Include Card to satisfy type checking, but it won't be double-wrapped
       Carousel,
       DataRender,
       Dialog,
@@ -82,7 +83,7 @@ export const conf: UserConfig = {
         ),
       },
     }),
-    // Card uses withDataPayloadHint which includes binding resolution
+    // Override Card with the version that has withDataPayloadHint (which includes binding resolution)
     Card,
   },
 };

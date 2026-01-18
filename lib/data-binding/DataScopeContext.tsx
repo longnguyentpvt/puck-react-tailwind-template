@@ -41,6 +41,10 @@ export interface DataScopeProviderProps {
 export function DataScopeProvider({ variables, children }: DataScopeProviderProps) {
   const parentContext = useContext(DataScopeContext);
   
+  // Use JSON.stringify for stable comparison of scope objects
+  const variablesKey = useMemo(() => JSON.stringify(variables), [variables]);
+  const parentScopeKey = useMemo(() => JSON.stringify(parentContext.scope), [parentContext.scope]);
+  
   const value = useMemo(() => {
     // Merge parent scope with new variables (new variables shadow parent)
     const mergedScope: DataScope = {
@@ -52,7 +56,7 @@ export function DataScopeProvider({ variables, children }: DataScopeProviderProp
       scope: mergedScope,
       resolve: (template: string) => resolveBindings(template, mergedScope),
     };
-  }, [parentContext.scope, variables]);
+  }, [variablesKey, parentScopeKey]);
   
   return (
     <DataScopeContext.Provider value={value}>

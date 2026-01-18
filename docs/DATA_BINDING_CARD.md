@@ -4,10 +4,10 @@ This document describes the improved data binding approach implemented for the C
 
 ## Overview
 
-The new data binding system provides a more intuitive and flexible way to work with data collections in Puck:
+The data binding system provides a flexible way to work with data collections from Payload CMS in Puck:
 
 1. **Layout Components (Flex/Grid)** have a "Data Binding" section where you can:
-   - Select a data source (collection)
+   - Select a data source from available Payload collections (using a dropdown)
    - Assign it to a variable name
    - **NO LONGER controls looping** - that's now in the child component
 
@@ -17,6 +17,28 @@ The new data binding system provides a more intuitive and flexible way to work w
    - Available data payload hints in JSON format
    - Usage examples for binding syntax
 
+## Configuration
+
+### Bindable Collections
+
+Collections available for data binding are configured in `/lib/data-binding/bindable-collections.ts`. To add a new collection:
+
+1. Create the collection in `/collections/` (e.g., `Products.ts`)
+2. Register it in `payload.config.ts`
+3. Add it to the `BINDABLE_COLLECTIONS` array:
+
+```typescript
+export const BINDABLE_COLLECTIONS = [
+  { slug: 'products', label: 'Products' },
+  { slug: 'categories', label: 'Categories' },
+  // Add more as needed
+] as const;
+```
+
+### Data Sources
+
+The system fetches data from Payload CMS collections via the API at `/api/{collectionSlug}`. If the collection is not available or there's an error, it falls back to mock data defined in `/lib/data-binding/payload-data-source.ts`.
+
 ## How to Use
 
 ### Step 1: Configure Data Binding on Layout Component
@@ -25,7 +47,7 @@ The new data binding system provides a more intuitive and flexible way to work w
 2. Select the component to view its configuration
 3. Expand the **"Data Binding"** section
 4. Configure the following fields:
-   - **Data Source**: Enter the path to your data (e.g., "products", "users")
+   - **Data Source Collection**: Select from available collections in the dropdown (e.g., "Products")
    - **Variable Name**: Choose a name for accessing the data (e.g., "product", "user")
 
 **Note**: The layout component only provides data to the scope. It does NOT control iteration anymore.

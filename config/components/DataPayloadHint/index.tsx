@@ -6,6 +6,7 @@ import {
   DefaultComponentProps,
 } from "@measured/puck";
 import { useDataScope, DataScopeProvider, DataScope, resolveBindings, hasBindings } from "@/lib/data-binding";
+import { getMockData } from "@/lib/data-binding/payload-data-source";
 
 /**
  * Props for components that support data payload hints and iteration
@@ -13,28 +14,6 @@ import { useDataScope, DataScopeProvider, DataScope, resolveBindings, hasBinding
 export type WithDataPayloadHint<Props extends DefaultComponentProps> = Props & {
   loopData?: boolean;
   maxItems?: number;
-};
-
-/**
- * Mock external data for demonstration
- * In production, this would come from externalData passed via Puck
- */
-const mockExternalData = {
-  products: [
-    { id: 1, name: "Product 1", price: 99.99, image: "https://picsum.photos/seed/p1/400/300" },
-    { id: 2, name: "Product 2", price: 149.99, image: "https://picsum.photos/seed/p2/400/300" },
-    { id: 3, name: "Product 3", price: 199.99, image: "https://picsum.photos/seed/p3/400/300" },
-    { id: 4, name: "Product 4", price: 249.99, image: "https://picsum.photos/seed/p4/400/300" },
-  ],
-  user: {
-    name: "John Doe",
-    email: "john@example.com",
-  },
-  categories: [
-    { id: 1, name: "Electronics", icon: "📱" },
-    { id: 2, name: "Clothing", icon: "👕" },
-    { id: 3, name: "Home & Garden", icon: "🏠" },
-  ],
 };
 
 /**
@@ -175,7 +154,7 @@ export function withDataPayloadHint<
       let hintContent = "";
       if (parentDataSource && parentVariableName) {
         // Show what data is available
-        const exampleData = mockExternalData[parentDataSource as keyof typeof mockExternalData];
+        const exampleData = getMockData(parentDataSource);
         if (exampleData) {
           const dataPreview = Array.isArray(exampleData) ? exampleData[0] : exampleData;
           hintContent = `Data from parent: "${parentVariableName}" from "${parentDataSource}"\n\nExample:\n${JSON.stringify(dataPreview, null, 2)}\n\nUse: {{${parentVariableName}.property}}`;

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useMemo, ReactNode } from 'react';
+import React, { createContext, useContext, useMemo, useRef, ReactNode } from 'react';
 import { DataScope, resolveBindings } from './resolve-binding';
 
 /**
@@ -41,24 +41,47 @@ export interface DataScopeProviderProps {
 export function DataScopeProvider({ variables, children }: DataScopeProviderProps) {
   const parentContext = useContext(DataScopeContext);
   
-  // Use JSON.stringify for stable comparison of scope objects
-  // Note: This is acceptable for small data scopes. For large/deeply nested objects,
-  // consider using a shallow comparison library for better performance.
-  const variablesKey = useMemo(() => JSON.stringify(variables), [variables]);
-  const parentScopeKey = useMemo(() => JSON.stringify(parentContext.scope), [parentContext.scope]);
+  // Memoize serialized values to avoid creating new strings on every render
+  const currentVariablesStr = useMemo(() => JSON.stringify(variables), [variables]);
+  const currentParentScopeStr = useMemo(() => JSON.stringify(parentContext.scope), [parentContext.scope]);
+  
+  // Create stable string references that only change when content differs
+  const prevVariablesStrRef = useRef<string>('');
+  const prevParentScopeStrRef = useRef<string>('');
+  
+  const stableVariablesStr = useMemo(() => {
+    if (prevVariablesStrRef.current !== currentVariablesStr) {
+      prevVariablesStrRef.current = currentVariablesStr;
+      return currentVariablesStr;
+    }
+    return prevVariablesStrRef.current;
+  }, [currentVariablesStr]);
+  
+  const stableParentScopeStr = useMemo(() => {
+    if (prevParentScopeStrRef.current !== currentParentScopeStr) {
+      prevParentScopeStrRef.current = currentParentScopeStr;
+      return currentParentScopeStr;
+    }
+    return prevParentScopeStrRef.current;
+  }, [currentParentScopeStr]);
   
   const value = useMemo(() => {
+    // Parse the stable strings back to objects to ensure we only depend on content, not references
+    // These JSON.parse calls are safe because the strings come from JSON.stringify above
+    const stableParentScope = stableParentScopeStr ? JSON.parse(stableParentScopeStr) as DataScope : {};
+    const stableVariables = stableVariablesStr ? JSON.parse(stableVariablesStr) as DataScope : {};
+    
     // Merge parent scope with new variables (new variables shadow parent)
     const mergedScope: DataScope = {
-      ...parentContext.scope,
-      ...variables,
+      ...stableParentScope,
+      ...stableVariables,
     };
     
     return {
       scope: mergedScope,
       resolve: (template: string) => resolveBindings(template, mergedScope),
     };
-  }, [variablesKey, parentScopeKey]);
+  }, [stableVariablesStr, stableParentScopeStr]);
   
   return (
     <DataScopeContext.Provider value={value}>

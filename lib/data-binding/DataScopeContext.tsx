@@ -52,19 +52,22 @@ export function DataScopeProvider({ variables, children }: DataScopeProviderProp
   const stableVariablesStr = useMemo(() => {
     if (prevVariablesStrRef.current !== currentVariablesStr) {
       prevVariablesStrRef.current = currentVariablesStr;
+      return currentVariablesStr;
     }
-    return prevVariablesStrRef.current || currentVariablesStr;
+    return prevVariablesStrRef.current;
   }, [currentVariablesStr]);
   
   const stableParentScopeStr = useMemo(() => {
     if (prevParentScopeStrRef.current !== currentParentScopeStr) {
       prevParentScopeStrRef.current = currentParentScopeStr;
+      return currentParentScopeStr;
     }
-    return prevParentScopeStrRef.current || currentParentScopeStr;
+    return prevParentScopeStrRef.current;
   }, [currentParentScopeStr]);
   
   const value = useMemo(() => {
     // Parse the stable strings back to objects to ensure we only depend on content, not references
+    // These JSON.parse calls are safe because the strings come from JSON.stringify above
     const stableParentScope = stableParentScopeStr ? JSON.parse(stableParentScopeStr) as DataScope : {};
     const stableVariables = stableVariablesStr ? JSON.parse(stableVariablesStr) as DataScope : {};
     

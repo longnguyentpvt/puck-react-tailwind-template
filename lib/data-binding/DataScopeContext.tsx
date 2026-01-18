@@ -42,8 +42,8 @@ export function DataScopeProvider({ variables, children }: DataScopeProviderProp
   const parentContext = useContext(DataScopeContext);
   
   // Store the previous serialized values to detect actual changes
-  const prevVariablesRef = useRef<string | undefined>(undefined);
-  const prevParentScopeRef = useRef<string | undefined>(undefined);
+  const prevVariablesRef = useRef<string>('');
+  const prevParentScopeRef = useRef<string>('');
   
   // Serialize the current values
   const currentVariablesStr = JSON.stringify(variables);
@@ -72,7 +72,6 @@ export function DataScopeProvider({ variables, children }: DataScopeProviderProp
       scope: mergedScope,
       resolve: (template: string) => resolveBindings(template, mergedScope),
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentVariablesStr, currentParentScopeStr]);
   
   return (

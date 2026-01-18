@@ -13,6 +13,9 @@ package-lock.json
 /.next/
 /out/
 
+# typescript
+tsconfig.tsbuildinfo
+
 # production
 /build
 

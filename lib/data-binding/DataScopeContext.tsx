@@ -42,8 +42,8 @@ export function DataScopeProvider({ variables, children }: DataScopeProviderProp
   const parentContext = useContext(DataScopeContext);
   
   // Store the previous serialized values to detect actual changes
-  const prevVariablesRef = useRef<string>();
-  const prevParentScopeRef = useRef<string>();
+  const prevVariablesRef = useRef<string | undefined>(undefined);
+  const prevParentScopeRef = useRef<string | undefined>(undefined);
   
   // Serialize the current values
   const currentVariablesStr = JSON.stringify(variables);

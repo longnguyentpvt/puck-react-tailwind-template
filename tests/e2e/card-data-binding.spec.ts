@@ -95,17 +95,17 @@ test.describe('Card Component with Data Binding - Editor Tests', () => {
     
     await page.screenshot({ path: 'test-results/card-data-03-flex-selected.png', fullPage: true });
     
-    // Configure Data Source to "products"
-    const sourceField = editorPage.getPuckFieldLocator('Data Source', 'input');
-    await expect(sourceField.container).toBeVisible({ timeout: 5_000 });
-    await sourceField.fill('products');
-    await expect(sourceField.input).toHaveValue('products');
+    // Configure Data Source to "products" - use input by name attribute
+    const sourceInput = page.locator('input[name="data.source"]');
+    await expect(sourceInput).toBeVisible({ timeout: 5_000 });
+    await sourceInput.fill('products');
+    await expect(sourceInput).toHaveValue('products');
     
-    // Configure Variable Name to "productItem"
-    const variableField = editorPage.getPuckFieldLocator('Variable Name', 'input');
-    await expect(variableField.container).toBeVisible({ timeout: 5_000 });
-    await variableField.fill('productItem');
-    await expect(variableField.input).toHaveValue('productItem');
+    // Configure Variable Name to "productItem" - use input by name attribute
+    const variableInput = page.locator('input[name="data.as"]');
+    await expect(variableInput).toBeVisible({ timeout: 5_000 });
+    await variableInput.fill('productItem');
+    await expect(variableInput).toHaveValue('productItem');
     
     await page.screenshot({ path: 'test-results/card-data-04-flex-data-configured.png', fullPage: true });
   });
@@ -242,15 +242,15 @@ test.describe('Card with Data Binding - Published View Validation', () => {
     await page.waitForTimeout(500);
     
     // Configure data source and variable name (no Mode field in new approach)
-    const sourceField = editorPage.getPuckFieldLocator('Data Source', 'input');
-    await expect(sourceField.container).toBeVisible({ timeout: 5_000 });
-    await sourceField.fill('products');
-    await expect(sourceField.input).toHaveValue('products');
+    const sourceInput = page.locator('input[name="data.source"]');
+    await expect(sourceInput).toBeVisible({ timeout: 5_000 });
+    await sourceInput.fill('products');
+    await expect(sourceInput).toHaveValue('products');
     
-    const variableField = editorPage.getPuckFieldLocator('Variable Name', 'input');
-    await expect(variableField.container).toBeVisible({ timeout: 5_000 });
-    await variableField.fill('productItem');
-    await expect(variableField.input).toHaveValue('productItem');
+    const variableInput = page.locator('input[name="data.as"]');
+    await expect(variableInput).toBeVisible({ timeout: 5_000 });
+    await variableInput.fill('productItem');
+    await expect(variableInput).toHaveValue('productItem');
     
     await page.screenshot({ path: 'test-results/card-data-10-publish-flex-configured.png', fullPage: true });
     

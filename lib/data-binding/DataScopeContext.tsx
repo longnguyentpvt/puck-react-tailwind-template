@@ -41,25 +41,31 @@ export interface DataScopeProviderProps {
 export function DataScopeProvider({ variables, children }: DataScopeProviderProps) {
   const parentContext = useContext(DataScopeContext);
   
-  // Store the previous serialized values to detect actual changes
-  const prevVariablesRef = useRef<string>('');
-  const prevParentScopeRef = useRef<string>('');
+  // Create a stable reference to serialized values using deep comparison
+  const prevVariablesStrRef = useRef<string>('');
+  const prevParentScopeStrRef = useRef<string>('');
   
-  // Serialize the current values
-  const currentVariablesStr = JSON.stringify(variables);
-  const currentParentScopeStr = JSON.stringify(parentContext.scope);
+  // Memoize current serialized values to avoid creating new strings on every render
+  // These will only change when the object reference changes
+  const currentVariablesStr = useMemo(() => JSON.stringify(variables), [variables]);
+  const currentParentScopeStr = useMemo(() => JSON.stringify(parentContext.scope), [parentContext.scope]);
   
-  // Check if values actually changed
-  const variablesChanged = prevVariablesRef.current !== currentVariablesStr;
-  const parentScopeChanged = prevParentScopeRef.current !== currentParentScopeStr;
+  // Use useMemo to create stable string references that only change when content differs
+  const stableVariablesStr = useMemo(() => {
+    if (prevVariablesStrRef.current !== currentVariablesStr) {
+      prevVariablesStrRef.current = currentVariablesStr;
+      return currentVariablesStr;
+    }
+    return prevVariablesStrRef.current;
+  }, [currentVariablesStr]);
   
-  // Update refs
-  if (variablesChanged) {
-    prevVariablesRef.current = currentVariablesStr;
-  }
-  if (parentScopeChanged) {
-    prevParentScopeRef.current = currentParentScopeStr;
-  }
+  const stableParentScopeStr = useMemo(() => {
+    if (prevParentScopeStrRef.current !== currentParentScopeStr) {
+      prevParentScopeStrRef.current = currentParentScopeStr;
+      return currentParentScopeStr;
+    }
+    return prevParentScopeStrRef.current;
+  }, [currentParentScopeStr]);
   
   const value = useMemo(() => {
     // Merge parent scope with new variables (new variables shadow parent)
@@ -72,7 +78,8 @@ export function DataScopeProvider({ variables, children }: DataScopeProviderProp
       scope: mergedScope,
       resolve: (template: string) => resolveBindings(template, mergedScope),
     };
-  }, [currentVariablesStr, currentParentScopeStr]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stableVariablesStr, stableParentScopeStr]);
   
   return (
     <DataScopeContext.Provider value={value}>

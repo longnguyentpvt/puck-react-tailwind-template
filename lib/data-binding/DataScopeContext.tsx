@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useMemo, ReactNode } from 'react';
+import React, { createContext, useContext, useMemo, useRef, ReactNode } from 'react';
 import { DataScope, resolveBindings } from './resolve-binding';
 
 /**
@@ -41,11 +41,25 @@ export interface DataScopeProviderProps {
 export function DataScopeProvider({ variables, children }: DataScopeProviderProps) {
   const parentContext = useContext(DataScopeContext);
   
-  // Use JSON.stringify for stable comparison of scope objects
-  // Note: This is acceptable for small data scopes. For large/deeply nested objects,
-  // consider using a shallow comparison library for better performance.
-  const variablesKey = useMemo(() => JSON.stringify(variables), [variables]);
-  const parentScopeKey = useMemo(() => JSON.stringify(parentContext.scope), [parentContext.scope]);
+  // Store the previous serialized values to detect actual changes
+  const prevVariablesRef = useRef<string>();
+  const prevParentScopeRef = useRef<string>();
+  
+  // Serialize the current values
+  const currentVariablesStr = JSON.stringify(variables);
+  const currentParentScopeStr = JSON.stringify(parentContext.scope);
+  
+  // Check if values actually changed
+  const variablesChanged = prevVariablesRef.current !== currentVariablesStr;
+  const parentScopeChanged = prevParentScopeRef.current !== currentParentScopeStr;
+  
+  // Update refs
+  if (variablesChanged) {
+    prevVariablesRef.current = currentVariablesStr;
+  }
+  if (parentScopeChanged) {
+    prevParentScopeRef.current = currentParentScopeStr;
+  }
   
   const value = useMemo(() => {
     // Merge parent scope with new variables (new variables shadow parent)
@@ -58,7 +72,8 @@ export function DataScopeProvider({ variables, children }: DataScopeProviderProp
       scope: mergedScope,
       resolve: (template: string) => resolveBindings(template, mergedScope),
     };
-  }, [variablesKey, parentScopeKey]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentVariablesStr, currentParentScopeStr]);
   
   return (
     <DataScopeContext.Provider value={value}>

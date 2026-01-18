@@ -99,4 +99,19 @@ export class EditorPage {
     await this.page.waitForTimeout(5_000);
     await this.page.mouse.up();
   }
+
+  /**
+   * Get a locator for a nested field within an object field (e.g., fields inside "Data Binding").
+   * This is useful for accessing fields that are grouped under a parent object field.
+   * 
+   * @param parentFieldName - The name of the parent object field (e.g., "Data Binding")
+   * @param childFieldLabel - The label of the child field (e.g., "Data Source", "Mode")
+   * @returns A locator scoped to the specific nested field
+   */
+  getNestedFieldLocator(parentFieldName: string, childFieldLabel: string): Locator {
+    const parentContainer = this.rightSidebar.locator(
+      `[class*="_PuckFields-field"]:has(label:text-is("${parentFieldName}"))`
+    );
+    return parentContainer.locator(`label:has-text("${childFieldLabel}")`).locator('..');
+  }
 }

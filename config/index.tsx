@@ -4,7 +4,6 @@ import { Banner } from "./blocks/Banner";
 import { Button } from "./blocks/Button";
 import { Card } from "./blocks/Card";
 import { Carousel } from "./blocks/Carousel";
-import { DataRender } from "./blocks/DataRender";
 import { Dialog } from "./blocks/Dialog";
 import { Grid } from "./blocks/Grid";
 import { Heading } from "./blocks/Heading";
@@ -28,10 +27,6 @@ export const conf: UserConfig = {
     layout: {
       components: ["Grid", "Flex", "Space"],
     },
-    data: {
-      title: "Data",
-      components: ["DataRender"],
-    },
     typography: {
       components: ["Heading", "Text", "RichText"],
     },
@@ -49,38 +44,42 @@ export const conf: UserConfig = {
     },
   },
   // Wrap all components with bindable props to enable {{binding}} syntax
-  components: wrapAllWithBindableProps({
-    Accordion,
-    Animate,
-    Banner,
-    Button,
+  // Note: Card uses withDataPayloadHint which includes binding resolution
+  components: {
+    ...wrapAllWithBindableProps({
+      Accordion,
+      Animate,
+      Banner,
+      Button,
+      Card, // Include Card to satisfy type checking, but it will be overridden below
+      Carousel,
+      Dialog,
+      Grid,
+      Heading,
+      Flex,
+      Logos,
+      Stats,
+      Template,
+      Text,
+      Space,
+      RichText,
+      HeadingBlock: {
+        fields: {
+          title: { type: "text" },
+        },
+        defaultProps: {
+          title: "Heading",
+        },
+        render: ({ title }) => (
+          <div style={{ padding: 64 }}>
+            <h1>{title}</h1>
+          </div>
+        ),
+      },
+    }),
+    // Override Card with the version that has withDataPayloadHint (which includes binding resolution)
     Card,
-    Carousel,
-    DataRender,
-    Dialog,
-    Grid,
-    Heading,
-    Flex,
-    Logos,
-    Stats,
-    Template,
-    Text,
-    Space,
-    RichText,
-    HeadingBlock: {
-      fields: {
-        title: { type: "text" },
-      },
-      defaultProps: {
-        title: "Heading",
-      },
-      render: ({ title }) => (
-        <div style={{ padding: 64 }}>
-          <h1>{title}</h1>
-        </div>
-      ),
-    },
-  }),
+  },
 };
 
 export const componentKey = Buffer.from(

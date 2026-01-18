@@ -4,6 +4,7 @@ import { ComponentConfig } from "@measured/puck";
 import dynamic from "next/dynamic";
 import dynamicIconImports from "lucide-react/dynamicIconImports";
 import { withLayout, WithLayout } from "../../components/Layout";
+import { withDataPayloadHint } from "../../components/DataPayloadHint";
 import {
   Card as ShadcnCard,
   CardHeader,
@@ -271,4 +272,8 @@ const CardInner: ComponentConfig<CardProps> = {
   },
 };
 
-export const Card = withLayout(CardInner);
+// Apply withLayout first to add layout capabilities,
+// then withDataPayloadHint outside to:
+// 1. Iterate the whole component including layout div (preserves DOM structure)
+// 2. Resolve {{binding}} syntax within the correct scope for each iteration
+export const Card = withDataPayloadHint(withLayout(CardInner));

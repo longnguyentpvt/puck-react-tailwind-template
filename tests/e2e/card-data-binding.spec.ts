@@ -90,27 +90,22 @@ test.describe('Card Component with Data Binding - Editor Tests', () => {
     await expect(editorPage.rightSidebar).toBeVisible({ timeout: 10_000 });
     
     // Look for Data Binding section (added by withData HOC)
-    const dataBindingSection = page.locator('label:has-text("Data Binding")');
+    const dataBindingSection = page.locator('text="Data Binding"').first();
     await expect(dataBindingSection).toBeVisible({ timeout: 10_000 });
     
     await page.screenshot({ path: 'test-results/card-data-03-flex-selected.png', fullPage: true });
     
-    // Configure Mode to "List (loop)"
-    const modeField = editorPage.getNestedFieldLocator('Data Binding', 'Mode');
-    const modeSelect = modeField.locator('select');
-    await modeSelect.selectOption({ label: 'List (loop)' });
-    
     // Configure Data Source to "products"
-    const sourceField = editorPage.getNestedFieldLocator('Data Binding', 'Data Source');
-    const sourceInput = sourceField.locator('input');
-    await sourceInput.fill('products');
-    await expect(sourceInput).toHaveValue('products');
+    const sourceField = editorPage.getPuckFieldLocator('Data Source', 'input');
+    await expect(sourceField.container).toBeVisible({ timeout: 5_000 });
+    await sourceField.fill('products');
+    await expect(sourceField.input).toHaveValue('products');
     
-    // Configure Variable Name to "product"
-    const variableField = editorPage.getNestedFieldLocator('Data Binding', 'Variable Name');
-    const variableInput = variableField.locator('input');
-    await variableInput.fill('product');
-    await expect(variableInput).toHaveValue('product');
+    // Configure Variable Name to "productItem"
+    const variableField = editorPage.getPuckFieldLocator('Variable Name', 'input');
+    await expect(variableField.container).toBeVisible({ timeout: 5_000 });
+    await variableField.fill('productItem');
+    await expect(variableField.input).toHaveValue('productItem');
     
     await page.screenshot({ path: 'test-results/card-data-04-flex-data-configured.png', fullPage: true });
   });
@@ -158,7 +153,7 @@ test.describe('Card Component with Data Binding - Editor Tests', () => {
     await page.screenshot({ path: 'test-results/card-data-07-payload-hint-visible.png', fullPage: true });
   });
 
-  test('should configure Card with data binding syntax', async () => {
+  test('should configure Card with data binding syntax and iteration', async () => {
     const previewFrame = page.locator('#preview-frame').contentFrame();
     const cardComponent = previewFrame.locator('[data-puck-component^="Card-"]').first();
     await expect(cardComponent).toBeVisible({ timeout: 10_000 });
@@ -167,17 +162,28 @@ test.describe('Card Component with Data Binding - Editor Tests', () => {
     await cardComponent.click();
     await page.waitForTimeout(500);
     
-    // Configure Card title with binding syntax
+    // Enable "Loop through data" for Card
+    const loopDataYes = page.locator('label:has-text("Loop through data")').locator('..').locator('label:has-text("Yes")');
+    await loopDataYes.click();
+    await page.waitForTimeout(500);
+    
+    // Set Max Items to 0 (unlimited) - should already be default
+    const maxItemsField = editorPage.getPuckFieldLocator('Max Items (0 = unlimited)', 'input');
+    await expect(maxItemsField.container).toBeVisible({ timeout: 5_000 });
+    await maxItemsField.fill('4');
+    await expect(maxItemsField.input).toHaveValue('4');
+    
+    // Configure Card title with binding syntax (using productItem as variable name)
     const titleField = editorPage.getPuckFieldLocator('Title', 'input');
     await expect(titleField.container).toBeVisible({ timeout: 5_000 });
-    await titleField.fill('{{product.name}}');
-    await expect(titleField.input).toHaveValue('{{product.name}}');
+    await titleField.fill('{{productItem.name}}');
+    await expect(titleField.input).toHaveValue('{{productItem.name}}');
     
     // Configure Card description with binding syntax
     const descriptionField = editorPage.getPuckFieldLocator('Description', 'textarea');
     await expect(descriptionField.container).toBeVisible({ timeout: 5_000 });
-    await descriptionField.fill('Price: ${{product.price}}');
-    await expect(descriptionField.input).toHaveValue('Price: ${{product.price}}');
+    await descriptionField.fill('Price: ${{productItem.price}}');
+    await expect(descriptionField.input).toHaveValue('Price: ${{productItem.price}}');
     
     await page.screenshot({ path: 'test-results/card-data-08-card-configured.png', fullPage: true });
   });
@@ -235,18 +241,16 @@ test.describe('Card with Data Binding - Published View Validation', () => {
     await flexComponent.click();
     await page.waitForTimeout(500);
     
-    // Configure using the nested field helper method
-    const modeField = editorPage.getNestedFieldLocator('Data Binding', 'Mode');
-    const modeSelect = modeField.locator('select');
-    await modeSelect.selectOption({ label: 'List (loop)' });
+    // Configure data source and variable name (no Mode field in new approach)
+    const sourceField = editorPage.getPuckFieldLocator('Data Source', 'input');
+    await expect(sourceField.container).toBeVisible({ timeout: 5_000 });
+    await sourceField.fill('products');
+    await expect(sourceField.input).toHaveValue('products');
     
-    const sourceField = editorPage.getNestedFieldLocator('Data Binding', 'Data Source');
-    const sourceInput = sourceField.locator('input');
-    await sourceInput.fill('products');
-    
-    const variableField = editorPage.getNestedFieldLocator('Data Binding', 'Variable Name');
-    const variableInput = variableField.locator('input');
-    await variableInput.fill('product');
+    const variableField = editorPage.getPuckFieldLocator('Variable Name', 'input');
+    await expect(variableField.container).toBeVisible({ timeout: 5_000 });
+    await variableField.fill('productItem');
+    await expect(variableField.input).toHaveValue('productItem');
     
     await page.screenshot({ path: 'test-results/card-data-10-publish-flex-configured.png', fullPage: true });
     
@@ -255,18 +259,29 @@ test.describe('Card with Data Binding - Published View Validation', () => {
     await editorPage.dragComponentToDropZone('Card', dropzoneComponent);
     await page.waitForTimeout(1000);
     
-    // Configure Card with bindings
+    // Configure Card with bindings and enable looping
     const previewFrame = page.locator('#preview-frame').contentFrame();
     const cardComponent = previewFrame.locator('[data-puck-component^="Card-"]').first();
     await expect(cardComponent).toBeVisible({ timeout: 10_000 });
     await cardComponent.click();
     await page.waitForTimeout(500);
     
+    // Enable "Loop through data" for Card
+    const loopDataYes = page.locator('label:has-text("Loop through data")').locator('..').locator('label:has-text("Yes")');
+    await loopDataYes.click();
+    await page.waitForTimeout(500);
+    
+    // Set Max Items to 4
+    const maxItemsField = editorPage.getPuckFieldLocator('Max Items (0 = unlimited)', 'input');
+    await expect(maxItemsField.container).toBeVisible({ timeout: 5_000 });
+    await maxItemsField.fill('4');
+    await expect(maxItemsField.input).toHaveValue('4');
+    
     const titleField = editorPage.getPuckFieldLocator('Title', 'input');
-    await titleField.fill('{{product.name}}');
+    await titleField.fill('{{productItem.name}}');
     
     const descriptionField = editorPage.getPuckFieldLocator('Description', 'textarea');
-    await descriptionField.fill('Price: ${{product.price}}');
+    await descriptionField.fill('Price: ${{productItem.price}}');
     
     await page.screenshot({ path: 'test-results/card-data-11-publish-card-configured.png', fullPage: true });
   });

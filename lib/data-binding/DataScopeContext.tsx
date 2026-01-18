@@ -41,44 +41,43 @@ export interface DataScopeProviderProps {
 export function DataScopeProvider({ variables, children }: DataScopeProviderProps) {
   const parentContext = useContext(DataScopeContext);
   
-  // Create a stable reference to serialized values using deep comparison
-  const prevVariablesStrRef = useRef<string>('');
-  const prevParentScopeStrRef = useRef<string>('');
-  
-  // Memoize current serialized values to avoid creating new strings on every render
-  // These will only change when the object reference changes
+  // Memoize serialized values to avoid creating new strings on every render
   const currentVariablesStr = useMemo(() => JSON.stringify(variables), [variables]);
   const currentParentScopeStr = useMemo(() => JSON.stringify(parentContext.scope), [parentContext.scope]);
   
-  // Use useMemo to create stable string references that only change when content differs
+  // Create stable string references that only change when content differs
+  const prevVariablesStrRef = useRef<string>('');
+  const prevParentScopeStrRef = useRef<string>('');
+  
   const stableVariablesStr = useMemo(() => {
     if (prevVariablesStrRef.current !== currentVariablesStr) {
       prevVariablesStrRef.current = currentVariablesStr;
-      return currentVariablesStr;
     }
-    return prevVariablesStrRef.current;
+    return prevVariablesStrRef.current || currentVariablesStr;
   }, [currentVariablesStr]);
   
   const stableParentScopeStr = useMemo(() => {
     if (prevParentScopeStrRef.current !== currentParentScopeStr) {
       prevParentScopeStrRef.current = currentParentScopeStr;
-      return currentParentScopeStr;
     }
-    return prevParentScopeStrRef.current;
+    return prevParentScopeStrRef.current || currentParentScopeStr;
   }, [currentParentScopeStr]);
   
   const value = useMemo(() => {
+    // Parse the stable strings back to objects to ensure we only depend on content, not references
+    const stableParentScope = stableParentScopeStr ? JSON.parse(stableParentScopeStr) as DataScope : {};
+    const stableVariables = stableVariablesStr ? JSON.parse(stableVariablesStr) as DataScope : {};
+    
     // Merge parent scope with new variables (new variables shadow parent)
     const mergedScope: DataScope = {
-      ...parentContext.scope,
-      ...variables,
+      ...stableParentScope,
+      ...stableVariables,
     };
     
     return {
       scope: mergedScope,
       resolve: (template: string) => resolveBindings(template, mergedScope),
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stableVariablesStr, stableParentScopeStr]);
   
   return (

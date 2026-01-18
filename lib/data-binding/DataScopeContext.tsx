@@ -42,6 +42,8 @@ export function DataScopeProvider({ variables, children }: DataScopeProviderProp
   const parentContext = useContext(DataScopeContext);
   
   // Use JSON.stringify for stable comparison of scope objects
+  // Note: This is acceptable for small data scopes. For large/deeply nested objects,
+  // consider using a shallow comparison library for better performance.
   const variablesKey = useMemo(() => JSON.stringify(variables), [variables]);
   const parentScopeKey = useMemo(() => JSON.stringify(parentContext.scope), [parentContext.scope]);
   

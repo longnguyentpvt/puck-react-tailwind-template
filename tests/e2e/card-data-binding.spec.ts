@@ -95,11 +95,11 @@ test.describe('Card Component with Data Binding - Editor Tests', () => {
     
     await page.screenshot({ path: 'test-results/card-data-03-flex-selected.png', fullPage: true });
     
-    // Configure Data Source to "products" - use input by name attribute
-    const sourceInput = page.locator('input[name="data.source"]');
-    await expect(sourceInput).toBeVisible({ timeout: 5_000 });
-    await sourceInput.fill('products');
-    await expect(sourceInput).toHaveValue('products');
+    // Configure Data Source to "products" - use select dropdown by name attribute
+    const sourceSelect = page.locator('select[name="data.source"]');
+    await expect(sourceSelect).toBeVisible({ timeout: 5_000 });
+    await sourceSelect.selectOption('products');
+    await expect(sourceSelect).toHaveValue('products');
     
     // Configure Variable Name to "productItem" - use input by name attribute
     const variableInput = page.locator('input[name="data.as"]');
@@ -242,10 +242,10 @@ test.describe('Card with Data Binding - Published View Validation', () => {
     await page.waitForTimeout(500);
     
     // Configure data source and variable name (no Mode field in new approach)
-    const sourceInput = page.locator('input[name="data.source"]');
-    await expect(sourceInput).toBeVisible({ timeout: 5_000 });
-    await sourceInput.fill('products');
-    await expect(sourceInput).toHaveValue('products');
+    const sourceSelect = page.locator('select[name="data.source"]');
+    await expect(sourceSelect).toBeVisible({ timeout: 5_000 });
+    await sourceSelect.selectOption('products');
+    await expect(sourceSelect).toHaveValue('products');
     
     const variableInput = page.locator('input[name="data.as"]');
     await expect(variableInput).toBeVisible({ timeout: 5_000 });

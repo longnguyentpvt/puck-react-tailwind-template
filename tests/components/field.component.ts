@@ -60,6 +60,8 @@ export class SelectFieldComponent extends BaseFieldComponent {
 }
 
 export class RadioFieldComponent extends BaseFieldComponent {
+  // Radio buttons require a different selector for the group container
+  // Cannot override readonly 'input' property, so we use a separate locator
   readonly radioGroup: Locator;
   
   constructor(container: Locator) {

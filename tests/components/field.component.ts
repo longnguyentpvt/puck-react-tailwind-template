@@ -60,10 +60,12 @@ export class SelectFieldComponent extends BaseFieldComponent {
 }
 
 export class RadioFieldComponent extends BaseFieldComponent {
+  readonly radioGroup: Locator;
+  
   constructor(container: Locator) {
     super(container);
-    // For radio buttons, the "input" locator points to the radio group container
-    this.input = container.locator('[class*="_Input-radioGroupItems_"]');
+    // For radio buttons, use a separate locator for the radio group
+    this.radioGroup = container.locator('[class*="_Input-radioGroupItems_"]');
   }
 
   /**
@@ -120,6 +122,8 @@ type FieldComponentMap = {
   textarea: TextareaFieldComponent;
   radio: RadioFieldComponent;
 };
+
+export type { FieldComponentMap };
 
 export function createFieldComponent<T extends FieldType>(
   container: Locator,

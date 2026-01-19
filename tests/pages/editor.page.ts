@@ -1,12 +1,6 @@
 import { type Page, type Locator, expect, FrameLocator } from "@playwright/test";
-import { createFieldComponent, FieldType, InputFieldComponent, SelectFieldComponent, TextareaFieldComponent } from "@/tests/components/field.component";
+import { createFieldComponent, FieldType, type FieldComponentMap } from "@/tests/components/field.component";
 import DropzoneComponent from "../components/dropzone.component";
-
-type FieldComponentMap = {
-  input: InputFieldComponent;
-  select: SelectFieldComponent;
-  textarea: TextareaFieldComponent;
-};
 
 export class EditorPage {
   readonly leftSidebar: Locator;

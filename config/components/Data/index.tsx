@@ -7,14 +7,15 @@ import {
   ObjectField,
 } from "@measured/puck";
 import { DataScopeProvider, DataScope, getValueByPath } from "@/lib/data-binding";
+import { BINDABLE_COLLECTIONS } from "@/lib/data-binding/bindable-collections";
+import { getMockData } from "@/lib/data-binding/payload-data-source";
 
 /**
  * Data binding field props that can be added to any component
  */
 export type DataFieldProps = {
   /**
-   * Path to the data source (e.g., "externalData.products" or "externalData.user")
-   * Uses dot notation to access nested data
+   * Slug of the Payload collection to use as data source (e.g., "products")
    */
   source?: string;
   /**
@@ -36,8 +37,15 @@ export const dataField: ObjectField<DataFieldProps> = {
   label: "Data Binding",
   objectFields: {
     source: {
-      type: "text",
-      label: "Data Source",
+      type: "select",
+      label: "Data Source Collection",
+      options: [
+        { label: "Select a collection...", value: "" },
+        ...BINDABLE_COLLECTIONS.map(c => ({
+          label: c.label,
+          value: c.slug,
+        })),
+      ],
     },
     as: {
       type: "text",
@@ -52,28 +60,6 @@ export const dataField: ObjectField<DataFieldProps> = {
 function isArrayData(data: unknown): data is unknown[] {
   return Array.isArray(data);
 }
-
-/**
- * Mock external data for demonstration
- * In production, this would come from externalData passed via Puck
- */
-const mockExternalData = {
-  products: [
-    { id: 1, name: "Product 1", price: 99.99, image: "https://picsum.photos/seed/p1/400/300" },
-    { id: 2, name: "Product 2", price: 149.99, image: "https://picsum.photos/seed/p2/400/300" },
-    { id: 3, name: "Product 3", price: 199.99, image: "https://picsum.photos/seed/p3/400/300" },
-    { id: 4, name: "Product 4", price: 249.99, image: "https://picsum.photos/seed/p4/400/300" },
-  ],
-  user: {
-    name: "John Doe",
-    email: "john@example.com",
-  },
-  categories: [
-    { id: 1, name: "Electronics", icon: "📱" },
-    { id: 2, name: "Clothing", icon: "👕" },
-    { id: 3, name: "Home & Garden", icon: "🏠" },
-  ],
-};
 
 /**
  * Props for the DataWrapper component
@@ -96,13 +82,9 @@ export function DataWrapper({ data, children }: DataWrapperProps) {
 
   const { source, as: variableName } = data;
 
-  // Resolve the source path to get the data
-  // Remove "externalData." prefix if present
-  const cleanPath = source.startsWith("externalData.")
-    ? source.substring("externalData.".length)
-    : source;
-  
-  const resolvedData = cleanPath ? getValueByPath(mockExternalData, cleanPath) : mockExternalData;
+  // Fetch data from Payload collection (using mock data in client components)
+  // In client components, we use mock data. For server components, use fetchPayloadCollectionData
+  const resolvedData = getMockData(source);
 
   // Handle missing data
   if (resolvedData === undefined || resolvedData === null) {
@@ -190,12 +172,8 @@ export function SlotLoop({ children, data }: SlotLoopProps) {
 
   const { source, as: variableName } = data;
 
-  // Resolve the source path to get the data
-  const cleanPath = source.startsWith("externalData.")
-    ? source.substring("externalData.".length)
-    : source;
-  
-  const resolvedData = cleanPath ? getValueByPath(mockExternalData, cleanPath) : mockExternalData;
+  // Fetch data from Payload collection (using mock data in client components)
+  const resolvedData = getMockData(source);
 
   // Handle missing data
   if (resolvedData === undefined || resolvedData === null) {

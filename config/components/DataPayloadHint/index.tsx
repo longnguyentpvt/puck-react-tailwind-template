@@ -219,73 +219,66 @@ export function withDataPayloadHint<
       };
     },
     render: (props) => {
+      // Get the current data scope from context
+      const { scope } = useDataScope();
+      
       const isEditing = props.puck?.isEditing ?? false;
       const loopData = props.loopData ?? false;
       const maxItems = props.maxItems ?? 0;
 
-      // Component that resolves bindings and renders the original component
-      // This function will be called with the correct scope for each iteration
-      const renderWithResolvedBindings = (scope: DataScope) => {
+      // Use useCallback to create a stable reference for the render function
+      // We pass the props object as a dependency directly - React will do a shallow comparison
+      const renderWithResolvedBindings = React.useCallback((iterationScope: DataScope) => {
         // Resolve bindings in props (excluding puck, id, and our iteration control props)
         const { puck, id, loopData: _loopData, maxItems: _maxItems, ...dataProps } = props;
-        
-        // Create resolve function from scope
-        const resolve = (template: string) => resolveBindings(template, scope);
-        
-        // Recursively resolve bindings in all props
-        const resolvePropsBindings = (obj: Record<string, unknown>): Record<string, unknown> => {
-          const resolved: Record<string, unknown> = {};
           
-          for (const [key, value] of Object.entries(obj)) {
-            if (typeof value === "string" && hasBindings(value)) {
-              resolved[key] = resolve(value);
-            } else if (value && typeof value === "object" && !React.isValidElement(value)) {
-              if (Array.isArray(value)) {
-                resolved[key] = value.map((item) => {
-                  if (typeof item === "string" && hasBindings(item)) {
-                    return resolve(item);
-                  }
-                  if (item && typeof item === "object" && !React.isValidElement(item)) {
-                    return resolvePropsBindings(item as Record<string, unknown>);
-                  }
-                  return item;
-                });
+          // Create resolve function from scope
+          const resolve = (template: string) => resolveBindings(template, iterationScope);
+          
+          // Recursively resolve bindings in all props
+          const resolvePropsBindings = (obj: Record<string, unknown>): Record<string, unknown> => {
+            const resolved: Record<string, unknown> = {};
+            
+            for (const [key, value] of Object.entries(obj)) {
+              if (typeof value === "string" && hasBindings(value)) {
+                resolved[key] = resolve(value);
+              } else if (value && typeof value === "object" && !React.isValidElement(value)) {
+                if (Array.isArray(value)) {
+                  resolved[key] = value.map((item) => {
+                    if (typeof item === "string" && hasBindings(item)) {
+                      return resolve(item);
+                    }
+                    if (item && typeof item === "object" && !React.isValidElement(item)) {
+                      return resolvePropsBindings(item as Record<string, unknown>);
+                    }
+                    return item;
+                  });
+                } else {
+                  resolved[key] = resolvePropsBindings(value as Record<string, unknown>);
+                }
               } else {
-                resolved[key] = resolvePropsBindings(value as Record<string, unknown>);
+                resolved[key] = value;
               }
-            } else {
-              resolved[key] = value;
             }
-          }
+            
+            return resolved;
+          };
           
-          return resolved;
-        };
-        
-        const resolvedDataProps = resolvePropsBindings(dataProps);
-        
-        // Render the original component with resolved props
-        return originalRender({ ...resolvedDataProps, puck, id });
-      };
-
-      // Get the current data scope from context
-      const ScopeConsumer: React.FC<{ children: (scope: DataScope) => ReactNode }> = ({ children }) => {
-        const { scope } = useDataScope();
-        return <>{children(scope)}</>;
-      };
+          const resolvedDataProps = resolvePropsBindings(dataProps);
+          
+          // Render the original component with resolved props
+          return originalRender({ ...resolvedDataProps, puck, id });
+        }, [props]);
 
       return (
-        <ScopeConsumer>
-          {(scope) => (
-            <DataIterationWrapper
-              loopData={loopData}
-              maxItems={maxItems}
-              isEditing={isEditing}
-              scope={scope}
-            >
-              {renderWithResolvedBindings}
-            </DataIterationWrapper>
-          )}
-        </ScopeConsumer>
+        <DataIterationWrapper
+          loopData={loopData}
+          maxItems={maxItems}
+          isEditing={isEditing}
+          scope={scope}
+        >
+          {renderWithResolvedBindings}
+        </DataIterationWrapper>
       );
     },
   };

@@ -14,6 +14,7 @@ import { Template } from "./blocks/Template";
 import { Text } from "./blocks/Text";
 import { Space } from "./blocks/Space";
 import { RichText } from "./blocks/RichText";
+import { Pagination } from "./blocks/Pagination";
 
 import Root from "./root";
 import { UserConfig } from "./types";
@@ -37,6 +38,10 @@ export const conf: UserConfig = {
     interactive: {
       title: "Actions",
       components: ["Button", "Animate"],
+    },
+    navigation: {
+      title: "Navigation",
+      components: ["Pagination"],
     },
     other: {
       title: "Other",
@@ -63,6 +68,7 @@ export const conf: UserConfig = {
       Text,
       Space,
       RichText,
+      Pagination,
       HeadingBlock: {
         fields: {
           title: { type: "text" },

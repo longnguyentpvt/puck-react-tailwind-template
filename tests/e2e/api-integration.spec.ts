@@ -234,7 +234,7 @@ test.describe('Swagger API Integration', () => {
 });
 
 test.describe('Swagger Parser Validation', () => {
-  test('should load sample Swagger specification', async ({ page }) => {
+  test('should load and validate sample Swagger specification', async ({ page }) => {
     // Fetch the sample Swagger JSON
     const response = await page.request.get('/examples/sample-swagger.json');
     expect(response.ok()).toBeTruthy();
@@ -245,5 +245,102 @@ test.describe('Swagger Parser Validation', () => {
     expect(spec.info.title).toBe('Sample Products API');
     expect(spec.paths).toBeDefined();
     expect(spec.paths['/products']).toBeDefined();
+    expect(spec.paths['/products'].get).toBeDefined();
+    expect(spec.paths['/products'].post).toBeDefined();
+    
+    // Validate GET /products endpoint
+    const getProducts = spec.paths['/products'].get;
+    expect(getProducts.summary).toBe('Get all products');
+    expect(getProducts.parameters).toBeDefined();
+    expect(getProducts.parameters.length).toBeGreaterThan(0);
+    expect(getProducts.responses['200']).toBeDefined();
+    
+    // Validate response schema
+    const response200 = getProducts.responses['200'];
+    expect(response200.schema).toBeDefined();
+    expect(response200.schema.type).toBe('array');
+    expect(response200.examples).toBeDefined();
+  });
+
+  test('should validate Swagger paths and methods', async ({ page }) => {
+    const response = await page.request.get('/examples/sample-swagger.json');
+    const spec = await response.json();
+    
+    // Validate all expected paths exist
+    expect(spec.paths['/products']).toBeDefined();
+    expect(spec.paths['/products/{id}']).toBeDefined();
+    expect(spec.paths['/categories']).toBeDefined();
+    
+    // Validate methods
+    expect(spec.paths['/products'].get).toBeDefined();
+    expect(spec.paths['/products'].post).toBeDefined();
+    expect(spec.paths['/products/{id}'].get).toBeDefined();
+    expect(spec.paths['/categories'].get).toBeDefined();
+  });
+
+  test('should validate parameter definitions', async ({ page }) => {
+    const response = await page.request.get('/examples/sample-swagger.json');
+    const spec = await response.json();
+    
+    // Check GET /products parameters
+    const getProducts = spec.paths['/products'].get;
+    const categoryParam = getProducts.parameters.find((p: any) => p.name === 'category');
+    const limitParam = getProducts.parameters.find((p: any) => p.name === 'limit');
+    
+    expect(categoryParam).toBeDefined();
+    expect(categoryParam.in).toBe('query');
+    expect(categoryParam.type).toBe('string');
+    expect(categoryParam.enum).toBeDefined();
+    
+    expect(limitParam).toBeDefined();
+    expect(limitParam.in).toBe('query');
+    expect(limitParam.type).toBe('integer');
+    expect(limitParam.default).toBe(10);
+  });
+
+  test('should validate path parameter in GET /products/{id}', async ({ page }) => {
+    const response = await page.request.get('/examples/sample-swagger.json');
+    const spec = await response.json();
+    
+    const getProductById = spec.paths['/products/{id}'].get;
+    expect(getProductById.parameters).toBeDefined();
+    
+    const idParam = getProductById.parameters.find((p: any) => p.name === 'id');
+    expect(idParam).toBeDefined();
+    expect(idParam.in).toBe('path');
+    expect(idParam.required).toBe(true);
+    expect(idParam.type).toBe('integer');
+  });
+
+  test('should validate request body in POST /products', async ({ page }) => {
+    const response = await page.request.get('/examples/sample-swagger.json');
+    const spec = await response.json();
+    
+    const postProducts = spec.paths['/products'].post;
+    expect(postProducts.parameters).toBeDefined();
+    
+    const bodyParam = postProducts.parameters.find((p: any) => p.in === 'body');
+    expect(bodyParam).toBeDefined();
+    expect(bodyParam.required).toBe(true);
+    expect(bodyParam.schema).toBeDefined();
+    expect(bodyParam.schema.$ref).toBe('#/definitions/NewProduct');
+  });
+
+  test('should validate schema definitions', async ({ page }) => {
+    const response = await page.request.get('/examples/sample-swagger.json');
+    const spec = await response.json();
+    
+    expect(spec.definitions).toBeDefined();
+    expect(spec.definitions.Product).toBeDefined();
+    expect(spec.definitions.NewProduct).toBeDefined();
+    expect(spec.definitions.Category).toBeDefined();
+    
+    // Validate Product schema
+    const productSchema = spec.definitions.Product;
+    expect(productSchema.type).toBe('object');
+    expect(productSchema.properties).toBeDefined();
+    expect(productSchema.properties.id).toBeDefined();
+    expect(productSchema.properties.name).toBeDefined();
+    expect(productSchema.properties.price).toBeDefined();
   });
 });

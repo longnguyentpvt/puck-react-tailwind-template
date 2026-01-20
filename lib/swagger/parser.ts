@@ -108,7 +108,7 @@ function parseOperation(
   const parameters = parseParameters(operation.parameters || [], isOpenApi3, spec);
   
   // Parse request body (OpenAPI 3.x)
-  const requestBody = isOpenApi3 ? parseRequestBody(operation.requestBody, spec) : undefined;
+  let requestBody = isOpenApi3 ? parseRequestBody(operation.requestBody, spec) : undefined;
   
   // If Swagger 2.0, check for body parameter
   if (!isOpenApi3) {

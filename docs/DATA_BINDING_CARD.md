@@ -1,20 +1,22 @@
-# Data Binding Feature - Card Component Integration
+# Data Binding Feature - Card Component Integration & Swagger API Support
 
-This document describes the improved data binding approach implemented for the Card component and other child components, where **iteration control is now in the child component** based on user feedback.
+This document describes the data binding approach implemented for the Card component and other child components, including the new **Swagger API integration** feature.
 
 ## Overview
 
-The data binding system provides a flexible way to work with data collections from Payload CMS in Puck:
+The data binding system provides a flexible way to work with data from multiple sources in Puck:
 
 1. **Layout Components (Flex/Grid)** have a "Data Binding" section where you can:
-   - Select a data source from available Payload collections (using a dropdown)
-   - Assign it to a variable name
+   - Choose between **Payload Collection** or **Swagger API** as data source
+   - For Collections: Select from available Payload collections
+   - For APIs: Configure Swagger API endpoint, parameters, and authentication
+   - Assign data to a variable name
    - **NO LONGER controls looping** - that's now in the child component
 
 2. **Child Components (Card, etc.)** have:
    - **"Loop through data" checkbox** - Enable to iterate through array data
    - **"Max Items" field** - Control how many items to render
-   - Available data payload hints in JSON format
+   - Available data payload hints showing data structure
    - Usage examples for binding syntax
 
 ## Configuration
@@ -35,39 +37,121 @@ export const BINDABLE_COLLECTIONS = [
 ] as const;
 ```
 
+### Swagger API Sources
+
+API sources available for data binding are configured in `/lib/data-binding/bindable-collections.ts`. To add a new API:
+
+1. Prepare your Swagger/OpenAPI JSON specification (2.0 or 3.x)
+2. Host it at a publicly accessible URL or place it in `/public/examples/`
+3. Add it to the `SWAGGER_API_SOURCES` array:
+
+```typescript
+export const SWAGGER_API_SOURCES = [
+  {
+    id: 'my-api',
+    label: 'My Custom API',
+    swaggerUrl: '/examples/my-swagger.json', // or https://...
+  },
+  // Add more as needed
+] as const;
+```
+
 ### Data Sources
 
-The system fetches data from Payload CMS collections via the API at `/api/{collectionSlug}`. If the collection is not available or there's an error, it falls back to mock data defined in `/lib/data-binding/payload-data-source.ts`.
+The system supports two types of data sources:
 
-## How to Use
+1. **Payload Collections**: Fetches data from Payload CMS via `/api/{collectionSlug}`
+2. **Swagger APIs**: Fetches data from API endpoints defined in Swagger/OpenAPI specifications
+
+Both support fallback to mock data if the actual source is unavailable.
+
+## How to Use - Payload Collections
 
 ### Step 1: Configure Data Binding on Layout Component
 
 1. Drag a **Flex** or **Grid** component to your canvas
 2. Select the component to view its configuration
 3. Expand the **"Data Binding"** section
-4. Configure the following fields:
+4. Select **"Payload Collection"** as Data Source Type
+5. Configure the following fields:
    - **Data Source Collection**: Select from available collections in the dropdown (e.g., "Products")
    - **Variable Name**: Choose a name for accessing the data (e.g., "product", "user")
 
 **Note**: The layout component only provides data to the scope. It does NOT control iteration anymore.
 
-### Step 2: Add Child Components
+## How to Use - Swagger APIs
+
+### Step 1: Configure API Data Binding on Layout Component
+
+1. Drag a **Flex** or **Grid** component to your canvas
+2. Select the component to view its configuration
+3. Expand the **"Data Binding"** section
+4. Select **"Swagger API"** as Data Source Type
+5. Configure the following fields:
+   - **API Source**: Select from available Swagger APIs (e.g., "Sample Products API")
+   - **API Endpoint**: Enter the endpoint ID (format: "METHOD /path", e.g., "GET /products")
+   - **API Parameters** (Optional): Enter parameters as JSON object
+     ```json
+     {
+       "limit": 10,
+       "category": "electronics"
+     }
+     ```
+   - **Variable Name**: Choose a name for accessing the data (e.g., "product")
+
+**Note**: The layout component fetches data from the API and provides it to the scope.
+
+### Step 2: Configure API Parameters
+
+API parameters are provided as a JSON object in the "API Parameters" textarea. You can specify:
+
+- **Query Parameters**: Included in the URL query string
+- **Path Parameters**: Replace `{param}` placeholders in the endpoint path
+- **Header Parameters**: Added to request headers
+
+Example for endpoint "GET /products/{id}":
+```json
+{
+  "id": "123",
+  "limit": 10,
+  "Authorization": "Bearer token123"
+}
+```
+
+### Step 3: Add Child Components
 
 1. Drag a **Card** component (or other component) inside the Flex/Grid
 2. Select the Card component
 3. You'll see an **"Available Data Payload"** hint showing:
-   - The current data scope in JSON format
+   - The data source type (API)
+   - The API endpoint being used
    - Example usage with `{{variable.property}}` syntax
 
-### Step 3: Enable Iteration in Child Component
+### Step 4: Use Data Binding Syntax
+
+Same as with collections - use the binding syntax in any text field:
+
+```
+{{variableName.propertyName}}
+```
+
+**Examples for API data:**
+- Title: `{{product.name}}`
+- Description: `Price: ${{product.price}}`
+- Category: `{{product.category}}`
+
+The bindings will be automatically resolved with the API response data.
+
+## Common Steps for Both Sources
+
+### Enable Iteration in Child Component
 
 1. In the Card configuration, find the **"Loop through data"** option
 2. Set it to **"Yes"** to enable iteration through array data
 3. Set **"Max Items"** to control how many items to render (0 = unlimited)
 4. The Card will now be repeated for each item in the array
 
-### Step 4: Use Data Binding Syntax
+### Use Data Binding Syntax
 
 In any text field of the Card component, you can use the binding syntax:
 
@@ -112,7 +196,9 @@ This gives more flexibility - you can have multiple child components in the same
 
 ## Mock Data for Testing
 
-The following mock data is available for testing in the editor:
+### Payload Collections Mock Data
+
+The following mock data is available for testing collections in the editor:
 
 ```json
 {
@@ -134,6 +220,85 @@ The following mock data is available for testing in the editor:
 }
 ```
 
+### Sample Swagger API
+
+A sample Swagger 2.0 specification is provided at `/public/examples/sample-swagger.json` for testing API integration. It includes:
+
+- **GET /products** - Returns a list of products with optional category and limit parameters
+- **POST /products** - Create a new product
+- **GET /products/{id}** - Get a specific product by ID
+- **GET /categories** - Returns a list of categories
+
+Example response from GET /products:
+```json
+[
+  {
+    "id": 1,
+    "name": "Laptop",
+    "price": 999.99,
+    "category": "electronics",
+    "inStock": true
+  },
+  {
+    "id": 2,
+    "name": "T-Shirt",
+    "price": 19.99,
+    "category": "clothing",
+    "inStock": true
+  }
+]
+```
+
+## Swagger API Integration Architecture
+
+### Parser Module (`/lib/swagger/`)
+
+The Swagger integration is implemented in a separate module with the following components:
+
+1. **types.ts** - TypeScript type definitions
+   - `ApiEndpoint` - Represents a parsed API endpoint
+   - `ApiParameter` - Parameter definition
+   - `ParsedSwagger` - Complete parsed specification
+   - `ApiSourceConfig` - Configuration for API data source
+
+2. **parser.ts** - Swagger/OpenAPI parser
+   - `parseSwaggerSpec()` - Parse Swagger 2.0 or OpenAPI 3.x specs
+   - `findEndpointById()` - Find endpoint by ID
+   - `generateExampleFromSchema()` - Generate example data from JSON schema
+   - Supports both Swagger 2.0 and OpenAPI 3.x formats
+   - Handles $ref schema references
+   - Extracts parameters, request bodies, and response schemas
+
+3. **api-fetcher.ts** - API data fetching
+   - `fetchSwaggerSpec()` - Fetch and cache Swagger specifications
+   - `fetchSwaggerApiData()` - Fetch data from API endpoint
+   - `generateMockDataFromEndpoint()` - Generate mock data from schema
+   - Builds request URLs with path and query parameters
+   - Handles request headers and body
+   - Supports GET, POST, PUT, PATCH, DELETE methods
+
+### Integration Points
+
+1. **bindable-collections.ts**
+   - Added `SWAGGER_API_SOURCES` array for configuring API sources
+   - Each entry includes: id, label, and swaggerUrl
+
+2. **payload-data-source.ts**
+   - Extended with `fetchApiData()` for API requests
+   - Extended with `getMockApiData()` for fallback data
+
+3. **Data component** (`/config/components/Data/index.tsx`)
+   - Extended `DataFieldProps` to support both source types
+   - Added `sourceType` field (collection or api)
+   - Added API-specific fields: apiSource, apiEndpoint, apiParameters
+   - `DataWrapper` component uses useEffect to fetch API data asynchronously
+   - Supports dynamic parameter configuration via JSON
+
+4. **DataPayloadHint component** (`/config/components/DataPayloadHint/index.tsx`)
+   - Updated to detect and display API source information
+   - Shows API endpoint and source in hints
+   - Maintains support for collection hints
+
 ## Technical Implementation
 
 ### Components Modified
@@ -141,6 +306,7 @@ The following mock data is available for testing in the editor:
 1. **Flex Component** (`/config/blocks/Flex/index.tsx`)
    - Uses `withData` HOC to add data binding capabilities
    - **Simplified**: Only provides data to scope, no iteration control
+   - Supports both collection and API sources
    - Type updated to `WithLayout<WithData<{...}>>`
 
 2. **Card Component** (`/config/blocks/Card/index.tsx`)
@@ -150,10 +316,18 @@ The following mock data is available for testing in the editor:
 
 3. **withDataPayloadHint HOC** (`/config/components/DataPayloadHint/index.tsx`)
    - Adds custom field showing available data payload
-   - **NEW**: Adds "Loop through data" checkbox to enable iteration
-   - **NEW**: Adds "Max Items" field to limit number of items
-   - **NEW**: Includes `DataIterationWrapper` that handles the actual looping
+   - Adds "Loop through data" checkbox to enable iteration
+   - Adds "Max Items" field to limit number of items
+   - Includes `DataIterationWrapper` that handles the actual looping
    - Uses `useDataScope` hook to access parent's data context
+   - **NEW**: Detects and displays API source information
+
+4. **withData HOC** (`/config/components/Data/index.tsx`)
+   - **Enhanced**: Now supports both collection and API sources
+   - Added source type selection (radio buttons)
+   - Added API configuration fields
+   - `DataWrapper` component handles async API data fetching
+   - Maintains backward compatibility with collection sources
 
 4. **withData HOC** (`/config/components/Data/index.tsx`)
    - **Simplified**: Removed "Mode" field and iteration logic

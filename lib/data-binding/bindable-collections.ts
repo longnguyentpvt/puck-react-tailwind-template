@@ -27,6 +27,11 @@ export type BindableCollectionSlug = typeof BINDABLE_COLLECTIONS[number]['slug']
  */
 export const SWAGGER_API_SOURCES = [
   {
+    id: 'petstore-api',
+    label: 'Petstore API',
+    swaggerUrl: '/examples/petstore-swagger.json',
+  },
+  {
     id: 'sample-api',
     label: 'Sample Products API',
     swaggerUrl: '/examples/sample-swagger.json',

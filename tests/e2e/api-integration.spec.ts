@@ -111,31 +111,31 @@ test.describe('Swagger API Integration', () => {
     
     await page.screenshot({ path: 'test-results/api-04-api-source-selected.png', fullPage: true });
     
-    // Configure API Source
+    // Configure API Source - Use Petstore API
     const apiSourceSelect = page.locator('select').filter({ hasText: /Select an API/ }).or(
       page.locator('label:has-text("API Source")').locator('..').locator('select')
     ).first();
     
     if (await apiSourceSelect.isVisible()) {
-      await apiSourceSelect.selectOption({ label: 'Sample Products API' });
+      await apiSourceSelect.selectOption({ label: 'Petstore API' });
       await page.waitForTimeout(500);
     }
     
-    // Configure API Endpoint
-    const endpointInput = page.locator('input').filter({ hasText: /GET \/products/ }).or(
+    // Configure API Endpoint - Use GET /pet/findByStatus
+    const endpointInput = page.locator('input').filter({ hasText: /GET/ }).or(
       page.locator('label:has-text("API Endpoint")').locator('..').locator('input')
     ).first();
     
     if (await endpointInput.isVisible()) {
-      await endpointInput.fill('GET /products');
+      await endpointInput.fill('GET /pet/findByStatus');
       await page.waitForTimeout(500);
     }
     
     // Configure Variable Name
     const variableInput = page.locator('input[name="data.as"]');
     await expect(variableInput).toBeVisible({ timeout: 5_000 });
-    await variableInput.fill('product');
-    await expect(variableInput).toHaveValue('product');
+    await variableInput.fill('pet');
+    await expect(variableInput).toHaveValue('pet');
     
     await page.screenshot({ path: 'test-results/api-05-api-configured.png', fullPage: true });
   });
@@ -174,7 +174,7 @@ test.describe('Swagger API Integration', () => {
     
     // Verify the payload shows API information
     const payloadContainer = dataPayloadHint.locator('..');
-    await expect(payloadContainer).toContainText('product', { timeout: 5_000 });
+    await expect(payloadContainer).toContainText('pet', { timeout: 5_000 });
     await expect(payloadContainer).toContainText('API', { timeout: 5_000 });
     
     await page.screenshot({ path: 'test-results/api-08-payload-hint-visible.png', fullPage: true });
@@ -201,17 +201,17 @@ test.describe('Swagger API Integration', () => {
     await maxItemsField.fill('3');
     await expect(maxItemsField.input).toHaveValue('3');
     
-    // Configure Card title with binding syntax
+    // Configure Card title with binding syntax - Use pet name
     const titleField = editorPage.getPuckFieldLocator('Title', 'input');
     await expect(titleField.container).toBeVisible({ timeout: 5_000 });
-    await titleField.fill('{{product.name}}');
-    await expect(titleField.input).toHaveValue('{{product.name}}');
+    await titleField.fill('{{pet.name}}');
+    await expect(titleField.input).toHaveValue('{{pet.name}}');
     
-    // Configure Card description with binding syntax
+    // Configure Card description with binding syntax - Use pet status
     const descriptionField = editorPage.getPuckFieldLocator('Description', 'textarea');
     await expect(descriptionField.container).toBeVisible({ timeout: 5_000 });
-    await descriptionField.fill('Price: ${{product.price}}');
-    await expect(descriptionField.input).toHaveValue('Price: ${{product.price}}');
+    await descriptionField.fill('Status: {{pet.status}}');
+    await expect(descriptionField.input).toHaveValue('Status: {{pet.status}}');
     
     await page.screenshot({ path: 'test-results/api-09-card-configured.png', fullPage: true });
   });
@@ -234,113 +234,110 @@ test.describe('Swagger API Integration', () => {
 });
 
 test.describe('Swagger Parser Validation', () => {
-  test('should load and validate sample Swagger specification', async ({ page }) => {
-    // Fetch the sample Swagger JSON
-    const response = await page.request.get('/examples/sample-swagger.json');
+  test('should load and validate Petstore Swagger specification', async ({ page }) => {
+    // Fetch the Petstore Swagger JSON
+    const response = await page.request.get('/examples/petstore-swagger.json');
     expect(response.ok()).toBeTruthy();
     
     const spec = await response.json();
     expect(spec).toBeDefined();
     expect(spec.swagger).toBe('2.0');
-    expect(spec.info.title).toBe('Sample Products API');
+    expect(spec.info.title).toBe('Swagger Petstore');
     expect(spec.paths).toBeDefined();
-    expect(spec.paths['/products']).toBeDefined();
-    expect(spec.paths['/products'].get).toBeDefined();
-    expect(spec.paths['/products'].post).toBeDefined();
+    expect(spec.paths['/pet']).toBeDefined();
+    expect(spec.paths['/pet'].post).toBeDefined();
+    expect(spec.paths['/pet'].put).toBeDefined();
     
-    // Validate GET /products endpoint
-    const getProducts = spec.paths['/products'].get;
-    expect(getProducts.summary).toBe('Get all products');
-    expect(getProducts.parameters).toBeDefined();
-    expect(getProducts.parameters.length).toBeGreaterThan(0);
-    expect(getProducts.responses['200']).toBeDefined();
+    // Validate GET /pet/findByStatus endpoint
+    const findByStatus = spec.paths['/pet/findByStatus'].get;
+    expect(findByStatus.summary).toBe('Finds Pets by status');
+    expect(findByStatus.parameters).toBeDefined();
+    expect(findByStatus.parameters.length).toBeGreaterThan(0);
+    expect(findByStatus.responses['200']).toBeDefined();
     
     // Validate response schema
-    const response200 = getProducts.responses['200'];
+    const response200 = findByStatus.responses['200'];
     expect(response200.schema).toBeDefined();
     expect(response200.schema.type).toBe('array');
-    expect(response200.examples).toBeDefined();
   });
 
   test('should validate Swagger paths and methods', async ({ page }) => {
-    const response = await page.request.get('/examples/sample-swagger.json');
+    const response = await page.request.get('/examples/petstore-swagger.json');
     const spec = await response.json();
     
     // Validate all expected paths exist
-    expect(spec.paths['/products']).toBeDefined();
-    expect(spec.paths['/products/{id}']).toBeDefined();
-    expect(spec.paths['/categories']).toBeDefined();
+    expect(spec.paths['/pet']).toBeDefined();
+    expect(spec.paths['/pet/{petId}']).toBeDefined();
+    expect(spec.paths['/pet/findByStatus']).toBeDefined();
+    expect(spec.paths['/store/order']).toBeDefined();
+    expect(spec.paths['/user']).toBeDefined();
     
     // Validate methods
-    expect(spec.paths['/products'].get).toBeDefined();
-    expect(spec.paths['/products'].post).toBeDefined();
-    expect(spec.paths['/products/{id}'].get).toBeDefined();
-    expect(spec.paths['/categories'].get).toBeDefined();
+    expect(spec.paths['/pet'].post).toBeDefined();
+    expect(spec.paths['/pet'].put).toBeDefined();
+    expect(spec.paths['/pet/{petId}'].get).toBeDefined();
+    expect(spec.paths['/pet/findByStatus'].get).toBeDefined();
   });
 
   test('should validate parameter definitions', async ({ page }) => {
-    const response = await page.request.get('/examples/sample-swagger.json');
+    const response = await page.request.get('/examples/petstore-swagger.json');
     const spec = await response.json();
     
-    // Check GET /products parameters
-    const getProducts = spec.paths['/products'].get;
-    const categoryParam = getProducts.parameters.find((p: any) => p.name === 'category');
-    const limitParam = getProducts.parameters.find((p: any) => p.name === 'limit');
+    // Check GET /pet/findByStatus parameters
+    const findByStatus = spec.paths['/pet/findByStatus'].get;
+    const statusParam = findByStatus.parameters.find((p: any) => p.name === 'status');
     
-    expect(categoryParam).toBeDefined();
-    expect(categoryParam.in).toBe('query');
-    expect(categoryParam.type).toBe('string');
-    expect(categoryParam.enum).toBeDefined();
-    
-    expect(limitParam).toBeDefined();
-    expect(limitParam.in).toBe('query');
-    expect(limitParam.type).toBe('integer');
-    expect(limitParam.default).toBe(10);
+    expect(statusParam).toBeDefined();
+    expect(statusParam.in).toBe('query');
+    expect(statusParam.type).toBe('array');
+    expect(statusParam.required).toBe(true);
+    expect(statusParam.items.enum).toBeDefined();
   });
 
-  test('should validate path parameter in GET /products/{id}', async ({ page }) => {
-    const response = await page.request.get('/examples/sample-swagger.json');
+  test('should validate path parameter in GET /pet/{petId}', async ({ page }) => {
+    const response = await page.request.get('/examples/petstore-swagger.json');
     const spec = await response.json();
     
-    const getProductById = spec.paths['/products/{id}'].get;
-    expect(getProductById.parameters).toBeDefined();
+    const getPetById = spec.paths['/pet/{petId}'].get;
+    expect(getPetById.parameters).toBeDefined();
     
-    const idParam = getProductById.parameters.find((p: any) => p.name === 'id');
-    expect(idParam).toBeDefined();
-    expect(idParam.in).toBe('path');
-    expect(idParam.required).toBe(true);
-    expect(idParam.type).toBe('integer');
+    const petIdParam = getPetById.parameters.find((p: any) => p.name === 'petId');
+    expect(petIdParam).toBeDefined();
+    expect(petIdParam.in).toBe('path');
+    expect(petIdParam.required).toBe(true);
+    expect(petIdParam.type).toBe('integer');
   });
 
-  test('should validate request body in POST /products', async ({ page }) => {
-    const response = await page.request.get('/examples/sample-swagger.json');
+  test('should validate request body in POST /pet', async ({ page }) => {
+    const response = await page.request.get('/examples/petstore-swagger.json');
     const spec = await response.json();
     
-    const postProducts = spec.paths['/products'].post;
-    expect(postProducts.parameters).toBeDefined();
+    const postPet = spec.paths['/pet'].post;
+    expect(postPet.parameters).toBeDefined();
     
-    const bodyParam = postProducts.parameters.find((p: any) => p.in === 'body');
+    const bodyParam = postPet.parameters.find((p: any) => p.in === 'body');
     expect(bodyParam).toBeDefined();
     expect(bodyParam.required).toBe(true);
     expect(bodyParam.schema).toBeDefined();
-    expect(bodyParam.schema.$ref).toBe('#/definitions/NewProduct');
+    expect(bodyParam.schema.$ref).toBe('#/definitions/Pet');
   });
 
   test('should validate schema definitions', async ({ page }) => {
-    const response = await page.request.get('/examples/sample-swagger.json');
+    const response = await page.request.get('/examples/petstore-swagger.json');
     const spec = await response.json();
     
     expect(spec.definitions).toBeDefined();
-    expect(spec.definitions.Product).toBeDefined();
-    expect(spec.definitions.NewProduct).toBeDefined();
+    expect(spec.definitions.Pet).toBeDefined();
+    expect(spec.definitions.Order).toBeDefined();
+    expect(spec.definitions.User).toBeDefined();
     expect(spec.definitions.Category).toBeDefined();
     
-    // Validate Product schema
-    const productSchema = spec.definitions.Product;
-    expect(productSchema.type).toBe('object');
-    expect(productSchema.properties).toBeDefined();
-    expect(productSchema.properties.id).toBeDefined();
-    expect(productSchema.properties.name).toBeDefined();
-    expect(productSchema.properties.price).toBeDefined();
+    // Validate Pet schema
+    const petSchema = spec.definitions.Pet;
+    expect(petSchema.type).toBe('object');
+    expect(petSchema.properties).toBeDefined();
+    expect(petSchema.properties.id).toBeDefined();
+    expect(petSchema.properties.name).toBeDefined();
+    expect(petSchema.properties.status).toBeDefined();
   });
 });

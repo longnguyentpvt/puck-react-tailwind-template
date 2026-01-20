@@ -119,7 +119,7 @@ function parseOperation(
         required: bodyParam.required || false,
         contentType: 'application/json',
         schema,
-      } as any;
+      };
     }
   }
   

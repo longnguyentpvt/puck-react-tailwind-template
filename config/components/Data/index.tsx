@@ -156,7 +156,7 @@ export function DataWrapper({ data, children }: DataWrapperProps) {
   }, [data?.sourceType, data?.source, data?.apiSource, data?.apiEndpoint, data?.apiParameters, data?.as]);
 
   // If no data or still loading, render children directly
-  if (!data || !data.as || isLoading || resolvedData === undefined || resolvedData === null) {
+  if (!data || !data.as || isLoading || resolvedData == null) {
     return <>{children}</>;
   }
 

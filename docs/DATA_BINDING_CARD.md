@@ -325,14 +325,9 @@ The Swagger integration is implemented in a separate module with the following c
 4. **withData HOC** (`/config/components/Data/index.tsx`)
    - **Enhanced**: Now supports both collection and API sources
    - Added source type selection (radio buttons)
-   - Added API configuration fields
+   - Added API configuration fields (API Source, Endpoint, Parameters)
    - `DataWrapper` component handles async API data fetching
    - Maintains backward compatibility with collection sources
-
-4. **withData HOC** (`/config/components/Data/index.tsx`)
-   - **Simplified**: Removed "Mode" field and iteration logic
-   - Now only provides data to the scope via `DataScopeProvider`
-   - Child components control their own iteration behavior
 
 ### Data Flow
 

@@ -126,7 +126,7 @@ export function getMockApiData(apiConfig: ApiSourceConfig): any {
   try {
     // Find the API source configuration
     const apiSource = SWAGGER_API_SOURCES.find((s) => 
-      apiConfig.swaggerUrl?.includes(s.swaggerUrl)
+      apiConfig.swaggerUrl && apiConfig.swaggerUrl.includes(s.swaggerUrl)
     );
 
     if (!apiSource) {

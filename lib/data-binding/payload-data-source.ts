@@ -1,9 +1,13 @@
 /**
- * Service for fetching data from Payload CMS collections.
+ * Service for fetching data from Payload CMS collections and Swagger APIs.
  * 
  * This service provides a centralized way to fetch collection data
- * for use in data binding within Puck components.
+ * and API data for use in data binding within Puck components.
  */
+
+import { fetchSwaggerApiData, generateMockDataFromEndpoint, findEndpointById, parseSwaggerSpec } from '@/lib/swagger';
+import { ApiSourceConfig } from '@/lib/swagger/types';
+import { SWAGGER_API_SOURCES } from './bindable-collections';
 
 /**
  * Mock external data for demonstration when Payload is not available
@@ -94,4 +98,49 @@ function getMockDataForCollection(collectionSlug: string): any {
  */
 export function getMockData(collectionSlug: string): any {
   return getMockDataForCollection(collectionSlug);
+}
+
+/**
+ * Fetch data from a Swagger API endpoint
+ * 
+ * @param apiConfig - Configuration for the API source
+ * @returns The API response data
+ */
+export async function fetchApiData(apiConfig: ApiSourceConfig): Promise<any> {
+  try {
+    return await fetchSwaggerApiData(apiConfig);
+  } catch (error) {
+    console.error('Error fetching API data:', error);
+    // Fall back to mock data from endpoint schema
+    return getMockApiData(apiConfig);
+  }
+}
+
+/**
+ * Get mock data from API endpoint schema for preview/fallback
+ * 
+ * @param apiConfig - Configuration for the API source
+ * @returns Mock data generated from the endpoint schema
+ */
+export function getMockApiData(apiConfig: ApiSourceConfig): any {
+  try {
+    // Find the API source configuration
+    const apiSource = SWAGGER_API_SOURCES.find((s) => 
+      apiConfig.swaggerUrl?.includes(s.swaggerUrl)
+    );
+
+    if (!apiSource) {
+      console.warn('API source not found in configuration');
+      return null;
+    }
+
+    // For client-side mock data, we need the spec to be already loaded
+    // In a real implementation, you might want to pre-load and cache these
+    // For now, return a placeholder
+    console.warn('Mock API data generation requires server-side spec loading');
+    return null;
+  } catch (error) {
+    console.error('Error generating mock API data:', error);
+    return null;
+  }
 }

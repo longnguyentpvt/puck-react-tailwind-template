@@ -1,0 +1,202 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Sample Products API",
+    "version": "1.0.0",
+    "description": "A sample API for testing Swagger integration with Puck data binding"
+  },
+  "host": "api.example.com",
+  "basePath": "/v1",
+  "schemes": ["https"],
+  "paths": {
+    "/products": {
+      "get": {
+        "summary": "Get all products",
+        "description": "Returns a list of all products",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "description": "Filter by category",
+            "required": false,
+            "type": "string",
+            "enum": ["electronics", "clothing", "home"]
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of products to return",
+            "required": false,
+            "type": "integer",
+            "default": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Product"
+              }
+            },
+            "examples": {
+              "application/json": [
+                {
+                  "id": 1,
+                  "name": "Laptop",
+                  "price": 999.99,
+                  "category": "electronics",
+                  "inStock": true
+                },
+                {
+                  "id": 2,
+                  "name": "T-Shirt",
+                  "price": 19.99,
+                  "category": "clothing",
+                  "inStock": true
+                }
+              ]
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new product",
+        "description": "Creates a new product",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Product to create",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/NewProduct"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Product created",
+            "schema": {
+              "$ref": "#/definitions/Product"
+            }
+          }
+        }
+      }
+    },
+    "/products/{id}": {
+      "get": {
+        "summary": "Get a product by ID",
+        "description": "Returns a single product",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Product ID",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "$ref": "#/definitions/Product"
+            }
+          }
+        }
+      }
+    },
+    "/categories": {
+      "get": {
+        "summary": "Get all categories",
+        "description": "Returns a list of product categories",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Category"
+              }
+            },
+            "examples": {
+              "application/json": [
+                {
+                  "id": 1,
+                  "name": "Electronics",
+                  "icon": "📱"
+                },
+                {
+                  "id": 2,
+                  "name": "Clothing",
+                  "icon": "👕"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Product": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "example": 1
+        },
+        "name": {
+          "type": "string",
+          "example": "Laptop"
+        },
+        "price": {
+          "type": "number",
+          "example": 999.99
+        },
+        "category": {
+          "type": "string",
+          "example": "electronics"
+        },
+        "inStock": {
+          "type": "boolean",
+          "example": true
+        }
+      }
+    },
+    "NewProduct": {
+      "type": "object",
+      "required": ["name", "price"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number"
+        },
+        "category": {
+          "type": "string"
+        }
+      }
+    },
+    "Category": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "example": 1
+        },
+        "name": {
+          "type": "string",
+          "example": "Electronics"
+        },
+        "icon": {
+          "type": "string",
+          "example": "📱"
+        }
+      }
+    }
+  }
+}

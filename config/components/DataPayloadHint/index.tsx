@@ -143,21 +143,33 @@ export function withDataPayloadHint<
       let parentData: any = null;
       let parentDataSource = "";
       let parentVariableName = "";
+      let parentSourceType = "collection";
       
       if (params.parent?.props?.data) {
         parentData = params.parent.props.data;
-        parentDataSource = parentData.source || "";
+        parentSourceType = parentData.sourceType || "collection";
+        parentDataSource = parentData.source || parentData.apiEndpoint || "";
         parentVariableName = parentData.as || "";
       }
 
       // Build the hint message
       let hintContent = "";
       if (parentDataSource && parentVariableName) {
-        // Show what data is available
-        const exampleData = getMockData(parentDataSource);
-        if (exampleData) {
-          const dataPreview = Array.isArray(exampleData) ? exampleData[0] : exampleData;
-          hintContent = `Data from parent: "${parentVariableName}" from "${parentDataSource}"\n\nExample:\n${JSON.stringify(dataPreview, null, 2)}\n\nUse: {{${parentVariableName}.property}}`;
+        if (parentSourceType === "collection") {
+          // Show collection data
+          const exampleData = getMockData(parentDataSource);
+          if (exampleData) {
+            const dataPreview = Array.isArray(exampleData) ? exampleData[0] : exampleData;
+            hintContent = `Data from parent: "${parentVariableName}" from collection "${parentDataSource}"\n\nExample:\n${JSON.stringify(dataPreview, null, 2)}\n\nUse: {{${parentVariableName}.property}}`;
+          }
+        } else if (parentSourceType === "api") {
+          // Show API endpoint info
+          hintContent = `Data from parent: "${parentVariableName}" from API "${parentDataSource}"\n\nAPI data will be fetched at runtime.\n\nUse: {{${parentVariableName}.property}}`;
+          
+          // Try to show response schema if available
+          if (parentData.apiSource) {
+            hintContent += `\n\nAPI Source: ${parentData.apiSource}`;
+          }
         }
       } else {
         hintContent = "No data available. Add this component inside a Flex or Grid component with data binding configured.";

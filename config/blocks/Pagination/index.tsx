@@ -4,13 +4,8 @@ import React from "react";
 import { ComponentConfig } from "@measured/puck";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import {
-  Pagination as ShadcnPagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
+  Pagination as ShadcnPagination, PaginationContent, PaginationEllipsis,
+  PaginationItem, PaginationLink, PaginationNext, PaginationPrevious,
 } from "@/components/ui/pagination";
 import { withLayout, WithLayout } from "@/config/components/Layout";
 import { useDataScope } from "@/lib/data-binding";

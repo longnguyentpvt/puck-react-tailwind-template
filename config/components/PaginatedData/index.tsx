@@ -121,7 +121,7 @@ export function PaginatedDataWrapper({ paginatedData, children }: PaginatedDataW
 
   // Build data scope
   const variables: DataScope = {
-    [variableName]: enablePagination ? pageData : pageData,
+    [variableName]: pageData,
   };
   
   // Add pagination metadata to scope if pagination is enabled

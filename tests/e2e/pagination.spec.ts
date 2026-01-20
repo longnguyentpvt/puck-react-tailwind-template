@@ -104,14 +104,15 @@ test.describe('Pagination Component Integration', () => {
 test.describe('Pagination Documentation Verification', () => {
   test('should verify documentation files exist', async () => {
     // This test ensures documentation is in place
-    const fs = require('fs');
-    const path = require('path');
+    const { promises: fs } = await import('fs');
+    const path = await import('path');
     
     const docsPath = path.join(process.cwd(), 'docs', 'PAGINATION.md');
-    expect(fs.existsSync(docsPath)).toBeTruthy();
+    const stats = await fs.stat(docsPath);
+    expect(stats.isFile()).toBeTruthy();
     
     // Verify documentation contains key sections
-    const docContent = fs.readFileSync(docsPath, 'utf-8');
+    const docContent = await fs.readFile(docsPath, 'utf-8');
     expect(docContent).toContain('Shadcn Pagination Integration');
     expect(docContent).toContain('Server-side pagination');
     expect(docContent).toContain('Customization Options');

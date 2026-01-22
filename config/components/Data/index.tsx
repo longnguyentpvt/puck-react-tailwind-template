@@ -51,52 +51,177 @@ export type WithData<Props extends DefaultComponentProps> = Props & {
 /**
  * Data binding field definition
  */
-export const dataField: ObjectField<DataFieldProps> = {
-  type: "object",
+export const dataField: any = {
+  type: "custom",
   label: "Data Binding",
-  objectFields: {
-    sourceType: {
-      type: "radio",
-      label: "Data Source Type",
-      options: [
-        { label: "Payload Collection", value: "collection" },
-        { label: "Swagger API", value: "api" },
-      ],
-    },
-    source: {
-      type: "select",
-      label: "Data Source Collection",
-      options: [
-        { label: "Select a collection...", value: "" },
-        ...BINDABLE_COLLECTIONS.map(c => ({
-          label: c.label,
-          value: c.slug,
-        })),
-      ],
-    },
-    apiSource: {
-      type: "select",
-      label: "API Source",
-      options: [
-        { label: "Select an API...", value: "" },
-        ...SWAGGER_API_SOURCES.map(api => ({
-          label: api.label,
-          value: api.id,
-        })),
-      ],
-    },
-    apiEndpoint: {
-      type: "text",
-      label: "API Endpoint (e.g., GET /products)",
-    },
-    apiParameters: {
-      type: "textarea",
-      label: "API Parameters (JSON)",
-    },
-    as: {
-      type: "text",
-      label: "Variable Name",
-    },
+  render: ({ value, onChange, name }: any) => {
+    const currentValue = (value || {}) as DataFieldProps;
+    const sourceType = currentValue.sourceType || "collection";
+    const [swaggerApis, setSwaggerApis] = useState<Array<{ id: string; label: string }>>([]);
+    const [loadingApis, setLoadingApis] = useState(false);
+
+    // Fetch SwaggerApis from Payload when component mounts or when switching to API mode
+    useEffect(() => {
+      if (sourceType === "api") {
+        setLoadingApis(true);
+        fetch("/api/swagger-specs")
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.docs) {
+              const apis = data.docs
+                .filter((doc: any) => doc.enabled !== false)
+                .map((doc: any) => ({
+                  id: doc.id,
+                  label: doc.label,
+                }));
+              setSwaggerApis(apis);
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching Swagger APIs:", error);
+            setSwaggerApis([]);
+          })
+          .finally(() => {
+            setLoadingApis(false);
+          });
+      }
+    }, [sourceType]);
+
+    const updateField = (fieldName: keyof DataFieldProps, fieldValue: any) => {
+      onChange({
+        ...currentValue,
+        [fieldName]: fieldValue,
+      });
+    };
+
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        {/* Source Type Radio */}
+        <div>
+          <label style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}>
+            Data Source Type
+          </label>
+          <div style={{ display: "flex", gap: "16px" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+              <input
+                type="radio"
+                value="collection"
+                checked={sourceType === "collection"}
+                onChange={(e) => updateField("sourceType", "collection")}
+              />
+              Payload Collection
+            </label>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+              <input
+                type="radio"
+                value="api"
+                checked={sourceType === "api"}
+                onChange={(e) => updateField("sourceType", "api")}
+              />
+              Swagger API
+            </label>
+          </div>
+        </div>
+
+        {/* Conditional Fields based on Source Type */}
+        {sourceType === "collection" ? (
+          <>
+            {/* Collection Fields */}
+            <div>
+              <label style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}>
+                Data Source Collection
+              </label>
+              <select
+                value={currentValue.source || ""}
+                onChange={(e) => updateField("source", e.target.value)}
+                style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }}
+              >
+                <option value="">Select a collection...</option>
+                {BINDABLE_COLLECTIONS.map((c) => (
+                  <option key={c.slug} value={c.slug}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* API Fields */}
+            <div>
+              <label style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}>
+                API Source
+              </label>
+              <select
+                value={currentValue.apiSource || ""}
+                onChange={(e) => updateField("apiSource", e.target.value)}
+                style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }}
+                disabled={loadingApis}
+              >
+                <option value="">
+                  {loadingApis ? "Loading..." : swaggerApis.length === 0 ? "No APIs available" : "Select an API..."}
+                </option>
+                {swaggerApis.map((api) => (
+                  <option key={api.id} value={api.id}>
+                    {api.label}
+                  </option>
+                ))}
+              </select>
+              {!loadingApis && swaggerApis.length === 0 && (
+                <div style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
+                  No Swagger APIs found. Add one in the Swagger Apis collection.
+                </div>
+              )}
+            </div>
+            <div>
+              <label style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}>
+                API Endpoint (e.g., GET /products)
+              </label>
+              <input
+                type="text"
+                value={currentValue.apiEndpoint || ""}
+                onChange={(e) => updateField("apiEndpoint", e.target.value)}
+                style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }}
+              />
+            </div>
+            <div>
+              <label style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}>
+                API Parameters (JSON)
+              </label>
+              <textarea
+                value={currentValue.apiParameters || ""}
+                onChange={(e) => updateField("apiParameters", e.target.value)}
+                rows={3}
+                style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }}
+              />
+            </div>
+          </>
+        )}
+
+        {/* Variable Name (always shown) */}
+        <div>
+          <label style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}>
+            Variable Name
+          </label>
+          <input
+            type="text"
+            value={currentValue.as || ""}
+            onChange={(e) => updateField("as", e.target.value)}
+            style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }}
+          />
+        </div>
+      </div>
+    );
+  },
+  getItemSummary: (data: DataFieldProps) => {
+    if (!data) return "";
+    const sourceType = data.sourceType || "collection";
+    if (sourceType === "collection" && data.source) {
+      return `Collection: ${data.source}${data.as ? ` as ${data.as}` : ""}`;
+    } else if (sourceType === "api" && data.apiEndpoint) {
+      return `API: ${data.apiEndpoint}${data.as ? ` as ${data.as}` : ""}`;
+    }
+    return "";
   },
 };
 
@@ -180,8 +305,17 @@ async function fetchApiDataAsync(data: DataFieldProps): Promise<any> {
     return null;
   }
 
-  // Find the API source configuration
-  const apiSourceConfig = SWAGGER_API_SOURCES.find((s) => s.id === data.apiSource);
+  // Find the API source configuration from Payload API
+  let apiSourceConfig: { id: string; label: string; swaggerUrl: string } | null = null;
+  try {
+    const response = await fetch(`/api/swagger-specs?id=${data.apiSource}`);
+    if (response.ok) {
+      apiSourceConfig = await response.json();
+    }
+  } catch (error) {
+    console.error('Error fetching API source config:', error);
+  }
+
   if (!apiSourceConfig) {
     console.error('API source not found:', data.apiSource);
     return null;
@@ -205,14 +339,8 @@ async function fetchApiDataAsync(data: DataFieldProps): Promise<any> {
     parameters,
   };
 
-  // Fetch data from API
-  try {
-    return await fetchApiData(apiConfig);
-  } catch (error) {
-    console.error('Error fetching API data:', error);
-    // Try to get mock data
-    return getMockApiData(apiConfig);
-  }
+  // Fetch data from API using centralized function
+  return await fetchApiData(apiConfig);
 }
 
 /**

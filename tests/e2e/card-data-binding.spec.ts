@@ -138,7 +138,7 @@ test.describe('Card Component with Data Binding', () => {
     
     // Click on Card to select it and trigger resolveFields
     await cardComponent.click();
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(2000); // Increased wait time for resolveFields to trigger
     
     await page.screenshot({ path: 'test-results/card-data-06-card-selected.png', fullPage: true });
     

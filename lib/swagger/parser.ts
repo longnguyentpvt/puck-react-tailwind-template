@@ -13,9 +13,10 @@ import {
 /**
  * Parse a Swagger 2.0 or OpenAPI 3.x specification
  * @param spec - The Swagger/OpenAPI JSON specification
+ * @param swaggerUrl - Optional URL of the Swagger spec (used as fallback for baseUrl)
  * @returns Parsed specification with endpoints
  */
-export function parseSwaggerSpec(spec: any): ParsedSwagger {
+export function parseSwaggerSpec(spec: any, swaggerUrl?: string): ParsedSwagger {
   // Detect version
   const isOpenApi3 = spec.openapi && spec.openapi.startsWith('3.');
   const isSwagger2 = spec.swagger && spec.swagger.startsWith('2.');
@@ -26,7 +27,7 @@ export function parseSwaggerSpec(spec: any): ParsedSwagger {
 
   const title = spec.info?.title || 'API';
   const version = spec.info?.version || '1.0';
-  const baseUrl = getBaseUrl(spec, isOpenApi3);
+  const baseUrl = getBaseUrl(spec, isOpenApi3, swaggerUrl);
   const endpoints = parseEndpoints(spec, isOpenApi3);
 
   return {
@@ -39,8 +40,9 @@ export function parseSwaggerSpec(spec: any): ParsedSwagger {
 
 /**
  * Extract base URL from specification
+ * If the spec doesn't provide a baseUrl, it can be inferred from the Swagger URL
  */
-function getBaseUrl(spec: any, isOpenApi3: boolean): string | undefined {
+function getBaseUrl(spec: any, isOpenApi3: boolean, swaggerUrl?: string): string | undefined {
   if (isOpenApi3) {
     // OpenAPI 3.x uses servers array
     const server = spec.servers?.[0];
@@ -55,6 +57,17 @@ function getBaseUrl(spec: any, isOpenApi3: boolean): string | undefined {
     
     if (host) {
       return `${scheme}://${host}${basePath}`;
+    }
+  }
+  
+  // Fallback: if no baseUrl is found and swaggerUrl is provided, 
+  // use the origin of the Swagger URL as the base
+  if (swaggerUrl) {
+    try {
+      const url = new URL(swaggerUrl);
+      return `${url.protocol}//${url.host}`;
+    } catch (error) {
+      console.warn('Could not parse swaggerUrl for baseUrl fallback:', error);
     }
   }
   

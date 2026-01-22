@@ -319,8 +319,13 @@ export function withLayout<
         };
       }
       
+      // Call the component's resolveFields if it exists
+      const baseFields = componentConfig.resolveFields 
+        ? componentConfig.resolveFields(data, params)
+        : componentConfig.fields;
+      
       return {
-        ...componentConfig.fields,
+        ...baseFields,
         layout: {
           type: "custom",
           label: "Layout",

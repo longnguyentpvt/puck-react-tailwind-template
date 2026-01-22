@@ -32,7 +32,7 @@ export async function fetchSwaggerSpec(url: string): Promise<ParsedSwagger> {
     }
 
     const spec = await response.json();
-    const parsed = parseSwaggerSpec(spec);
+    const parsed = parseSwaggerSpec(spec, url);
     
     // Cache the parsed spec
     swaggerCache.set(url, parsed);

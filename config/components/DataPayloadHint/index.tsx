@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ReactNode } from "react";
+import React, { ReactNode, useState, useEffect } from "react";
 import {
   ComponentConfig,
   DefaultComponentProps,
@@ -139,29 +139,52 @@ export function withDataPayloadHint<
       maxItems: 0,
     },
     resolveFields: (data, params) => {
-      // Get parent's data configuration if available
-      let parentData: any = null;
-      let parentDataSource = "";
-      let parentVariableName = "";
-      
-      if (params.parent?.props?.data) {
-        parentData = params.parent.props.data;
-        parentDataSource = parentData.source || "";
-        parentVariableName = parentData.as || "";
-      }
+      // Build hint content based on parent data
+      const buildHintContent = () => {
+        let hintContent = "";
+        
+        if (params.parent?.props?.data) {
+          const liveParentData = params.parent.props.data;
+          const parentSourceType = liveParentData.sourceType || "collection";
+          // Use the correct field based on sourceType
+          const parentDataSource = parentSourceType === "api" 
+            ? liveParentData.apiEndpoint || "" 
+            : liveParentData.source || "";
+          const parentVariableName = liveParentData.as || "";
 
-      // Build the hint message
-      let hintContent = "";
-      if (parentDataSource && parentVariableName) {
-        // Show what data is available
-        const exampleData = getMockData(parentDataSource);
-        if (exampleData) {
-          const dataPreview = Array.isArray(exampleData) ? exampleData[0] : exampleData;
-          hintContent = `Data from parent: "${parentVariableName}" from "${parentDataSource}"\n\nExample:\n${JSON.stringify(dataPreview, null, 2)}\n\nUse: {{${parentVariableName}.property}}`;
+          if (parentDataSource && parentVariableName) {
+            if (parentSourceType === "collection") {
+              // Show collection data
+              const exampleData = getMockData(parentDataSource);
+              if (exampleData) {
+                const dataPreview = Array.isArray(exampleData) ? exampleData[0] : exampleData;
+                hintContent = `Data from parent: "${parentVariableName}" from collection "${parentDataSource}"\n\nExample:\n${JSON.stringify(dataPreview, null, 2)}\n\nUse: {{${parentVariableName}.property}}`;
+              }
+            } else if (parentSourceType === "api") {
+              // Show API endpoint info
+              hintContent = `Data from parent: "${parentVariableName}" from endpoint "${parentDataSource}"\n\nAPI data will be fetched at runtime.\n\nUse: {{${parentVariableName}.property}}`;
+              
+              // Try to show response schema if available
+              if (liveParentData.apiSource) {
+                hintContent += `\n\nAPI Source: ${liveParentData.apiSource}`;
+                
+                // Try to fetch and parse Swagger spec to show response format
+                // This is async, but we'll need to handle this with a useState/useEffect in the render function
+                // For now, just indicate that schema will be shown
+                hintContent += `\n\nFetching response schema...`;
+              }
+            }
+          } else {
+            hintContent = "No data available. Add this component inside a Flex or Grid component with data binding configured.";
+          }
+        } else {
+          hintContent = "No data available. Add this component inside a Flex or Grid component with data binding configured.";
         }
-      } else {
-        hintContent = "No data available. Add this component inside a Flex or Grid component with data binding configured.";
-      }
+
+        return hintContent;
+      };
+
+      const hintContent = buildHintContent();
 
       // Original fields
       const baseFields = componentConfig.resolveFields 
@@ -172,14 +195,100 @@ export function withDataPayloadHint<
         _dataPayloadHint: {
           type: "custom",
           label: "Available Data",
-          render: () => (
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-md mb-4">
-              <h4 className="text-sm font-semibold text-blue-700 mb-2">Available Data Payload</h4>
-              <pre className="text-xs bg-white p-2 rounded border border-blue-100 overflow-auto max-h-48 whitespace-pre-wrap">
-                {hintContent}
-              </pre>
-            </div>
-          ),
+          render: () => {
+            const [schemaInfo, setSchemaInfo] = useState<string>("");
+            const [isLoadingSchema, setIsLoadingSchema] = useState(false);
+            
+            useEffect(() => {
+              // Fetch schema for API mode
+              if (params.parent?.props?.data?.sourceType === "api" && 
+                  params.parent?.props?.data?.apiSource && 
+                  params.parent?.props?.data?.apiEndpoint) {
+                setIsLoadingSchema(true);
+                
+                const fetchSchema = async () => {
+                  try {
+                    const apiSource = params.parent.props.data.apiSource;
+                    const endpoint = params.parent.props.data.apiEndpoint;
+                    
+                    // Fetch API source config
+                    const configResponse = await fetch(`/api/swagger-specs?id=${apiSource}`);
+                    if (!configResponse.ok) {
+                      throw new Error('Failed to fetch API config');
+                    }
+                    const apiConfig = await configResponse.json();
+                    
+                    // Fetch the Swagger spec
+                    const specResponse = await fetch(apiConfig.swaggerUrl);
+                    if (!specResponse.ok) {
+                      throw new Error('Failed to fetch Swagger spec');
+                    }
+                    const spec = await specResponse.json();
+                    
+                    // Find the endpoint and extract response schema
+                    const isOpenApi3 = spec.openapi && spec.openapi.startsWith('3.');
+                    const paths = spec.paths || {};
+                    
+                    // Parse endpoint (e.g., "GET /api/users")
+                    const [method, ...pathParts] = endpoint.split(' ');
+                    const path = pathParts.join(' ');
+                    const lowerMethod = method?.toLowerCase();
+                    
+                    if (paths[path] && paths[path][lowerMethod]) {
+                      const operation = paths[path][lowerMethod];
+                      const responses = operation.responses || {};
+                      const successResponse = responses['200'] || responses['201'] || responses['default'];
+                      
+                      if (successResponse) {
+                        let schema;
+                        if (isOpenApi3) {
+                          const content = successResponse.content || {};
+                          const contentType = Object.keys(content)[0];
+                          if (contentType) {
+                            schema = content[contentType].schema;
+                          }
+                        } else {
+                          schema = successResponse.schema;
+                        }
+                        
+                        if (schema) {
+                          // Format schema for display
+                          const formatted = formatSchemaForDisplay(schema, spec, 0);
+                          setSchemaInfo(formatted);
+                        } else {
+                          setSchemaInfo('No response schema defined for this endpoint.');
+                        }
+                      } else {
+                        setSchemaInfo('No successful response defined for this endpoint.');
+                      }
+                    } else {
+                      setSchemaInfo('Endpoint not found in Swagger specification.');
+                    }
+                  } catch (error) {
+                    console.error('Error fetching schema:', error);
+                    setSchemaInfo(`Error loading schema: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                  } finally {
+                    setIsLoadingSchema(false);
+                  }
+                };
+                
+                fetchSchema();
+              }
+            }, [params.parent?.props?.data?.sourceType, params.parent?.props?.data?.apiSource, params.parent?.props?.data?.apiEndpoint]);
+            
+            // Combine base hint with schema info
+            const fullHintContent = hintContent + (schemaInfo ? `\n\n${schemaInfo}` : '');
+            const displayContent = isLoadingSchema ? hintContent + '\n\nLoading response schema...' : fullHintContent;
+            
+            return (
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-md mb-4">
+                <h4 className="text-sm font-semibold text-blue-700 mb-2">Available Data Payload</h4>
+                <pre className="text-xs bg-white p-2 rounded border border-blue-100 overflow-auto max-h-96 whitespace-pre-wrap">
+                  {displayContent}
+                </pre>
+              </div>
+            );
+          },
         },
         loopData: {
           type: "radio",
@@ -261,4 +370,89 @@ export function withDataPayloadHint<
       );
     },
   };
+}
+
+/**
+ * Format JSON schema for display
+ */
+function formatSchemaForDisplay(schema: any, spec: any, depth: number = 0): string {
+  if (!schema) return '';
+  
+  const indent = '  '.repeat(depth);
+  const maxDepth = 3;
+  
+  if (depth > maxDepth) {
+    return `${indent}...`;
+  }
+  
+  // Resolve $ref
+  if (schema.$ref) {
+    const refParts = schema.$ref.split('/');
+    let resolved = spec;
+    for (const part of refParts) {
+      if (part === '#') continue;
+      resolved = resolved[part];
+    }
+    schema = resolved || schema;
+  }
+  
+  // Handle array type
+  if (schema.type === 'array') {
+    if (schema.items) {
+      return `Array<\n${formatSchemaForDisplay(schema.items, spec, depth + 1)}\n${indent}>`;
+    }
+    return 'Array<any>';
+  }
+  
+  // Handle object type
+  if (schema.type === 'object' || schema.properties) {
+    const lines: string[] = ['{'];
+    const properties = schema.properties || {};
+    const required = schema.required || [];
+    
+    for (const [propName, propSchema] of Object.entries(properties)) {
+      const isRequired = required.includes(propName);
+      const propType = getSchemaType(propSchema as any, spec);
+      lines.push(`${indent}  ${propName}${isRequired ? '' : '?'}: ${propType}`);
+    }
+    
+    lines.push(`${indent}}`);
+    return lines.join('\n');
+  }
+  
+  // Handle primitive types
+  return schema.type || 'any';
+}
+
+/**
+ * Get a simple type string from schema
+ */
+function getSchemaType(schema: any, spec: any): string {
+  if (!schema) return 'any';
+  
+  // Resolve $ref
+  if (schema.$ref) {
+    const refParts = schema.$ref.split('/');
+    let resolved = spec;
+    for (const part of refParts) {
+      if (part === '#') continue;
+      resolved = resolved[part];
+    }
+    schema = resolved || schema;
+  }
+  
+  if (schema.type === 'array') {
+    const itemType = schema.items ? getSchemaType(schema.items, spec) : 'any';
+    return `Array<${itemType}>`;
+  }
+  
+  if (schema.type === 'object' || schema.properties) {
+    return 'object';
+  }
+  
+  if (schema.enum) {
+    return schema.enum.map((v: any) => typeof v === 'string' ? `"${v}"` : v).join(' | ');
+  }
+  
+  return schema.type || 'any';
 }

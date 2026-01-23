@@ -31,4 +31,6 @@ export {
   fetchPayloadCollectionData,
   getMockData,
   mockExternalData,
+  fetchApiData,
+  getMockApiData,
 } from './payload-data-source';

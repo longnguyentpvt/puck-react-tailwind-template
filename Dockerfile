@@ -46,6 +46,7 @@ RUN adduser --system --uid 1001 nextjs
 # Copy necessary files from builder
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
 
 # Copy Payload config and collections
 COPY --from=builder --chown=nextjs:nodejs /app/payload.config.ts ./payload.config.ts
